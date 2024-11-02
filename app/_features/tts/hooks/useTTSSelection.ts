@@ -7,7 +7,7 @@ import { fixRange } from "../utils/fixRange";
 import { nodesInRange } from "../utils/nodesInRange";
 
 export const useTTSSelection = () => {
-  const DELAY = 100;
+  const DEBOUNCE_DELAY = 100;
   const [ttsSelection, setTTSSelection] = useState<TTSSelection>();
   const checkSelection = useDebouncedCallback(async () => {
     const selection = window.getSelection();
@@ -55,38 +55,21 @@ export const useTTSSelection = () => {
               currentNode.nodeValue !== "."
           )
         ) {
-          if (currentNode === range.startContainer) {
-            // start
-            const tempWords = currentNode.nodeValue
-              ?.substring(range.startOffset)
-              .split(" ")
-              .filter((text) => text.length);
-            let offset = range.startOffset;
-            tempWords?.forEach((word) => {
-              words.push({
-                startOffset: offset,
-                endOffset: offset + word.length,
-                node: currentNode as Node,
-                text: word,
-              });
-              offset += word.length + 1;
+          let offset =
+            currentNode === range.startContainer ? range.startOffset : 0;
+          const tempWords = currentNode.nodeValue
+            ?.substring(offset)
+            .split(" ")
+            .filter((text) => text.length);
+          tempWords?.forEach((word) => {
+            words.push({
+              startOffset: offset,
+              endOffset: offset + word.length,
+              node: currentNode as Node,
+              text: word,
             });
-          } else {
-            // other
-            const tempWords = currentNode.nodeValue
-              ?.split(" ")
-              .filter((text) => text.length);
-            let offset = 0;
-            tempWords?.forEach((word) => {
-              words.push({
-                startOffset: offset,
-                endOffset: offset + word.length,
-                node: currentNode as Node,
-                text: word,
-              });
-              offset += word.length + 1;
-            });
-          }
+            offset += word.length + 1;
+          });
         }
         allTextNodes.push(currentNode);
         currentNode = treeWalker.nextNode();
@@ -94,14 +77,13 @@ export const useTTSSelection = () => {
       setTTSSelection({
         nodes: words,
         text: selection.toString(),
-        selection: selection,
       });
       selection.empty();
 
       const highlight = new Highlight(range);
       CSS.highlights.set("highlight", highlight);
     }
-  }, DELAY);
+  }, DEBOUNCE_DELAY);
 
   useEffect(() => {
     document.addEventListener("click", checkSelection);
