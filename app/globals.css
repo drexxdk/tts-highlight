@@ -19,3 +19,13 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+::highlight(highlight) {
+  background-color: yellow;
+  color: black;
+}
+
+::highlight(word) {
+  background-color: pink;
+  color: black;
+}

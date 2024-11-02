@@ -1,101 +1,294 @@
-import Image from "next/image";
+"use client";
+
+import HtmlDemo from "@/app/_components/HtmlDemo";
+import "@vidstack/react/player/styles/base.css";
+import { useEffect, useState } from "react";
+import { useDebouncedCallback } from "use-debounce";
+import { isBackwards } from "./_utils/isBackwards";
+
+export interface IPollyObject {
+  Audio: string[];
+  Marks: IPollyMark[];
+  Status: "Success"; // What else can it return?
+}
+
+export interface IPollyMark {
+  end: string;
+  start: string;
+  time: string;
+  type: string;
+  value: string;
+}
+
+const getNextNode = (node: Node, skipChildren?: boolean): ChildNode | null => {
+  //if there are child nodes and we didn't come from a child node
+  if (node.firstChild && !skipChildren) {
+    return node.firstChild;
+  }
+  if (!node.parentNode) {
+    return null;
+  }
+  return node.nextSibling || getNextNode(node.parentNode, true);
+};
+
+const getNodesInRange = (range: Range) => {
+  const start = range.startContainer;
+  const end = range.endContainer;
+  const commonAncestor = range.commonAncestorContainer;
+  const nodes = [];
+  let node;
+
+  // walk parent nodes from start to common ancestor
+  for (node = start.parentNode; node; node = node.parentNode) {
+    nodes.push(node);
+    if (node == commonAncestor) break;
+  }
+  nodes.reverse();
+
+  // walk children and siblings from start until end is found
+  for (node = start; node; node = getNextNode(node)) {
+    nodes.push(node);
+    if (node == end) break;
+  }
+
+  return nodes;
+};
+
+const fixRange = (range: Range) => {
+  let rangeString = range.toString();
+  try {
+    while (rangeString[0] != " ") {
+      range.setStart(range.startContainer, range.startOffset - 1);
+      rangeString = range.toString();
+    }
+    range.setStart(range.startContainer, range.startOffset + 1);
+  } catch {}
+  try {
+    while (rangeString[rangeString.length - 1] != " ") {
+      range.setEnd(range.endContainer, range.endOffset + 1);
+      rangeString = range.toString();
+    }
+    range.setEnd(range.endContainer, range.endOffset - 1);
+  } catch {}
+  return range;
+};
+
+interface ITextSelectionItem {
+  node: Node;
+  text: string;
+  startOffset: number;
+  endOffset: number;
+}
+
+interface ITextSelection {
+  nodes: ITextSelectionItem[];
+  text: string;
+  selection: Selection;
+}
+
+// interface ITiming {
+//   start: number;
+//   end: number;
+// }
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const DELAY = 100;
+  const [textSelection, setTextSelection] = useState<ITextSelection>();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
+  const utterance = new SpeechSynthesisUtterance();
+  let wordIndex = 0;
+  utterance.lang = "en-UK";
+  utterance.rate = 1;
+
+  // var currentTime = performance.now();
+  // const TIMINGS: ITiming[] = []; // Object to store the timings
+
+  // Function to set the desired voice
+  function setVoice() {
+    const voices = speechSynthesis.getVoices();
+    const desiredVoice = voices.find(
+      (voice) => voice.name === "Microsoft George - English (United Kingdom)"
+    );
+    if (desiredVoice) {
+      utterance.voice = desiredVoice;
+    } else {
+      console.error("Desired voice not found");
+    }
+  }
+
+  // Ensure voices are loaded
+  speechSynthesis.onvoiceschanged = function () {
+    setVoice();
+  };
+
+  utterance.onboundary = function (event) {
+    if (!textSelection) {
+      return;
+    }
+    if (event.name === "word") {
+      const elem = textSelection.nodes[wordIndex];
+      console.log("elem", elem, "event", event);
+
+      const range = document.createRange();
+      range.setStart(elem.node, elem.startOffset);
+      range.setEnd(elem.node, elem.endOffset);
+      const highlight = new Highlight(range);
+      CSS.highlights.set("word", highlight);
+
+      wordIndex++;
+    }
+  };
+
+  const checkSelection = useDebouncedCallback(async () => {
+    const selection = window.getSelection();
+    if (selection?.type === "Range") {
+      let range = document.createRange();
+      if (isBackwards()) {
+        range.setStart(selection.focusNode as Node, selection.focusOffset);
+        range.setEnd(selection.anchorNode as Node, selection.anchorOffset);
+      } else {
+        range.setStart(selection.anchorNode as Node, selection.anchorOffset);
+        range.setEnd(selection.focusNode as Node, selection.focusOffset);
+      }
+      range = fixRange(range);
+      selection.removeAllRanges();
+      selection.addRange(range);
+
+      const body = {
+        language: "da",
+        inputText: selection.toString(),
+      };
+
+      if (!body.inputText.length) {
+        console.log("nothing selected");
+        return;
+      } else {
+        console.log("body", body);
+      }
+      const nodes = getNodesInRange(range);
+
+      const treeWalker = document.createTreeWalker(
+        range.commonAncestorContainer,
+        NodeFilter.SHOW_TEXT
+      );
+      const allTextNodes = [];
+      let currentNode: Node | null;
+
+      if (range.startContainer === range.endContainer) {
+        currentNode = range.startContainer;
+      } else {
+        currentNode = treeWalker.nextNode();
+      }
+      let words: ITextSelectionItem[] = [];
+      while (currentNode) {
+        let words2: ITextSelectionItem[] = [];
+        if (
+          nodes.find(
+            (node) =>
+              node === currentNode &&
+              currentNode.nodeValue !== "?" &&
+              currentNode.nodeValue !== "."
+          )
+        ) {
+          if (currentNode === range.startContainer) {
+            // start
+            const words = currentNode.nodeValue
+              ?.substring(range.startOffset)
+              .split(" ")
+              .filter((text) => text.length);
+            let offset = range.startOffset;
+            words?.forEach((word) => {
+              words2.push({
+                startOffset: offset,
+                endOffset: offset + word.length,
+                node: currentNode as Node,
+                text: word,
+              });
+              offset += word.length + 1;
+            });
+          } else {
+            // other
+            const words = currentNode.nodeValue
+              ?.split(" ")
+              .filter((text) => text.length);
+            let offset = 0;
+            words?.forEach((word) => {
+              words2.push({
+                startOffset: offset,
+                endOffset: offset + word.length,
+                node: currentNode as Node,
+                text: word,
+              });
+              offset += word.length + 1;
+            });
+          }
+          words = words.concat(words2);
+          // setTextSelection(words);
+
+          // words.map((word) => {
+          //   if (word.length) {
+          //     console.log("Node is within text selection:", word);
+          //   }
+          // });
+        }
+        allTextNodes.push(currentNode);
+        currentNode = treeWalker.nextNode();
+      }
+      console.log("textSeleciton", words);
+      setTextSelection({
+        nodes: words,
+        text: selection.toString(),
+        selection: selection,
+      });
+      selection.empty();
+
+      // postRequest<IPollyObject>(
+      //   "https://web-next-api-dev.azurewebsites.net/api/",
+      //   "polly/TTS",
+      //   body
+      // ).then((value) => {
+      //   setTTS(value || undefined);
+      //   console.log("polly", value);
+      //   if (!value) {
+      //     return;
+      //   }
+      // });
+
+      const highlight = new Highlight(range);
+      CSS.highlights.set("highlight", highlight);
+    }
+  }, DELAY);
+
+  useEffect(() => {
+    document.addEventListener("click", checkSelection);
+
+    return () => {
+      document.removeEventListener("click", checkSelection);
+    };
+  }, [checkSelection]);
+
+  return (
+    <>
+      <header>
+        <button
+          className="bg-orange-500"
+          onClick={() => {
+            if (!textSelection) {
+              return;
+            }
+            wordIndex = 0;
+            utterance.text = textSelection.text;
+            speechSynthesis.speak(utterance);
+          }}
+        >
+          audio player
+        </button>
+      </header>
+      <main>
+        <HtmlDemo />
+        <HtmlDemo />
+        <HtmlDemo />
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+    </>
   );
 }
