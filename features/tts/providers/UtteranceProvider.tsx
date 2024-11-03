@@ -3,6 +3,7 @@
 import {
   createContext,
   ReactNode,
+  useCallback,
   useContext,
   useEffect,
   useState,
@@ -23,18 +24,13 @@ const useUtteranceInstance = () => {
       instance.lang = "en-UK";
       instance.text = ttsSelection.text;
 
-      const voices = speechSynthesis.getVoices();
-      const desiredVoice = voices.find(
-        (voice) => voice.name === "Microsoft Zira - English (United States)"
-      );
-      if (desiredVoice) {
-        instance.voice = desiredVoice;
-      }
-
       let wordIndex = 0;
       instance.onboundary = (event) => {
         if (event.name === "word") {
           const elem = ttsSelection.nodes[wordIndex];
+
+          console.log("wordIndex", 0, elem.text);
+
           const range = document.createRange();
           range.setStart(elem.node, elem.startOffset);
           range.setEnd(elem.node, elem.endOffset);
@@ -45,12 +41,39 @@ const useUtteranceInstance = () => {
       };
 
       instance.onend = () => {
+        wordIndex = 0;
         console.log("end");
       };
 
       setUtterance(instance);
     }
+
+    return () => {
+      speechSynthesis.cancel();
+    };
   }, [ttsSelection]);
+
+  const setVoice = useCallback(() => {
+    if (utterance) {
+      const voices = speechSynthesis.getVoices();
+      const desiredVoice = voices.find(
+        (voice) => voice.name === "Microsoft Zira - English (United States)"
+      );
+      if (desiredVoice) {
+        utterance.voice = desiredVoice;
+      }
+    }
+  }, [utterance]);
+
+  useEffect(() => {
+    if (utterance && speechSynthesis.onvoiceschanged) {
+      setVoice();
+    }
+
+    speechSynthesis.onvoiceschanged = () => {
+      setVoice();
+    };
+  }, [setVoice, utterance]);
 
   return utterance;
 };
