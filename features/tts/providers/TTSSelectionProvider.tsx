@@ -66,8 +66,11 @@ const useTTSSelection = () => {
               currentNode.nodeValue !== "."
           )
         ) {
+          const leadingZeroes = currentNode.nodeValue?.search(/\S/) || 0;
           let offset =
-            currentNode === range.startContainer ? range.startOffset : 0;
+            currentNode === range.startContainer
+              ? range.startOffset
+              : leadingZeroes;
           const tempWords = currentNode.nodeValue
             ?.substring(offset)
             .split(" ")

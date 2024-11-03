@@ -1,6 +1,6 @@
 import TTSSelectionButton from "@/components/TTSSelectionButton";
+import PollyProvider from "@/features/tts/providers/PollyProvider";
 import TTSSelectionProvider from "@/features/tts/providers/TTSSelectionProvider";
-import UtteranceProvider from "@/features/tts/providers/UtteranceProvider";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "../assets/globals.css";
@@ -32,7 +32,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-full`}
       >
         <TTSSelectionProvider>
-          <UtteranceProvider>
+          <PollyProvider>
             <header className="bg-gray-700 sticky top-0">
               <div className="container p-4 mx-auto flex justify-between">
                 <h1>TTS with highlight</h1>
@@ -47,7 +47,7 @@ export default function RootLayout({
                 © {new Date().getFullYear()} Frederik Nielsen
               </div>
             </footer>
-          </UtteranceProvider>
+          </PollyProvider>
         </TTSSelectionProvider>
       </body>
     </html>

@@ -1,56 +1,103 @@
 "use client";
 
-import { UtteranceContext } from "@/features/tts/providers/UtteranceProvider";
-import { useContext, useState } from "react";
+import { PollyContext } from "@/features/tts/providers/PollyProvider";
+import { TTSSelectionContext } from "@/features/tts/providers/TTSSelectionProvider";
+import classNames from "classnames";
+import { SyntheticEvent, useContext, useRef, useState } from "react";
+
+type AudioStatus = "loading" | "ready" | "playing" | "paused" | "ended";
 
 const TTSSelectionButton = () => {
-  const [isPaused, setIsPaused] = useState(false);
-  const utterance = useContext(UtteranceContext);
+  const ttsSelection = useContext(TTSSelectionContext);
+  const polly = useContext(PollyContext);
+  const player = useRef<HTMLAudioElement>(null);
+  const [status, setStatus] = useState<AudioStatus>();
 
-  const handlePlay = () => {
-    if (!utterance) {
+  const onEnded = () => {
+    if (!player.current) {
       return;
     }
-    if (isPaused) {
-      speechSynthesis.resume();
-    } else {
-      speechSynthesis.speak(utterance);
+    player.current.currentTime = 0;
+    setStatus("ready");
+  };
+
+  const onTimeUpdate = (e: SyntheticEvent<HTMLAudioElement>) => {
+    if (!polly || !ttsSelection) {
+      return;
     }
+    const target = e.target as HTMLAudioElement;
+    const currentTime = Math.round((target.currentTime || 0) * 1000);
 
-    setIsPaused(false);
+    const words = polly.Marks.filter((mark) => mark.type === "word");
+
+    const marks = words.filter((mark) => Number(mark.time) <= currentTime);
+
+    const mark = marks.length ? marks[marks.length - 1] : polly.Marks[0];
+
+    const index = words.findIndex((item) => item === mark);
+
+    if (index !== -1) {
+      const elem = ttsSelection.nodes[index];
+      const range = document.createRange();
+      range.setStart(elem.node, elem.startOffset);
+      range.setEnd(elem.node, elem.endOffset);
+      const highlight = new Highlight(range);
+      CSS.highlights.set("word", highlight);
+    }
   };
 
-  const handlePause = () => {
-    speechSynthesis.pause();
-    setIsPaused(true);
+  const handlePlay = () => {
+    if (!player.current) {
+      return;
+    }
+    if (status === "ready" || status === "paused") {
+      player.current.play();
+      setStatus("playing");
+    } else if (status === "playing") {
+      player.current.pause();
+      setStatus("paused");
+    }
   };
 
-  const handleStop = () => {
-    speechSynthesis.cancel();
-    setIsPaused(false);
+  const handleReset = () => {
+    if (!player.current) {
+      return;
+    }
+    player.current.pause();
+    player.current.currentTime = 0;
+    setStatus("ready");
   };
 
-  return utterance ? (
-    <div className="bg-gray-800 p-2 flex gap-4">
-      <button
-        className="bg-gray-900 px-4 py-2 hover:bg-gray-700"
-        onClick={handlePlay}
+  return polly ? (
+    <>
+      <audio
+        ref={player}
+        src={polly.Audio[0]}
+        onLoadStart={() => setStatus("loading")}
+        onLoadedData={() => setStatus("ready")}
+        onEnded={onEnded}
+        onTimeUpdate={onTimeUpdate}
+      />
+      <div
+        className={classNames("bg-gray-800 p-2 flex gap-4", {
+          "pointer-events-none": status === "loading",
+        })}
       >
-        {isPaused ? "Resume" : "Play"}
-      </button>
-      <button
-        className="bg-gray-900 px-4 py-2 hover:bg-gray-700"
-        onClick={handlePause}
-      >
-        Pause
-      </button>
-      <button
-        className="bg-gray-900 px-4 py-2 hover:bg-gray-700"
-        onClick={handleStop}
-      >
-        Stop
-      </button>
-    </div>
+        <button
+          className="bg-gray-900 px-4 py-2 hover:bg-gray-700"
+          onClick={handlePlay}
+        >
+          {status === "ready" || status === "paused" ? "Play" : null}
+          {status === "playing" ? "Pause" : null}
+        </button>
+        <button
+          className="bg-gray-900 px-4 py-2 hover:bg-gray-700"
+          onClick={handleReset}
+        >
+          Reset
+        </button>
+      </div>
+    </>
   ) : null;
 };
 export default TTSSelectionButton;

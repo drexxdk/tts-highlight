@@ -6,14 +6,14 @@ const Page = () => {
       <div>
         <p>This is a long paragraph with many different words.</p>
         <h2>Heading</h2>
-        <ul>
+        <ul className="list-disc">
           <li>
-            This is a <b>list</b> item blah.
+            This is a <b>list</b> item.
           </li>
           <li>
-            What about{" "}
+            One{" "}
             <u>
-              this <b>one two</b>
+              Two <b>tree Four</b>Five Six Seven <b>Eight</b>9 10...
             </u>
             ?
           </li>
