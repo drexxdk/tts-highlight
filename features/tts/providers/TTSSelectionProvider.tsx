@@ -1,15 +1,26 @@
-import { useEffect, useState } from "react";
-import { useDebouncedCallback } from "use-debounce";
+"use client";
+
+import {
+  createContext,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { TTSSelection } from "../interfaces/TTSSelection";
 import { TTSSelectionNode } from "../interfaces/TTSSelectionNode";
 import { fixRange } from "../utils/fixRange";
 import { isBackwards } from "../utils/isBackwards";
 import { nodesInRange } from "../utils/nodesInRange";
 
-export const useTTSSelection = () => {
-  const DEBOUNCE_DELAY = 100;
+export const TTSSelectionContext = createContext<TTSSelection | undefined>(
+  undefined
+);
+
+const useTTSSelection = () => {
   const [ttsSelection, setTTSSelection] = useState<TTSSelection>();
-  const checkSelection = useDebouncedCallback(async () => {
+
+  const checkSelection = useCallback(() => {
     const selection = window.getSelection();
     if (selection?.type === "Range") {
       let range = document.createRange();
@@ -83,7 +94,9 @@ export const useTTSSelection = () => {
       const highlight = new Highlight(range);
       CSS.highlights.set("highlight", highlight);
     }
-  }, DEBOUNCE_DELAY);
+
+    return;
+  }, []);
 
   useEffect(() => {
     document.addEventListener("click", checkSelection);
@@ -93,7 +106,16 @@ export const useTTSSelection = () => {
     };
   }, [checkSelection]);
 
-  return {
-    ttsSelection: ttsSelection,
-  };
+  return ttsSelection;
 };
+
+const TTSSelectionProvider = ({ children }: { children: ReactNode }) => {
+  const ttsSelection = useTTSSelection();
+
+  return (
+    <TTSSelectionContext.Provider value={ttsSelection}>
+      {children}
+    </TTSSelectionContext.Provider>
+  );
+};
+export default TTSSelectionProvider;

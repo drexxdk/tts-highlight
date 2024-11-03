@@ -1,3 +1,6 @@
+import TTSSelectionButton from "@/components/TTSSelectionButton";
+import TTSSelectionProvider from "@/features/tts/providers/TTSSelectionProvider";
+import UtteranceProvider from "@/features/tts/providers/UtteranceProvider";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "../assets/globals.css";
@@ -28,19 +31,24 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-full`}
       >
-        <header className="bg-gray-700 sticky top-0">
-          <div className="container p-4 mx-auto">
-            <h1>TTS with highlight</h1>
-          </div>
-        </header>
-        <main className="grow">
-          <div className="container p-4 mx-auto">{children}</div>
-        </main>
-        <footer className=" bg-gray-900">
-          <div className="container p-4 mx-auto">
-            © {new Date().getFullYear()} Frederik Nielsen
-          </div>
-        </footer>
+        <TTSSelectionProvider>
+          <UtteranceProvider>
+            <header className="bg-gray-700 sticky top-0">
+              <div className="container p-4 mx-auto flex justify-between">
+                <h1>TTS with highlight</h1>
+                <TTSSelectionButton />
+              </div>
+            </header>
+            <main className="grow">
+              <div className="container p-4 mx-auto">{children}</div>
+            </main>
+            <footer className=" bg-gray-900">
+              <div className="container p-4 mx-auto">
+                © {new Date().getFullYear()} Frederik Nielsen
+              </div>
+            </footer>
+          </UtteranceProvider>
+        </TTSSelectionProvider>
       </body>
     </html>
   );

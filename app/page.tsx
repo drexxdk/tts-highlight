@@ -1,11 +1,25 @@
 "use client";
 
-import TTS from "@/components/TTS";
-
 const Page = () => {
   return (
     <div className="grid gap-2">
-      <TTS />
+      <div>
+        <p>This is a long paragraph with many different words.</p>
+        <h2>Heading</h2>
+        <ul>
+          <li>
+            This is a <b>list</b> item blah.
+          </li>
+          <li>
+            What about{" "}
+            <u>
+              this <b>one two</b>
+            </u>
+            ?
+          </li>
+        </ul>
+        <p>This is amazing!</p>
+      </div>
       <p>
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed rutrum eros
         velit, in iaculis mi tempor sed. Ut odio odio, aliquet eu elit ac,
