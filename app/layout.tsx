@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import "./globals.css";
+import "../assets/globals.css";
 
 const geistSans = localFont({
-  src: "./_fonts/GeistVF.woff",
+  src: "../fonts/GeistVF.woff",
   variable: "--font-geist-sans",
   weight: "100 900",
 });
 const geistMono = localFont({
-  src: "./_fonts/GeistMonoVF.woff",
+  src: "../fonts/GeistMonoVF.woff",
   variable: "--font-geist-mono",
   weight: "100 900",
 });
@@ -24,11 +24,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="h-full">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-full`}
       >
-        {children}
+        <header className="bg-gray-700 sticky top-0">
+          <div className="container p-4 mx-auto">
+            <h1>TTS with highlight</h1>
+          </div>
+        </header>
+        <main className="grow">
+          <div className="container p-4 mx-auto">{children}</div>
+        </main>
+        <footer className=" bg-gray-900">
+          <div className="container p-4 mx-auto">
+            © {new Date().getFullYear()} Frederik Nielsen
+          </div>
+        </footer>
       </body>
     </html>
   );

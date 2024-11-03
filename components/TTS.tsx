@@ -1,22 +1,7 @@
 "use client";
 
-import HtmlDemo from "@/app/_features/tts/components/TTSDemoComponent";
-import { useTTSSelection } from "@/app/_features/tts/hooks/useTTSSelection";
-import "@vidstack/react/player/styles/base.css";
-
-export interface IPollyObject {
-  Audio: string[];
-  Marks: IPollyMark[];
-  Status: "Success"; // What else can it return?
-}
-
-export interface IPollyMark {
-  end: string;
-  start: string;
-  time: string;
-  type: string;
-  value: string;
-}
+import HtmlDemo from "@/features/tts/components/TTSDemoComponent";
+import { useTTSSelection } from "@/features/tts/hooks/useTTSSelection";
 
 export default function TTS() {
   const { ttsSelection } = useTTSSelection();

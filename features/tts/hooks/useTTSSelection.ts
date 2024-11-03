@@ -1,9 +1,9 @@
-import { isBackwards } from "@/app/_features/tts/utils/isBackwards";
 import { useEffect, useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import { TTSSelection } from "../interfaces/TTSSelection";
 import { TTSSelectionNode } from "../interfaces/TTSSelectionNode";
 import { fixRange } from "../utils/fixRange";
+import { isBackwards } from "../utils/isBackwards";
 import { nodesInRange } from "../utils/nodesInRange";
 
 export const useTTSSelection = () => {
