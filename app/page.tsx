@@ -13,7 +13,7 @@ const Page = () => {
           <li>
             One{" "}
             <u>
-              Two <b>tree Four</b>Five Six Seven <b>Eight</b>9 10...
+              Two <b>Three Four</b>Five Six Seven <b>Eight</b>9 10...
             </u>
             ?
           </li>
