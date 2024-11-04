@@ -27,7 +27,7 @@ const useUtteranceInstance = () => {
       let wordIndex = 0;
       instance.onboundary = (event) => {
         if (event.name === "word") {
-          const elem = ttsSelection.nodes[wordIndex];
+          const elem = ttsSelection.words[wordIndex];
 
           console.log("wordIndex", 0, elem.text);
 

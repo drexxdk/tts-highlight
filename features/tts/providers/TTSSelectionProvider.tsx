@@ -8,7 +8,7 @@ import {
   useState,
 } from "react";
 import { TTSSelection } from "../interfaces/TTSSelection";
-import { TTSSelectionNode } from "../interfaces/TTSSelectionNode";
+import { TTSSelectionWord } from "../interfaces/TTSSelectionWord";
 import { fixRange } from "../utils/fixRange";
 import { isBackwards } from "../utils/isBackwards";
 import { nodesInRange } from "../utils/nodesInRange";
@@ -22,7 +22,11 @@ const useTTSSelection = () => {
 
   const checkSelection = useCallback(() => {
     const selection = window.getSelection();
+
     if (selection?.type === "Range") {
+      if (!selection.toString().length) {
+        return;
+      }
       let range = document.createRange();
       if (isBackwards()) {
         range.setStart(selection.focusNode as Node, selection.focusOffset);
@@ -35,13 +39,6 @@ const useTTSSelection = () => {
       selection.removeAllRanges();
       selection.addRange(range);
 
-      const body = {
-        language: "da",
-        inputText: selection.toString(),
-      };
-      if (!body.inputText.length) {
-        return;
-      }
       const nodes = nodesInRange(range);
 
       const treeWalker = document.createTreeWalker(
@@ -56,7 +53,7 @@ const useTTSSelection = () => {
       } else {
         currentNode = treeWalker.nextNode();
       }
-      const words: TTSSelectionNode[] = [];
+      const words: TTSSelectionWord[] = [];
       while (currentNode) {
         if (
           nodes.find(
@@ -67,30 +64,33 @@ const useTTSSelection = () => {
           )
         ) {
           const leadingZeroes = currentNode.nodeValue?.search(/\S/) || 0;
-          let offset =
+          let startOffset =
             currentNode === range.startContainer
               ? range.startOffset
               : leadingZeroes;
+          const endOffset =
+            currentNode === range.endContainer ? range.endOffset : undefined;
           const tempWords = currentNode.nodeValue
-            ?.substring(offset)
+            ?.substring(startOffset, endOffset)
             .split(" ")
             .filter((text) => text.length);
           tempWords?.forEach((word) => {
             words.push({
-              startOffset: offset,
-              endOffset: offset + word.length,
+              startOffset: startOffset,
+              endOffset: startOffset + word.length,
               node: currentNode as Node,
               text: word,
             });
-            offset += word.length + 1;
+            startOffset += word.length + 1;
           });
         }
         allTextNodes.push(currentNode);
         currentNode = treeWalker.nextNode();
       }
+
       setTTSSelection({
-        nodes: words,
-        text: selection.toString(),
+        words: words,
+        text: words.map((word) => word.text).join(" "),
       });
       selection.empty();
 

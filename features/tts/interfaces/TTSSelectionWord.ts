@@ -1,4 +1,4 @@
-export interface TTSSelectionNode {
+export interface TTSSelectionWord {
   node: Node;
   text: string;
   startOffset: number;

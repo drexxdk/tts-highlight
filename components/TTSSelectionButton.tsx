@@ -36,7 +36,7 @@ const TTSSelectionButton = () => {
       const mark = marks[marks.length - 1];
       const index = words.findIndex((item) => item === mark);
 
-      const elem = ttsSelection.nodes[index];
+      const elem = ttsSelection.words[index];
       const range = document.createRange();
       range.setStart(elem.node, elem.startOffset);
       range.setEnd(elem.node, elem.endOffset);

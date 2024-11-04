@@ -1,6 +1,6 @@
-import { TTSSelectionNode } from "./TTSSelectionNode";
+import { TTSSelectionWord } from "./TTSSelectionWord";
 
 export interface TTSSelection {
-  nodes: TTSSelectionNode[];
+  words: TTSSelectionWord[];
   text: string;
 }
