@@ -1,24 +1,13 @@
-import TTSSelectionButton from "@/components/TTSSelectionButton";
-import PollyProvider from "@/features/tts/providers/PollyProvider";
-import TTSSelectionProvider from "@/features/tts/providers/TTSSelectionProvider";
+import TTSPlayer from "@/components/TTSPlayer";
+import "@/public/styles/globals.css";
 import type { Metadata } from "next";
-import localFont from "next/font/local";
-import "../assets/globals.css";
+import Image from "next/image";
 
-const geistSans = localFont({
-  src: "../fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "../fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
+import logoIcon from "@/public/svg/logo.svg";
 
 export const metadata: Metadata = {
   title: "TTS + Highlight",
-  description: "Text-to-Speech with Text-Selection by Frederik Nielsen",
+  description: "Text-to-Speech + Highlight by Frederik Nielsen",
 };
 
 export default function RootLayout({
@@ -28,27 +17,47 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-full`}
-      >
-        <TTSSelectionProvider>
-          <PollyProvider>
-            <header className="bg-zinc-900 sticky top-0">
-              <div className="container p-4 mx-auto flex justify-between">
-                <h1>TTS with highlight</h1>
-                <TTSSelectionButton />
-              </div>
-            </header>
-            <main className="grow">
-              <div className="container p-4 mx-auto">{children}</div>
-            </main>
-            <footer className="border-t-2 border-zinc-900">
-              <div className="container p-4 mx-auto">
-                © {new Date().getFullYear()} Frederik Nielsen
-              </div>
-            </footer>
-          </PollyProvider>
-        </TTSSelectionProvider>
+      <head>
+        <link
+          rel="icon"
+          type="image/png"
+          href="/favicon/favicon-96x96.png"
+          sizes="96x96"
+        />
+        <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
+        <link rel="shortcut icon" href="/favicon/favicon.ico" />
+        <link
+          rel="apple-touch-icon"
+          sizes="180x180"
+          href="/favicon/apple-touch-icon.png"
+        />
+        <meta name="apple-mobile-web-app-title" content="TTS + Highlight" />
+        <link rel="manifest" href="/favicon/site.webmanifest" />
+      </head>
+      <body className={`antialiased flex flex-col min-h-full`}>
+        <header className="bg-orange-700 sticky top-0">
+          <div className="container p-4 mx-auto flex justify-between items-center gap-4 flex-wrap min-h-20">
+            <h1 className="text-3xl font-black inline-flex gap-4 items-center">
+              <Image
+                width={32}
+                height={32}
+                priority
+                src={logoIcon}
+                alt="Follow us on Twitter"
+              />{" "}
+              TTS + Highlight
+            </h1>
+            <TTSPlayer />
+          </div>
+        </header>
+        <main className="grow">
+          <div className="container p-4 mx-auto">{children}</div>
+        </main>
+        <footer className="bg-zinc-900">
+          <div className="container p-4 mx-auto">
+            © {new Date().getFullYear()} Frederik Nielsen
+          </div>
+        </footer>
       </body>
     </html>
   );

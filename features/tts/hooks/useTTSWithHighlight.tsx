@@ -1,24 +1,18 @@
 "use client";
 
-import {
-  createContext,
-  ReactNode,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import { useCallback, useEffect, useState } from "react";
+import { Polly } from "../interfaces/Polly";
 import { TTSSelection } from "../interfaces/TTSSelection";
 import { TTSSelectionWord } from "../interfaces/TTSSelectionWord";
+import { useTTSWithHighlightStore } from "../stores/useTTSWithHighlightStore";
 import { fixRange } from "../utils/fixRange";
 import { isBackwards } from "../utils/isBackwards";
 import { nodesInRange } from "../utils/nodesInRange";
+import { postRequest } from "../utils/requests";
 
-export const TTSSelectionContext = createContext<TTSSelection | undefined>(
-  undefined
-);
-
-const useTTSSelection = () => {
+export const useTTSWithHighlight = () => {
   const [ttsSelection, setTTSSelection] = useState<TTSSelection>();
+  const setInstance = useTTSWithHighlightStore((state) => state.setInstance);
 
   const checkSelection = useCallback(() => {
     const selection = window.getSelection();
@@ -55,12 +49,16 @@ const useTTSSelection = () => {
       }
       const words: TTSSelectionWord[] = [];
       while (currentNode) {
+        const ignoreNodeIfOnlyContainsCharactersRegex =
+          /^[\!\?\.\,\"\'\(\)\[\]]+$/;
         if (
           nodes.find(
             (node) =>
               node === currentNode &&
-              currentNode.nodeValue !== "?" &&
-              currentNode.nodeValue !== "."
+              currentNode.nodeValue &&
+              !ignoreNodeIfOnlyContainsCharactersRegex.test(
+                currentNode.nodeValue
+              )
           )
         ) {
           const leadingZeroes = currentNode.nodeValue?.search(/\S/) || 0;
@@ -97,9 +95,34 @@ const useTTSSelection = () => {
       const highlight = new Highlight(range);
       CSS.highlights.set("highlight", highlight);
     }
-
-    return;
   }, []);
+
+  useEffect(() => {
+    if (ttsSelection) {
+      const body = {
+        Language: "en",
+        InputText: ttsSelection.text,
+      };
+
+      postRequest<Polly>(
+        "https://web-next-api-dev.azurewebsites.net/api/",
+        "polly/tts",
+        body
+      ).then(
+        (response) => {
+          if (response) {
+            setInstance({
+              polly: response,
+              selection: ttsSelection,
+            });
+          }
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
+    }
+  }, [ttsSelection]);
 
   useEffect(() => {
     document.addEventListener("click", checkSelection);
@@ -111,14 +134,3 @@ const useTTSSelection = () => {
 
   return ttsSelection;
 };
-
-const TTSSelectionProvider = ({ children }: { children: ReactNode }) => {
-  const ttsSelection = useTTSSelection();
-
-  return (
-    <TTSSelectionContext.Provider value={ttsSelection}>
-      {children}
-    </TTSSelectionContext.Provider>
-  );
-};
-export default TTSSelectionProvider;

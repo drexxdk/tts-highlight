@@ -1,17 +1,18 @@
 "use client";
 
-import { PollyContext } from "@/features/tts/providers/PollyProvider";
-import { TTSSelectionContext } from "@/features/tts/providers/TTSSelectionProvider";
+import { useTTSWithHighlight } from "@/features/tts/hooks/useTTSWithHighlight";
+import { useTTSWithHighlightStore } from "@/features/tts/stores/useTTSWithHighlightStore";
 import classNames from "classnames";
-import { SyntheticEvent, useContext, useRef, useState } from "react";
+import { SyntheticEvent, useRef, useState } from "react";
 
 type AudioStatus = "loading" | "ready" | "playing" | "paused" | "ended";
 
-const TTSSelectionButton = () => {
-  const ttsSelection = useContext(TTSSelectionContext);
-  const polly = useContext(PollyContext);
+const TTSPlayer = () => {
+  const instance = useTTSWithHighlightStore((state) => state.instance);
   const player = useRef<HTMLAudioElement>(null);
   const [status, setStatus] = useState<AudioStatus>();
+  const setInstance = useTTSWithHighlightStore((state) => state.setInstance);
+  useTTSWithHighlight();
 
   const onEnded = () => {
     if (!player.current) {
@@ -22,13 +23,13 @@ const TTSSelectionButton = () => {
   };
 
   const onTimeUpdate = (e: SyntheticEvent<HTMLAudioElement>) => {
-    if (!polly || !ttsSelection) {
+    if (!instance) {
       return;
     }
     const target = e.target as HTMLAudioElement;
     const currentTime = Math.round((target.currentTime || 0) * 1000);
 
-    const words = polly.Marks.filter((mark) => mark.type === "word");
+    const words = instance.polly.Marks.filter((mark) => mark.type === "word");
     if (!words.length) {
       return;
     }
@@ -36,7 +37,7 @@ const TTSSelectionButton = () => {
     const marks = words.filter((mark) => Number(mark.time) <= currentTime);
     const mark = marks.length ? marks[marks.length - 1] : words[0];
     const index = words.findIndex((item) => item === mark);
-    const word = ttsSelection.words[index];
+    const word = instance.selection.words[index];
     const range = document.createRange();
     range.setStart(word.node, word.startOffset);
     range.setEnd(word.node, word.endOffset);
@@ -66,36 +67,58 @@ const TTSSelectionButton = () => {
     setStatus("ready");
   };
 
-  return polly ? (
+  const handleClose = () => {
+    console.log("close");
+    if (player.current) {
+      player.current.pause();
+    }
+    CSS.highlights.clear();
+    setStatus(undefined);
+    setInstance(undefined);
+  };
+
+  return instance ? (
     <>
       <audio
         ref={player}
-        src={polly.Audio[0]}
+        src={instance.polly.Audio[0]}
         onLoadStart={() => setStatus("loading")}
         onLoadedData={() => setStatus("ready")}
         onEnded={onEnded}
         onTimeUpdate={onTimeUpdate}
       />
       <div
-        className={classNames("bg-gray-800 p-2 flex gap-4", {
-          "pointer-events-none": status === "loading",
+        className={classNames("bg-gray-800 p-1 flex gap-1 rounded-full", {
+          "opacity-50": status === "loading",
         })}
       >
         <button
-          className="bg-gray-900 px-4 py-2 hover:bg-gray-700"
-          onClick={handlePlay}
+          className="bg-gray-900 px-4 py-1 hover:bg-gray-700 rounded-tl-full rounded-bl-full"
+          onClick={
+            status === "ready" || status === "paused" ? handlePlay : undefined
+          }
         >
-          {status === "ready" || status === "paused" ? "Play" : null}
-          {status === "playing" ? "Pause" : null}
+          {/* {status === "ready" || status === "paused" ? "Play" : null} */}
+          {status === "playing" ? "Pause" : "Play"}
         </button>
         <button
-          className="bg-gray-900 px-4 py-2 hover:bg-gray-700"
-          onClick={handleReset}
+          className="bg-gray-900 px-4 py-1 hover:bg-gray-700"
+          onClick={
+            status === "playing" || status === "paused"
+              ? handleReset
+              : undefined
+          }
         >
           Reset
+        </button>
+        <button
+          className="bg-gray-900 px-4 py-1 hover:bg-gray-700 rounded-tr-full rounded-br-full"
+          onClick={handleClose}
+        >
+          Close
         </button>
       </div>
     </>
   ) : null;
 };
-export default TTSSelectionButton;
+export default TTSPlayer;

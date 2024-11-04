@@ -6,7 +6,7 @@ const Page = () => {
       <div>
         <p>This is a long paragraph with many different words.</p>
         <h2>Heading</h2>
-        <ul className="list-disc">
+        <ul className="list-disc list-inside">
           <li>
             This is a <b>list</b> item.
           </li>
@@ -15,7 +15,7 @@ const Page = () => {
             <u>
               Two <b>Three Four</b>Five Six Seven <b>Eight</b>9 10...
             </u>
-            ?
+            !&quot;,.?&apos;
           </li>
         </ul>
         <p>This is amazing!</p>
