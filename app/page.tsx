@@ -2,7 +2,7 @@
 
 const Page = () => {
   return (
-    <article className="grid gap-2">
+    <article className="grid gap-8">
       <section>
         <h2 className="font-bold text-xl">Features</h2>
         <ol className="list-inside list-disc">
