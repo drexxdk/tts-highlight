@@ -54,8 +54,14 @@ export default function RootLayout({
           <div className="container p-4 mx-auto">{children}</div>
         </main>
         <footer className="bg-zinc-900">
-          <div className="container p-4 mx-auto">
-            © {new Date().getFullYear()} Frederik Nielsen
+          <div className="container p-4 mx-auto flex gap-4 flex-wrap justify-between">
+            <p>© {new Date().getFullYear()} Frederik Nielsen</p>
+            <a
+              href="https://github.com/drexxdk/tts-highlight"
+              className="underline hover:no-underline"
+            >
+              Github
+            </a>
           </div>
         </footer>
       </body>
