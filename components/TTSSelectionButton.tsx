@@ -29,22 +29,19 @@ const TTSSelectionButton = () => {
     const currentTime = Math.round((target.currentTime || 0) * 1000);
 
     const words = polly.Marks.filter((mark) => mark.type === "word");
+    if (!words.length) {
+      return;
+    }
 
     const marks = words.filter((mark) => Number(mark.time) <= currentTime);
-
-    if (marks.length) {
-      const mark = marks[marks.length - 1];
-      const index = words.findIndex((item) => item === mark);
-
-      const elem = ttsSelection.words[index];
-      const range = document.createRange();
-      range.setStart(elem.node, elem.startOffset);
-      range.setEnd(elem.node, elem.endOffset);
-      const highlight = new Highlight(range);
-      CSS.highlights.set("word", highlight);
-    } else {
-      console.log("could not find mark below or equal to", currentTime);
-    }
+    const mark = marks.length ? marks[marks.length - 1] : words[0];
+    const index = words.findIndex((item) => item === mark);
+    const word = ttsSelection.words[index];
+    const range = document.createRange();
+    range.setStart(word.node, word.startOffset);
+    range.setEnd(word.node, word.endOffset);
+    const highlight = new Highlight(range);
+    CSS.highlights.set("word", highlight);
   };
 
   const handlePlay = () => {
