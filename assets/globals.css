@@ -2,30 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  @apply bg-zinc-800 text-gray-100 text-lg;
 }
 
 ::highlight(highlight) {
-  background-color: yellow;
-  color: black;
+  @apply bg-slate-600 text-white;
 }
 
 ::highlight(word) {
-  background-color: pink;
-  color: black;
+  @apply bg-orange-400 text-black;
 }

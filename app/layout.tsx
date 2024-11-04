@@ -33,7 +33,7 @@ export default function RootLayout({
       >
         <TTSSelectionProvider>
           <PollyProvider>
-            <header className="bg-gray-700 sticky top-0">
+            <header className="bg-zinc-900 sticky top-0">
               <div className="container p-4 mx-auto flex justify-between">
                 <h1>TTS with highlight</h1>
                 <TTSSelectionButton />
@@ -42,7 +42,7 @@ export default function RootLayout({
             <main className="grow">
               <div className="container p-4 mx-auto">{children}</div>
             </main>
-            <footer className=" bg-gray-900">
+            <footer className="border-t-2 border-zinc-900">
               <div className="container p-4 mx-auto">
                 © {new Date().getFullYear()} Frederik Nielsen
               </div>
