@@ -12,6 +12,10 @@ const Page = () => {
           <li>Active word highlight</li>
           <li>Polly integration</li>
           <li>No rerender of react components for TTS or Highlight</li>
+          <li>
+            No known markup structures that this doesnt read or highlight
+            correctly
+          </li>
         </ul>
       </section>
       <section>
@@ -34,6 +38,10 @@ const Page = () => {
           </li>
           <li>Change voice</li>
           <li>Change speed</li>
+          <li>
+            Add hidden punctuations on sentence endings so polly takes breaks
+            where it should, like after each list element
+          </li>
         </ul>
       </section>
       <section>
@@ -43,6 +51,10 @@ const Page = () => {
           <li>Support multiple spoken languages at the same time</li>
           <li>Audio streaming instead of mp3</li>
           <li>Duration slider</li>
+          <li>
+            Some way of giving ::highlight higher z-index than ::selection
+          </li>
+          <li>More options for ::highlight styling</li>
         </ul>
       </section>
       <section>
