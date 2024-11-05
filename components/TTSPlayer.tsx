@@ -14,15 +14,7 @@ const TTSPlayer = () => {
   const setInstance = useTTSWithHighlightStore((state) => state.setInstance);
   useTTSWithHighlight();
 
-  const onEnded = () => {
-    if (!audio.current) {
-      return;
-    }
-    audio.current.currentTime = 0;
-    setStatus("ready");
-  };
-
-  const onTimeUpdate = (e: SyntheticEvent<HTMLAudioElement>) => {
+  const highlightWord = (e: SyntheticEvent<HTMLAudioElement>) => {
     if (!store || !("Highlight" in window)) {
       return;
     }
@@ -43,6 +35,23 @@ const TTSPlayer = () => {
     range.setEnd(word.node, word.endOffset);
     const highlight = new Highlight(range);
     CSS.highlights.set("word", highlight);
+  };
+
+  const onLoadedData = (e: SyntheticEvent<HTMLAudioElement>) => {
+    setStatus("ready");
+    highlightWord(e);
+  };
+
+  const onTimeUpdate = (e: SyntheticEvent<HTMLAudioElement>) => {
+    highlightWord(e);
+  };
+
+  const onEnded = () => {
+    if (!audio.current) {
+      return;
+    }
+    audio.current.currentTime = 0;
+    setStatus("ready");
   };
 
   const handlePlay = () => {
@@ -88,7 +97,7 @@ const TTSPlayer = () => {
         ref={audio}
         src={store?.polly.Audio[0]}
         onLoadStart={() => setStatus("loading")}
-        onLoadedData={() => setStatus("ready")}
+        onLoadedData={onLoadedData}
         onEnded={onEnded}
         onTimeUpdate={onTimeUpdate}
       />
