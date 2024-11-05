@@ -34,7 +34,6 @@ export const useTTSWithHighlight = () => {
         range.setEnd(selection.focusNode as Node, selection.focusOffset);
       }
       range = fixRange(range);
-      selection.empty();
 
       const nodes = nodesInRange(range);
 
@@ -93,10 +92,6 @@ export const useTTSWithHighlight = () => {
         words: words,
         text: words.map((word) => word.text).join(" "),
       });
-      if ("Highlight" in window) {
-        const highlight = new Highlight(range);
-        CSS.highlights.set("highlight", highlight);
-      }
     }
   }, DEBOUNCE_DELAY);
 
@@ -132,40 +127,17 @@ export const useTTSWithHighlight = () => {
       //   },
       //   selection: ttsSelection,
       // });
-      console.log("instance set");
     }
   }, [ttsSelection]);
 
   useEffect(() => {
-    // var isMobile =
-    //   /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-    //     navigator.userAgent
-    //   );
-
-    // if (isMobile) {
-    //   debugger;
-    //   document.addEventListener("selectionchange", checkSelection);
-
-    //   return () => {
-    //     document.removeEventListener("selectionchange", checkSelection);
-    //   };
-    // } else {
-    //   debugger;
-    //   document.addEventListener("click", checkSelection);
-
-    //   return () => {
-    //     document.removeEventListener("click", checkSelection);
-    //   };
-    // }
     if ("ontouchend" in document) {
-      console.log("supports touch");
       document.addEventListener("selectionchange", checkSelection);
 
       return () => {
         document.removeEventListener("selectionchange", checkSelection);
       };
     } else {
-      console.log("supports click");
       document.addEventListener("click", checkSelection);
 
       return () => {
