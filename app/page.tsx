@@ -5,25 +5,35 @@ const Page = () => {
     <article className="grid gap-8">
       <section>
         <h2 className="font-bold text-xl">Features</h2>
-        <ol className="list-inside list-disc">
+        <ul className="list-inside list-disc">
           <li>Selected text player</li>
           <li>Selection that stays until the player closes</li>
+          <li>Selection across different react components</li>
           <li>Active word highlight</li>
           <li>Polly integration</li>
           <li>No rerender of react components for TTS or Highlight</li>
-        </ol>
+        </ul>
       </section>
       <section>
         <h2 className="font-bold text-xl">Missing</h2>
         <ul className="list-inside list-disc">
           <li>Full page player</li>
-          <li>Jump between sentences</li>
+          <li>Jump between sentences buttons</li>
           <li>
-            Support switching audio files from polly (it only uses first file
+            Switch polly audio files when needed (it only uses first file
             currently)
           </li>
           <li>Change voice</li>
           <li>Change speed</li>
+        </ul>
+      </section>
+      <section>
+        <h2 className="font-bold text-xl">Wish list</h2>
+        <ul className="list-inside list-disc">
+          <li>Auto detect text language</li>
+          <li>Support multiple spoken languages at the same time</li>
+          <li>Audio streaming instead of mp3</li>
+          <li>Duration slider</li>
         </ul>
       </section>
       <section>
