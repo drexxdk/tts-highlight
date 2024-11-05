@@ -23,7 +23,7 @@ const TTSPlayer = () => {
   };
 
   const onTimeUpdate = (e: SyntheticEvent<HTMLAudioElement>) => {
-    if (!instance) {
+    if (!instance || !("Highlight" in window)) {
       return;
     }
     const target = e.target as HTMLAudioElement;
@@ -72,9 +72,11 @@ const TTSPlayer = () => {
     if (player.current) {
       player.current.pause();
     }
-    CSS.highlights.clear();
     setStatus(undefined);
     setInstance(undefined);
+    if ("Highlight" in window) {
+      CSS.highlights.clear();
+    }
   };
 
   return instance ? (

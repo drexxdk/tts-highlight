@@ -58,7 +58,7 @@ export default function RootLayout({
             <p>© {new Date().getFullYear()} Frederik Nielsen</p>
             <a
               href="https://github.com/drexxdk/tts-highlight"
-              className="underline hover:no-underline"
+              className="underline hover:no-underline text-orange-300"
             >
               Github
             </a>

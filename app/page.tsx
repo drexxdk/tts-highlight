@@ -17,6 +17,15 @@ const Page = () => {
       <section>
         <h2 className="font-bold text-xl">Missing</h2>
         <ul className="list-inside list-disc">
+          <li>
+            Firefox highlight support{" "}
+            <a
+              href="https://bugzilla.mozilla.org/show_bug.cgi?id=1703961"
+              className="underline hover:no-underline text-orange-300"
+            >
+              https://bugzilla.mozilla.org/show_bug.cgi?id=1703961
+            </a>
+          </li>
           <li>Full page player</li>
           <li>Jump between sentences buttons</li>
           <li>

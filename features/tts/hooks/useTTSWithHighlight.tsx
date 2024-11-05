@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { useDebouncedCallback } from "use-debounce";
 import { Polly } from "../interfaces/Polly";
 import { TTSSelection } from "../interfaces/TTSSelection";
 import { TTSSelectionWord } from "../interfaces/TTSSelectionWord";
@@ -13,9 +14,12 @@ import { postRequest } from "../utils/requests";
 export const useTTSWithHighlight = () => {
   const [ttsSelection, setTTSSelection] = useState<TTSSelection>();
   const setInstance = useTTSWithHighlightStore((state) => state.setInstance);
+  const DEBOUNCE_DELAY = 500;
 
-  const checkSelection = useCallback(() => {
+  const checkSelection = useDebouncedCallback(() => {
     const selection = window.getSelection();
+
+    console.log("selection", selection);
 
     if (selection?.type === "Range") {
       if (!selection.toString().length) {
@@ -30,8 +34,7 @@ export const useTTSWithHighlight = () => {
         range.setEnd(selection.focusNode as Node, selection.focusOffset);
       }
       range = fixRange(range);
-      selection.removeAllRanges();
-      selection.addRange(range);
+      selection.empty();
 
       const nodes = nodesInRange(range);
 
@@ -90,12 +93,12 @@ export const useTTSWithHighlight = () => {
         words: words,
         text: words.map((word) => word.text).join(" "),
       });
-      selection.empty();
-
-      const highlight = new Highlight(range);
-      CSS.highlights.set("highlight", highlight);
+      if ("Highlight" in window) {
+        const highlight = new Highlight(range);
+        CSS.highlights.set("highlight", highlight);
+      }
     }
-  }, []);
+  }, DEBOUNCE_DELAY);
 
   useEffect(() => {
     if (ttsSelection) {
@@ -121,15 +124,54 @@ export const useTTSWithHighlight = () => {
           console.log(error);
         }
       );
+
+      // setInstance({
+      //   polly: {
+      //     Audio: ["/audio/sample.mp3"],
+      //     Marks: [],
+      //   },
+      //   selection: ttsSelection,
+      // });
+      console.log("instance set");
     }
   }, [ttsSelection]);
 
   useEffect(() => {
-    document.addEventListener("click", checkSelection);
+    // var isMobile =
+    //   /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    //     navigator.userAgent
+    //   );
 
-    return () => {
-      document.removeEventListener("click", checkSelection);
-    };
+    // if (isMobile) {
+    //   debugger;
+    //   document.addEventListener("selectionchange", checkSelection);
+
+    //   return () => {
+    //     document.removeEventListener("selectionchange", checkSelection);
+    //   };
+    // } else {
+    //   debugger;
+    //   document.addEventListener("click", checkSelection);
+
+    //   return () => {
+    //     document.removeEventListener("click", checkSelection);
+    //   };
+    // }
+    if ("ontouchend" in document) {
+      console.log("supports touch");
+      document.addEventListener("selectionchange", checkSelection);
+
+      return () => {
+        document.removeEventListener("selectionchange", checkSelection);
+      };
+    } else {
+      console.log("supports click");
+      document.addEventListener("click", checkSelection);
+
+      return () => {
+        document.removeEventListener("click", checkSelection);
+      };
+    }
   }, [checkSelection]);
 
   return ttsSelection;
