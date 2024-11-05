@@ -11,10 +11,17 @@ import { isBackwards } from "../utils/isBackwards";
 import { nodesInRange } from "../utils/nodesInRange";
 import { postRequest } from "../utils/requests";
 
+const CHECK_SELECTION_DEBOUNCE_DELAY = 500;
+const POLLY_LANGUAGE = "en";
+const POLLY_API_ROOT = "https://web-next-api-dev.azurewebsites.net/api/";
+const POLLY_API_URL = "polly/tts";
+const IGNORE_NODE_IF_ONLY_CONTAINS_CHARACTERS_REGEX = new RegExp(
+  /^[!?.,"'()[\]]+$/
+);
+
 export const useTTSWithHighlight = () => {
   const [ttsSelection, setTTSSelection] = useState<TTSSelection>();
   const setInstance = useTTSWithHighlightStore((state) => state.setInstance);
-  const DEBOUNCE_DELAY = 500;
 
   const checkSelection = useDebouncedCallback(() => {
     const selection = window.getSelection();
@@ -59,14 +66,12 @@ export const useTTSWithHighlight = () => {
         }
         const words: TTSSelectionWord[] = [];
         while (currentNode) {
-          const ignoreNodeIfOnlyContainsCharactersRegex =
-            /^[\!\?\.\,\"\'\(\)\[\]]+$/;
           if (
             nodes.find(
               (node) =>
                 node === currentNode &&
                 currentNode.nodeValue &&
-                !ignoreNodeIfOnlyContainsCharactersRegex.test(
+                !IGNORE_NODE_IF_ONLY_CONTAINS_CHARACTERS_REGEX.test(
                   currentNode.nodeValue
                 )
             )
@@ -98,7 +103,7 @@ export const useTTSWithHighlight = () => {
 
         setTTSSelection({
           words: words,
-          text: words.map((word) => word.text).join(" "),
+          inputText: words.map((word) => word.text).join(" "),
         });
         if ("Highlight" in window) {
           const highlight = new Highlight(range);
@@ -109,20 +114,16 @@ export const useTTSWithHighlight = () => {
         selection.addRange(range);
       }
     }
-  }, DEBOUNCE_DELAY);
+  }, CHECK_SELECTION_DEBOUNCE_DELAY);
 
   useEffect(() => {
     if (ttsSelection) {
       const body = {
-        Language: "en",
-        InputText: ttsSelection.text,
+        Language: POLLY_LANGUAGE,
+        InputText: ttsSelection.inputText,
       };
 
-      postRequest<Polly>(
-        "https://web-next-api-dev.azurewebsites.net/api/",
-        "polly/tts",
-        body
-      ).then(
+      postRequest<Polly>(POLLY_API_ROOT, POLLY_API_URL, body).then(
         (response) => {
           if (response) {
             setInstance({
