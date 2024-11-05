@@ -92,7 +92,7 @@ export const useTTSWithHighlight = () => {
         words: words,
         text: words.map((word) => word.text).join(" "),
       });
-      if ("Highlight" in window && !("ontouchend" in document)) {
+      if ("Highlight" in window) {
         const highlight = new Highlight(range);
         CSS.highlights.set("highlight", highlight);
       }

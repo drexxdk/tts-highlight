@@ -8,28 +8,28 @@ import { SyntheticEvent, useRef, useState } from "react";
 type AudioStatus = "loading" | "ready" | "playing" | "paused" | "ended";
 
 const TTSPlayer = () => {
-  const instance = useTTSWithHighlightStore((state) => state.instance);
-  const player = useRef<HTMLAudioElement>(null);
+  const store = useTTSWithHighlightStore((state) => state.instance);
+  const audio = useRef<HTMLAudioElement>(null);
   const [status, setStatus] = useState<AudioStatus>();
   const setInstance = useTTSWithHighlightStore((state) => state.setInstance);
   useTTSWithHighlight();
 
   const onEnded = () => {
-    if (!player.current) {
+    if (!audio.current) {
       return;
     }
-    player.current.currentTime = 0;
+    audio.current.currentTime = 0;
     setStatus("ready");
   };
 
   const onTimeUpdate = (e: SyntheticEvent<HTMLAudioElement>) => {
-    if (!instance || !("Highlight" in window)) {
+    if (!store || !("Highlight" in window)) {
       return;
     }
     const target = e.target as HTMLAudioElement;
     const currentTime = Math.round((target.currentTime || 0) * 1000);
 
-    const words = instance.polly.Marks.filter((mark) => mark.type === "word");
+    const words = store.polly.Marks.filter((mark) => mark.type === "word");
     if (!words.length) {
       return;
     }
@@ -37,7 +37,7 @@ const TTSPlayer = () => {
     const marks = words.filter((mark) => Number(mark.time) <= currentTime);
     const mark = marks.length ? marks[marks.length - 1] : words[0];
     const index = words.findIndex((item) => item === mark);
-    const word = instance.selection.words[index];
+    const word = store.selection.words[index];
     const range = document.createRange();
     range.setStart(word.node, word.startOffset);
     range.setEnd(word.node, word.endOffset);
@@ -46,35 +46,35 @@ const TTSPlayer = () => {
   };
 
   const handlePlay = () => {
-    if (!player.current) {
+    if (!audio.current) {
       return;
     }
-    player.current.play();
+    audio.current.play();
     setStatus("playing");
   };
 
   const handlePause = () => {
-    if (!player.current) {
+    if (!audio.current) {
       return;
     }
-    player.current.pause();
+    audio.current.pause();
     setStatus("paused");
   };
 
   const handleReset = () => {
-    if (!player.current) {
+    if (!audio.current) {
       return;
     }
-    player.current.pause();
-    player.current.currentTime = 0;
+    audio.current.pause();
+    audio.current.currentTime = 0;
     setStatus("ready");
   };
 
   const handleClose = () => {
-    if (!player.current) {
+    if (!audio.current) {
       return;
     }
-    player.current.pause();
+    audio.current.pause();
     setStatus(undefined);
     setInstance(undefined);
     if ("Highlight" in window) {
@@ -85,53 +85,57 @@ const TTSPlayer = () => {
   return (
     <>
       <audio
-        ref={player}
-        src={instance?.polly.Audio[0]}
+        ref={audio}
+        src={store?.polly.Audio[0]}
         onLoadStart={() => setStatus("loading")}
         onLoadedData={() => setStatus("ready")}
         onEnded={onEnded}
         onTimeUpdate={onTimeUpdate}
       />
-      {status ? (
-        <div
-          className={classNames("bg-gray-800 p-1 flex gap-1 rounded-full", {
+      <div
+        className={classNames(
+          "bg-gray-800 p-1 flex gap-1 rounded-full",
+          {
             "opacity-50": status === "loading",
-          })}
+          },
+          { hidden: !status }
+        )}
+      >
+        <button
+          className={classNames(
+            "bg-gray-900 px-4 py-1 hover:bg-gray-700 rounded-tl-full rounded-bl-full",
+            { hidden: status !== "ready" && status !== "paused" }
+          )}
+          onClick={handlePlay}
         >
-          {status === "ready" || status === "paused" ? (
-            <button
-              className="bg-gray-900 px-4 py-1 hover:bg-gray-700 rounded-tl-full rounded-bl-full"
-              onClick={handlePlay}
-            >
-              Play
-            </button>
-          ) : null}
-          {status === "playing" ? (
-            <button
-              className="bg-gray-900 px-4 py-1 hover:bg-gray-700 rounded-tl-full rounded-bl-full"
-              onClick={handlePause}
-            >
-              Pause
-            </button>
-          ) : null}
-          <button
-            className="bg-gray-900 px-4 py-1 hover:bg-gray-700"
-            onClick={
-              status === "playing" || status === "paused"
-                ? handleReset
-                : undefined
-            }
-          >
-            Reset
-          </button>
-          <button
-            className="bg-gray-900 px-4 py-1 hover:bg-gray-700 rounded-tr-full rounded-br-full"
-            onClick={handleClose}
-          >
-            Close
-          </button>
-        </div>
-      ) : null}
+          Play
+        </button>
+        <button
+          className={classNames(
+            "bg-gray-900 px-4 py-1 hover:bg-gray-700 rounded-tl-full rounded-bl-full",
+            { hidden: status !== "playing" }
+          )}
+          onClick={handlePause}
+        >
+          Pause
+        </button>
+        <button
+          className="bg-gray-900 px-4 py-1 hover:bg-gray-700"
+          onClick={
+            status === "playing" || status === "paused"
+              ? handleReset
+              : undefined
+          }
+        >
+          Reset
+        </button>
+        <button
+          className="bg-gray-900 px-4 py-1 hover:bg-gray-700 rounded-tr-full rounded-br-full"
+          onClick={handleClose}
+        >
+          Close
+        </button>
+      </div>
     </>
   );
 };
