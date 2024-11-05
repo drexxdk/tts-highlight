@@ -7,15 +7,17 @@ const Page = () => {
         <h2 className="font-bold text-xl">Features</h2>
         <ul className="list-inside list-disc">
           <li>Selected text player</li>
-          <li>Selection that stays until the player closes</li>
+          <li>
+            Selection that stays until the player closes (Except for Firefox)
+          </li>
           <li>Selection across different react components</li>
-          <li>Active word highlight</li>
+          <li>Active word highlight (Except for Firefox)</li>
           <li>Polly integration</li>
           <li>No rerender of react components for TTS or Highlight</li>
           <li>
-            No known markup structures that this doesnt read or highlight
-            correctly
+            Reads and highlights correctly on all tested markup structures
           </li>
+          <li>Works on all browsers and devices</li>
         </ul>
       </section>
       <section>
@@ -37,7 +39,7 @@ const Page = () => {
             currently)
           </li>
           <li>Change voice</li>
-          <li>Change speed</li>
+          <li>Change reading speed</li>
           <li>
             Add hidden punctuations on sentence endings so polly takes breaks
             where it should, like after each list element
