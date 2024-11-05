@@ -18,9 +18,6 @@ export const useTTSWithHighlight = () => {
 
   const checkSelection = useDebouncedCallback(() => {
     const selection = window.getSelection();
-
-    console.log("selection", selection);
-
     if (selection?.type === "Range") {
       if (!selection.toString().length) {
         return;
@@ -34,6 +31,9 @@ export const useTTSWithHighlight = () => {
         range.setEnd(selection.focusNode as Node, selection.focusOffset);
       }
       range = fixRange(range);
+      if (!("ontouchend" in document)) {
+        selection.empty();
+      }
 
       const nodes = nodesInRange(range);
 
@@ -92,6 +92,10 @@ export const useTTSWithHighlight = () => {
         words: words,
         text: words.map((word) => word.text).join(" "),
       });
+      if ("Highlight" in window && !("ontouchend" in document)) {
+        const highlight = new Highlight(range);
+        CSS.highlights.set("highlight", highlight);
+      }
     }
   }, DEBOUNCE_DELAY);
 
@@ -119,14 +123,6 @@ export const useTTSWithHighlight = () => {
           console.log(error);
         }
       );
-
-      // setInstance({
-      //   polly: {
-      //     Audio: ["/audio/sample.mp3"],
-      //     Marks: [],
-      //   },
-      //   selection: ttsSelection,
-      // });
     }
   }, [ttsSelection]);
 

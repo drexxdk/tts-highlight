@@ -49,13 +49,16 @@ const TTSPlayer = () => {
     if (!player.current) {
       return;
     }
-    if (status === "ready" || status === "paused") {
-      player.current.play();
-      setStatus("playing");
-    } else if (status === "playing") {
-      player.current.pause();
-      setStatus("paused");
+    player.current.play();
+    setStatus("playing");
+  };
+
+  const handlePause = () => {
+    if (!player.current) {
+      return;
     }
+    player.current.pause();
+    setStatus("paused");
   };
 
   const handleReset = () => {
@@ -68,10 +71,10 @@ const TTSPlayer = () => {
   };
 
   const handleClose = () => {
-    console.log("close");
-    if (player.current) {
-      player.current.pause();
+    if (!player.current) {
+      return;
     }
+    player.current.pause();
     setStatus(undefined);
     setInstance(undefined);
     if ("Highlight" in window) {
@@ -79,48 +82,57 @@ const TTSPlayer = () => {
     }
   };
 
-  return instance ? (
+  return (
     <>
       <audio
         ref={player}
-        src={instance.polly.Audio[0]}
+        src={instance?.polly.Audio[0]}
         onLoadStart={() => setStatus("loading")}
         onLoadedData={() => setStatus("ready")}
         onEnded={onEnded}
         onTimeUpdate={onTimeUpdate}
       />
-      <div
-        className={classNames("bg-gray-800 p-1 flex gap-1 rounded-full", {
-          "opacity-50": status === "loading",
-        })}
-      >
-        <button
-          className="bg-gray-900 px-4 py-1 hover:bg-gray-700 rounded-tl-full rounded-bl-full"
-          onClick={
-            status === "ready" || status === "paused" ? handlePlay : undefined
-          }
+      {status ? (
+        <div
+          className={classNames("bg-gray-800 p-1 flex gap-1 rounded-full", {
+            "opacity-50": status === "loading",
+          })}
         >
-          {/* {status === "ready" || status === "paused" ? "Play" : null} */}
-          {status === "playing" ? "Pause" : "Play"}
-        </button>
-        <button
-          className="bg-gray-900 px-4 py-1 hover:bg-gray-700"
-          onClick={
-            status === "playing" || status === "paused"
-              ? handleReset
-              : undefined
-          }
-        >
-          Reset
-        </button>
-        <button
-          className="bg-gray-900 px-4 py-1 hover:bg-gray-700 rounded-tr-full rounded-br-full"
-          onClick={handleClose}
-        >
-          Close
-        </button>
-      </div>
+          {status === "ready" || status === "paused" ? (
+            <button
+              className="bg-gray-900 px-4 py-1 hover:bg-gray-700 rounded-tl-full rounded-bl-full"
+              onClick={handlePlay}
+            >
+              Play
+            </button>
+          ) : null}
+          {status === "playing" ? (
+            <button
+              className="bg-gray-900 px-4 py-1 hover:bg-gray-700 rounded-tl-full rounded-bl-full"
+              onClick={handlePause}
+            >
+              Pause
+            </button>
+          ) : null}
+          <button
+            className="bg-gray-900 px-4 py-1 hover:bg-gray-700"
+            onClick={
+              status === "playing" || status === "paused"
+                ? handleReset
+                : undefined
+            }
+          >
+            Reset
+          </button>
+          <button
+            className="bg-gray-900 px-4 py-1 hover:bg-gray-700 rounded-tr-full rounded-br-full"
+            onClick={handleClose}
+          >
+            Close
+          </button>
+        </div>
+      ) : null}
     </>
-  ) : null;
+  );
 };
 export default TTSPlayer;
