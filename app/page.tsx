@@ -33,7 +33,7 @@ const Page = () => {
             </a>
           </li>
           <li>Full page player</li>
-          <li>Jump between sentences buttons</li>
+          <li>Previous/Next sentence button functionality</li>
           <li>
             Switch polly audio files when needed (it only uses first file
             currently)

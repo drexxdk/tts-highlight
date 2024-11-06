@@ -4,6 +4,14 @@ import { useTTSWithHighlight } from "@/features/tts/hooks/useTTSWithHighlight";
 import { useTTSWithHighlightStore } from "@/features/tts/stores/useTTSWithHighlightStore";
 import classNames from "classnames";
 import { SyntheticEvent, useRef, useState } from "react";
+import {
+  BsArrowCounterclockwise,
+  BsPauseFill,
+  BsPlayFill,
+  BsSkipEndFill,
+  BsSkipStartFill,
+  BsX,
+} from "react-icons/bs";
 
 type AudioStatus = "loading" | "ready" | "playing" | "paused" | "ended";
 
@@ -11,6 +19,8 @@ const TTSPlayer = () => {
   const store = useTTSWithHighlightStore((state) => state.instance);
   const audio = useRef<HTMLAudioElement>(null);
   const [status, setStatus] = useState<AudioStatus>();
+  const [hasPreviousSentence, setHasPreviousSentence] = useState<boolean>();
+  const [hasNextSentence, setHasNextSentence] = useState<boolean>();
   const setInstance = useTTSWithHighlightStore((state) => state.setInstance);
   useTTSWithHighlight();
 
@@ -86,6 +96,8 @@ const TTSPlayer = () => {
     audio.current.pause();
     setStatus(undefined);
     setInstance(undefined);
+    setHasPreviousSentence(undefined);
+    setHasNextSentence(undefined);
     if ("Highlight" in window) {
       CSS.highlights.clear();
     }
@@ -110,39 +122,68 @@ const TTSPlayer = () => {
           { hidden: !status }
         )}
       >
+        {hasNextSentence !== undefined ? (
+          <button
+            className={classNames(
+              "bg-gray-900 p-2 rounded-full",
+              hasPreviousSentence ? "hover:bg-gray-700" : "opacity-50"
+            )}
+            disabled={!hasPreviousSentence}
+          >
+            <BsSkipStartFill size={24} />
+          </button>
+        ) : null}
+
         <button
           className={classNames(
-            "bg-gray-900 px-4 py-1 hover:bg-gray-700 rounded-tl-full rounded-bl-full",
-            { hidden: status !== "ready" && status !== "paused" }
+            "bg-gray-200 p-2 rounded-full text-gray-950",
+            status === "ready" || status === "paused"
+              ? "hover:opacity-75"
+              : "hidden"
           )}
           onClick={handlePlay}
+          disabled={status !== "ready" && status !== "paused"}
         >
-          Play
+          <BsPlayFill size={24} />
         </button>
         <button
           className={classNames(
-            "bg-gray-900 px-4 py-1 hover:bg-gray-700 rounded-tl-full rounded-bl-full",
-            { hidden: status !== "playing" }
+            "bg-gray-200 p-2 rounded-full text-gray-950",
+            status === "playing" ? "hover:opacity-75" : "hidden"
           )}
           onClick={handlePause}
+          disabled={status !== "playing"}
         >
-          Pause
+          <BsPauseFill size={24} />
         </button>
         <button
-          className="bg-gray-900 px-4 py-1 hover:bg-gray-700"
-          onClick={
+          className={classNames(
+            "bg-gray-900 p-2 rounded-full",
             status === "playing" || status === "paused"
-              ? handleReset
-              : undefined
-          }
+              ? "hover:opacity-75"
+              : "opacity-50"
+          )}
+          disabled={status !== "playing" && status !== "paused"}
+          onClick={handleReset}
         >
-          Reset
+          <BsArrowCounterclockwise />
         </button>
+        {hasNextSentence !== undefined ? (
+          <button
+            className={classNames(
+              "bg-gray-900 p-2 rounded-full",
+              hasNextSentence ? "hover:opacity-75" : "opacity-50"
+            )}
+            disabled={!hasNextSentence}
+          >
+            <BsSkipEndFill size={24} />
+          </button>
+        ) : null}
         <button
-          className="bg-gray-900 px-4 py-1 hover:bg-gray-700 rounded-tr-full rounded-br-full"
+          className="bg-gray-950 p-2 hover:opacity-75 rounded-full"
           onClick={handleClose}
         >
-          Close
+          <BsX size={24} />
         </button>
       </div>
     </>
