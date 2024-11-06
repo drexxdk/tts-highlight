@@ -98,6 +98,11 @@ const TTSPlayer = () => {
     setInstance(undefined);
     setHasPreviousSentence(undefined);
     setHasNextSentence(undefined);
+
+    const selection = window.getSelection();
+    if (selection) {
+      selection.empty();
+    }
     if ("Highlight" in window) {
       CSS.highlights.clear();
     }
