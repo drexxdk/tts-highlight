@@ -62,7 +62,7 @@ const TTSPlayer = () => {
 
     setHasPreviousSentence(
       instance.polly.Marks.some(
-        (mark) => mark.type === "sentence" && Number(mark.time) < currentTime
+        (mark) => mark.type === "word" && Number(mark.time) < currentTime
       )
     );
 
