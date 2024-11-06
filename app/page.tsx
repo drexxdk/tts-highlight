@@ -7,6 +7,7 @@ const Page = () => {
         <h2 className="font-bold text-xl">Features</h2>
         <ul className="list-inside list-disc">
           <li>Selected text player</li>
+          <li>Previous/Next sentence button functionality</li>
           <li>
             Selection that stays until the player closes (Except for Firefox)
           </li>
@@ -33,7 +34,6 @@ const Page = () => {
             </a>
           </li>
           <li>Full page player</li>
-          <li>Previous/Next sentence button functionality</li>
           <li>
             Switch polly audio files when needed (it only uses first file
             currently)

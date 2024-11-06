@@ -1,7 +1,10 @@
 "use client";
 
 import { useTTSWithHighlight } from "@/features/tts/hooks/useTTSWithHighlight";
-import { useTTSWithHighlightStore } from "@/features/tts/stores/useTTSWithHighlightStore";
+import {
+  TTSWithHighlight,
+  useTTSWithHighlightStore,
+} from "@/features/tts/stores/useTTSWithHighlightStore";
 import classNames from "classnames";
 import { SyntheticEvent, useRef, useState } from "react";
 import {
@@ -15,45 +18,68 @@ import {
 
 type AudioStatus = "loading" | "ready" | "playing" | "paused" | "ended";
 
+const highlightWord = ({
+  currentTime,
+  store,
+}: {
+  currentTime: number;
+  store: TTSWithHighlight;
+}) => {
+  const words = store.polly.Marks.filter((mark) => mark.type === "word");
+  if (!words.length) {
+    return;
+  }
+
+  const marks = words.filter((mark) => Number(mark.time) <= currentTime);
+  const mark = marks.length ? marks[marks.length - 1] : words[0];
+  const index = words.findIndex((item) => item === mark);
+  const word = store.selection.words[index];
+  const range = document.createRange();
+  range.setStart(word.node, word.startOffset);
+  range.setEnd(word.node, word.endOffset);
+  const highlight = new Highlight(range);
+  CSS.highlights.set("word", highlight);
+};
+
 const TTSPlayer = () => {
-  const store = useTTSWithHighlightStore((state) => state.instance);
+  const instance = useTTSWithHighlightStore((state) => state.instance);
+  const setInstance = useTTSWithHighlightStore((state) => state.setInstance);
   const audio = useRef<HTMLAudioElement>(null);
   const [status, setStatus] = useState<AudioStatus>();
   const [hasPreviousSentence, setHasPreviousSentence] = useState<boolean>();
   const [hasNextSentence, setHasNextSentence] = useState<boolean>();
-  const setInstance = useTTSWithHighlightStore((state) => state.setInstance);
   useTTSWithHighlight();
 
-  const highlightWord = (e: SyntheticEvent<HTMLAudioElement>) => {
-    if (!store || !("Highlight" in window)) {
+  const prepare = (e: SyntheticEvent<HTMLAudioElement>) => {
+    if (!instance || !("Highlight" in window)) {
       return;
     }
+
     const target = e.target as HTMLAudioElement;
     const currentTime = Math.round((target.currentTime || 0) * 1000);
 
-    const words = store.polly.Marks.filter((mark) => mark.type === "word");
-    if (!words.length) {
-      return;
-    }
+    highlightWord({ currentTime, store: instance });
 
-    const marks = words.filter((mark) => Number(mark.time) <= currentTime);
-    const mark = marks.length ? marks[marks.length - 1] : words[0];
-    const index = words.findIndex((item) => item === mark);
-    const word = store.selection.words[index];
-    const range = document.createRange();
-    range.setStart(word.node, word.startOffset);
-    range.setEnd(word.node, word.endOffset);
-    const highlight = new Highlight(range);
-    CSS.highlights.set("word", highlight);
+    setHasPreviousSentence(
+      instance.polly.Marks.some(
+        (mark) => mark.type === "sentence" && Number(mark.time) < currentTime
+      )
+    );
+
+    setHasNextSentence(
+      instance.polly.Marks.some(
+        (mark) => mark.type === "sentence" && Number(mark.time) > currentTime
+      )
+    );
   };
 
   const onLoadedData = (e: SyntheticEvent<HTMLAudioElement>) => {
     setStatus("ready");
-    highlightWord(e);
+    prepare(e);
   };
 
   const onTimeUpdate = (e: SyntheticEvent<HTMLAudioElement>) => {
-    highlightWord(e);
+    prepare(e);
   };
 
   const onEnded = () => {
@@ -64,7 +90,7 @@ const TTSPlayer = () => {
     setStatus("ready");
   };
 
-  const handlePlay = () => {
+  const onPlay = () => {
     if (!audio.current) {
       return;
     }
@@ -72,7 +98,7 @@ const TTSPlayer = () => {
     setStatus("playing");
   };
 
-  const handlePause = () => {
+  const onPause = () => {
     if (!audio.current) {
       return;
     }
@@ -80,7 +106,7 @@ const TTSPlayer = () => {
     setStatus("paused");
   };
 
-  const handleReset = () => {
+  const onReset = () => {
     if (!audio.current) {
       return;
     }
@@ -89,7 +115,7 @@ const TTSPlayer = () => {
     setStatus("ready");
   };
 
-  const handleClose = () => {
+  const onClose = () => {
     if (!audio.current) {
       return;
     }
@@ -108,11 +134,50 @@ const TTSPlayer = () => {
     }
   };
 
+  const onPreviousSentence = () => {
+    if (!instance || !audio.current) {
+      return;
+    }
+
+    const currentTime = audio.current.currentTime;
+    const sentences = instance.polly.Marks.filter(
+      (mark) =>
+        mark.type === "sentence" && Number(mark.time) / 1000 < currentTime
+    );
+    if (!sentences.length) {
+      return;
+    }
+    const sentenceIndex = instance.polly.Marks.findIndex(
+      (sentence) =>
+        sentence ===
+        sentences[sentences.length - (sentences.length > 1 ? 2 : 1)]
+    );
+    const word = instance.polly.Marks[sentenceIndex + 1];
+    audio.current.currentTime = Number(word.time) / 1000;
+  };
+
+  const onNextSentence = () => {
+    if (!instance || !audio.current) {
+      return;
+    }
+
+    const currentTime = audio.current.currentTime;
+    const sentenceIndex = instance.polly.Marks.findIndex(
+      (mark) =>
+        mark.type === "sentence" && Number(mark.time) / 1000 > currentTime
+    );
+    if (!sentenceIndex || instance.polly.Marks.length <= sentenceIndex) {
+      return;
+    }
+    const word = instance.polly.Marks[sentenceIndex + 1];
+    audio.current.currentTime = Number(word.time) / 1000;
+  };
+
   return (
     <>
       <audio
         ref={audio}
-        src={store?.polly.Audio[0]}
+        src={instance?.polly.Audio[0]}
         onLoadStart={() => setStatus("loading")}
         onLoadedData={onLoadedData}
         onEnded={onEnded}
@@ -127,12 +192,13 @@ const TTSPlayer = () => {
           { hidden: !status }
         )}
       >
-        {hasNextSentence !== undefined ? (
+        {instance?.hasSentences ? (
           <button
             className={classNames(
               "bg-gray-900 p-2 rounded-full",
               hasPreviousSentence ? "hover:bg-gray-700" : "opacity-50"
             )}
+            onClick={onPreviousSentence}
             disabled={!hasPreviousSentence}
           >
             <BsSkipStartFill size={24} />
@@ -146,7 +212,7 @@ const TTSPlayer = () => {
               ? "hover:opacity-75"
               : "hidden"
           )}
-          onClick={handlePlay}
+          onClick={onPlay}
           disabled={status !== "ready" && status !== "paused"}
         >
           <BsPlayFill size={24} />
@@ -156,7 +222,7 @@ const TTSPlayer = () => {
             "bg-gray-200 p-2 rounded-full text-gray-950",
             status === "playing" ? "hover:opacity-75" : "hidden"
           )}
-          onClick={handlePause}
+          onClick={onPause}
           disabled={status !== "playing"}
         >
           <BsPauseFill size={24} />
@@ -168,17 +234,18 @@ const TTSPlayer = () => {
               ? "hover:opacity-75"
               : "opacity-50"
           )}
+          onClick={onReset}
           disabled={status !== "playing" && status !== "paused"}
-          onClick={handleReset}
         >
           <BsArrowCounterclockwise />
         </button>
-        {hasNextSentence !== undefined ? (
+        {instance?.hasSentences ? (
           <button
             className={classNames(
               "bg-gray-900 p-2 rounded-full",
               hasNextSentence ? "hover:opacity-75" : "opacity-50"
             )}
+            onClick={onNextSentence}
             disabled={!hasNextSentence}
           >
             <BsSkipEndFill size={24} />
@@ -186,7 +253,7 @@ const TTSPlayer = () => {
         ) : null}
         <button
           className="bg-gray-950 p-2 hover:opacity-75 rounded-full"
-          onClick={handleClose}
+          onClick={onClose}
         >
           <BsX size={24} />
         </button>

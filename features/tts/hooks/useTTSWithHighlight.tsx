@@ -129,6 +129,9 @@ export const useTTSWithHighlight = () => {
             setInstance({
               polly: response,
               selection: ttsSelection,
+              hasSentences:
+                response.Marks.filter((mark) => mark.type === "sentence")
+                  .length > 1,
             });
           }
         },

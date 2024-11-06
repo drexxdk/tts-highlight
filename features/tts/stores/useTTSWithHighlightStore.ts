@@ -2,9 +2,10 @@ import { create } from "zustand";
 import { Polly } from "../interfaces/Polly";
 import { TTSSelection } from "../interfaces/TTSSelection";
 
-interface TTSWithHighlight {
+export interface TTSWithHighlight {
   selection: TTSSelection;
   polly: Polly;
+  hasSentences: boolean;
 }
 
 export interface TTSWithHighlightState {
