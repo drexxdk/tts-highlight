@@ -19,6 +19,11 @@ const Page = () => {
             Reads and highlights correctly on all tested markup structures
           </li>
           <li>Works on all browsers and devices</li>
+          <li>
+            Punctuations on sentence endings for text given to polly, to get
+            correct sentences. Polly would think all "li" items was one big
+            sentence since the text within them doesnt end with: . or ! or ?
+          </li>
         </ul>
       </section>
       <section>
@@ -31,10 +36,8 @@ const Page = () => {
           </li>
           <li>Change voice</li>
           <li>Change reading speed</li>
-          <li>
-            Add hidden punctuations on sentence endings so polly takes breaks
-            where it should, like after each list element
-          </li>
+
+          <li>Custom text used for reader on elements</li>
         </ul>
       </section>
       <section>
@@ -74,6 +77,7 @@ const Page = () => {
               </u>
               !&quot;,.?&apos;
             </li>
+            <li>Random symbol test ??!"#¤""!%&/()=?"</li>
           </ol>
           <p>This is amazing!</p>
           <p>

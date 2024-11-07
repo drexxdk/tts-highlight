@@ -5,7 +5,10 @@ import { useDebouncedCallback } from "use-debounce";
 import { Polly } from "../interfaces/Polly";
 import { TTSSelection } from "../interfaces/TTSSelection";
 import { TTSSelectionWord } from "../interfaces/TTSSelectionWord";
-import { useTTSWithHighlightStore } from "../stores/useTTSWithHighlightStore";
+import {
+  TTSWithHighlight,
+  useTTSWithHighlightStore,
+} from "../stores/useTTSWithHighlightStore";
 import { fixRange } from "../utils/fixRange";
 import { isBackwards } from "../utils/isBackwards";
 import { nodesInRange } from "../utils/nodesInRange";
@@ -15,9 +18,23 @@ const CHECK_SELECTION_DEBOUNCE_DELAY = 500;
 const POLLY_LANGUAGE = "en";
 const POLLY_API_ROOT = "https://web-next-api-dev.azurewebsites.net/api/";
 const POLLY_API_URL = "polly/tts";
-const IGNORE_NODE_IF_ONLY_CONTAINS_CHARACTERS_REGEX = new RegExp(
-  /^[!?.,"'()[\]]+$/
-);
+const IGNORE_TEXT_NODE_IF_ONLY_CONTAINS = new RegExp(/^[!?.,"'()[\]]+$/);
+
+const REMOVE_CHARACTERS_FROM_TEXT_TO_POLLY = new RegExp(/[()_?\\\"]/g);
+
+const ADD_PUNCTUATION_FOR_ELEMENT_TYPES: string[] = [
+  "p",
+  "li",
+  "div",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+];
+
+const DONT_ADD_PUNCTION_FOR_ELEMENT_ENDING_WITH: string[] = [".", "!", "?"];
 
 export const useTTSWithHighlight = () => {
   const [ttsSelection, setTTSSelection] = useState<TTSSelection>();
@@ -71,9 +88,7 @@ export const useTTSWithHighlight = () => {
               (node) =>
                 node === currentNode &&
                 currentNode.nodeValue &&
-                !IGNORE_NODE_IF_ONLY_CONTAINS_CHARACTERS_REGEX.test(
-                  currentNode.nodeValue
-                )
+                !IGNORE_TEXT_NODE_IF_ONLY_CONTAINS.test(currentNode.nodeValue)
             )
           ) {
             const leadingZeroes = currentNode.nodeValue?.search(/\S/) || 0;
@@ -87,17 +102,50 @@ export const useTTSWithHighlight = () => {
               ?.substring(startOffset, endOffset)
               .split(" ")
               .filter((text) => text.length);
-            tempWords?.forEach((word) => {
+
+            tempWords?.forEach((word, i) => {
+              if (IGNORE_TEXT_NODE_IF_ONLY_CONTAINS.test(word)) {
+                startOffset += word.length + 1;
+                return;
+              }
+              let optimized = word.replaceAll(
+                REMOVE_CHARACTERS_FROM_TEXT_TO_POLLY,
+                ""
+              );
+
+              if (i + 1 === tempWords.length) {
+                if (!currentNode?.nextSibling) {
+                  const parentElement = currentNode?.parentElement;
+                  if (parentElement) {
+                    if (
+                      ADD_PUNCTUATION_FOR_ELEMENT_TYPES.some(
+                        (value) =>
+                          value === parentElement.nodeName.toLowerCase()
+                      ) &&
+                      !DONT_ADD_PUNCTION_FOR_ELEMENT_ENDING_WITH.some(
+                        (value) =>
+                          value ===
+                          optimized.substring(
+                            optimized.length - 1,
+                            optimized.length
+                          )
+                      )
+                    ) {
+                      optimized = `${optimized}.`;
+                    }
+                  }
+                }
+              }
               words.push({
                 startOffset: startOffset,
                 endOffset: startOffset + word.length,
                 node: currentNode as Node,
-                text: word,
+                text: optimized,
               });
               startOffset += word.length + 1;
             });
+            allTextNodes.push(currentNode);
           }
-          allTextNodes.push(currentNode);
           currentNode = treeWalker.nextNode();
         }
 
@@ -126,13 +174,15 @@ export const useTTSWithHighlight = () => {
       postRequest<Polly>(POLLY_API_ROOT, POLLY_API_URL, body).then(
         (response) => {
           if (response) {
-            setInstance({
+            const instance: TTSWithHighlight = {
               polly: response,
               selection: ttsSelection,
               hasSentences:
                 response.Marks.filter((mark) => mark.type === "sentence")
                   .length > 1,
-            });
+            };
+            setInstance(instance);
+            console.log("instance", instance);
           }
         },
         (error) => {
