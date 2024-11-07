@@ -22,17 +22,8 @@ const Page = () => {
         </ul>
       </section>
       <section>
-        <h2 className="font-bold text-xl">Missing</h2>
+        <h2 className="font-bold text-xl">ToDo</h2>
         <ul className="list-inside list-disc">
-          <li>
-            Firefox highlight support{" "}
-            <a
-              href="https://bugzilla.mozilla.org/show_bug.cgi?id=1703961"
-              className="underline hover:no-underline text-orange-300"
-            >
-              https://bugzilla.mozilla.org/show_bug.cgi?id=1703961
-            </a>
-          </li>
           <li>Full page player</li>
           <li>
             Switch polly audio files when needed (it only uses first file
@@ -49,6 +40,15 @@ const Page = () => {
       <section>
         <h2 className="font-bold text-xl">Wish list</h2>
         <ul className="list-inside list-disc">
+          <li>
+            Firefox Highlight API support{" "}
+            <a
+              href="https://bugzilla.mozilla.org/show_bug.cgi?id=1703961"
+              className="underline hover:no-underline text-orange-300"
+            >
+              https://bugzilla.mozilla.org/show_bug.cgi?id=1703961
+            </a>
+          </li>
           <li>Auto detect text language</li>
           <li>Support multiple spoken languages at the same time</li>
           <li>Audio streaming instead of mp3</li>
