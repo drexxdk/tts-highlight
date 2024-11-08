@@ -37,7 +37,7 @@ export default function RootLayout({
       </head>
       <body className={`antialiased flex flex-col min-h-full`}>
         <header className="bg-orange-700 sticky top-0">
-          <div className="container flex justify-between items-center gap-4 flex-wrap min-h-20">
+          <div className="container py-4 flex justify-between items-center gap-4 flex-wrap min-h-20">
             <h1 className="text-3xl font-black inline-flex gap-4 items-center">
               <Image
                 width={32}
