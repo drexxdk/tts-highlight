@@ -7,6 +7,17 @@ const config: Config = {
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
+    container: {
+      // you can configure the container to be centered
+      center: true,
+
+      // or have default horizontal padding
+      padding: "1rem",
+
+      screens: {
+        sm: "800px",
+      },
+    },
     extend: {
       colors: {
         background: "var(--background)",

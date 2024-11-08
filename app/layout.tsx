@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 
 import logoIcon from "@/public/svg/logo.svg";
+import { BsGithub } from "react-icons/bs";
 
 export const metadata: Metadata = {
   title: "TTS + Highlight",
@@ -36,7 +37,7 @@ export default function RootLayout({
       </head>
       <body className={`antialiased flex flex-col min-h-full`}>
         <header className="bg-orange-700 sticky top-0">
-          <div className="container p-4 mx-auto flex justify-between items-center gap-4 flex-wrap min-h-20">
+          <div className="container flex justify-between items-center gap-4 flex-wrap min-h-20">
             <h1 className="text-3xl font-black inline-flex gap-4 items-center">
               <Image
                 width={32}
@@ -51,16 +52,17 @@ export default function RootLayout({
           </div>
         </header>
         <main className="grow">
-          <div className="container p-4 mx-auto">{children}</div>
+          <div className="container py-8">{children}</div>
         </main>
         <footer className="bg-zinc-900">
-          <div className="container p-4 mx-auto flex gap-4 flex-wrap justify-between">
-            <p>© {new Date().getFullYear()} Frederik Nielsen</p>
+          <div className="container py-4 flex gap-4 flex-wrap justify-between">
+            <p>Made by Frederik Nielsen</p>
             <a
               href="https://github.com/drexxdk/tts-highlight"
-              className="underline hover:no-underline text-orange-300"
+              className="underline hover:no-underline text-orange-300 inline-flex items-center gap-2"
             >
-              Github
+              <BsGithub size={24} />
+              <span>Github</span>
             </a>
           </div>
         </footer>

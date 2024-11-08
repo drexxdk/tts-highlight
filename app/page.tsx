@@ -1,10 +1,44 @@
 "use client";
 
+import Image from "next/image";
+
+const StackedCard = () => {
+  return (
+    <div className="rounded overflow-hidden shadow-lg bg-white">
+      <Image
+        src={"/img/card.jpg"}
+        alt="The Coldest Sunset"
+        width={800}
+        height={487}
+      />
+      <div className="px-6 py-4">
+        <div className="font-bold text-xl mb-2">The Coldest Sunset</div>
+        <p className="text-gray-700 text-base">
+          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptatibus
+          quia, nulla! Maiores et perferendis eaque, exercitationem praesentium
+          nihil.
+        </p>
+      </div>
+      <div className="px-6 pt-4 pb-2">
+        <span className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
+          #photography
+        </span>
+        <span className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
+          #travel
+        </span>
+        <span className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
+          #winter
+        </span>
+      </div>
+    </div>
+  );
+};
+
 const Page = () => {
   return (
     <article className="grid gap-8">
       <section>
-        <h2 className="font-bold text-xl">Features</h2>
+        <h2 className="font-bold text-xl mb-2">Features</h2>
         <ul className="list-inside list-disc">
           <li>Selected text player</li>
           <li>Previous/Next sentence button functionality</li>
@@ -28,7 +62,7 @@ const Page = () => {
         </ul>
       </section>
       <section>
-        <h2 className="font-bold text-xl">ToDo</h2>
+        <h2 className="font-bold text-xl mb-2">ToDo</h2>
         <ul className="list-inside list-disc">
           <li>Full page player</li>
           <li>
@@ -42,7 +76,7 @@ const Page = () => {
         </ul>
       </section>
       <section>
-        <h2 className="font-bold text-xl">Wish list</h2>
+        <h2 className="font-bold text-xl mb-2">Wish list</h2>
         <ul className="list-inside list-disc">
           <li>
             Firefox Highlight API support{" "}
@@ -64,8 +98,13 @@ const Page = () => {
         </ul>
       </section>
       <section>
-        <h2 className="font-bold text-xl">Test content</h2>
-        <div>
+        <h2 className="font-bold text-xl mb-2">Test content</h2>
+
+        <div className="grid gap-2">
+          <div className="grid sm:grid-cols-2 gap-4">
+            <StackedCard />
+            <StackedCard />
+          </div>
           <p>This is a long paragraph with many different words.</p>
           <ol className="list-decimal list-inside">
             <li>
