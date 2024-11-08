@@ -53,6 +53,7 @@ const Page = () => {
             Reads and highlights correctly on all tested markup structures
           </li>
           <li>Works on all browsers and devices</li>
+          <li>Change playback rate</li>
           <li>
             Punctuations on sentence endings for text given to polly, to get
             correct sentences. Polly would think all &quot;li&quot; items was
@@ -70,8 +71,6 @@ const Page = () => {
             currently)
           </li>
           <li>Change voice</li>
-          <li>Change reading speed</li>
-
           <li>Custom text used for reader on elements</li>
         </ul>
       </section>
