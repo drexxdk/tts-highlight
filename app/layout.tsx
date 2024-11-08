@@ -1,4 +1,4 @@
-import TTSPlayer from "@/components/TTSPlayer";
+import TTSPlayer from "@/features/tts/components/TTSPlayer";
 import "@/public/styles/globals.css";
 import type { Metadata } from "next";
 import Image from "next/image";

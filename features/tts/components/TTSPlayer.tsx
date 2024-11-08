@@ -5,6 +5,7 @@ import {
   TTSWithHighlight,
   useTTSWithHighlightStore,
 } from "@/features/tts/stores/useTTSWithHighlightStore";
+import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import classNames from "classnames";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -51,6 +52,7 @@ const TTSPlayer = () => {
   const [status, setStatus] = useState<AudioStatus>();
   const [hasPreviousSentence, setHasPreviousSentence] = useState<boolean>();
   const [hasNextSentence, setHasNextSentence] = useState<boolean>();
+  const [playbackRate, setPlaybackRate] = useState<number>(1);
   useTTSWithHighlight();
 
   useEffect(() => {
@@ -64,6 +66,12 @@ const TTSPlayer = () => {
     }
     return () => clearInterval(interval);
   }, [audio, status]);
+
+  useEffect(() => {
+    if (audio.current) {
+      audio.current.playbackRate = playbackRate;
+    }
+  }, [playbackRate]);
 
   const prepare = (audio: HTMLAudioElement) => {
     if (!instance) {
@@ -199,7 +207,7 @@ const TTSPlayer = () => {
       />
       <div
         className={classNames(
-          "bg-gray-800 p-1 flex gap-1 rounded-full",
+          "bg-gray-800 p-1 flex gap-1 rounded-full items-center",
           {
             "opacity-50": status === "loading",
           },
@@ -265,6 +273,29 @@ const TTSPlayer = () => {
             <BsSkipEndFill size={24} />
           </button>
         ) : null}
+        <Popover className="relative">
+          <PopoverButton className="bg-gray-900 px-2 relative h-[34px] w-14 rounded-full text-sm">
+            {playbackRate}
+          </PopoverButton>
+          <PopoverPanel
+            anchor={{
+              gap: 16,
+              offset: 0,
+              padding: 16,
+              to: "bottom",
+            }}
+            className="flex flex-col px-6 py-4 bg-gray-950 rounded-full"
+          >
+            <input
+              type="range"
+              min={0.5}
+              max={1.5}
+              step={0.25}
+              defaultValue={1}
+              onChange={(e) => setPlaybackRate(Number(e.target.value))}
+            ></input>
+          </PopoverPanel>
+        </Popover>
         <button
           className="bg-gray-950 p-2 hover:opacity-75 rounded-full"
           onClick={onClose}
