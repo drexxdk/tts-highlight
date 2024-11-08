@@ -95,7 +95,6 @@ const TTSPlayer = () => {
     if (!audio.current) {
       return;
     }
-    audio.current.currentTime = 0;
     setStatus("ready");
   };
 
