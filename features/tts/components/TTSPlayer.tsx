@@ -5,7 +5,12 @@ import {
   TTSWithHighlight,
   useTTSWithHighlightStore,
 } from "@/features/tts/stores/useTTSWithHighlightStore";
-import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
+import {
+  Popover,
+  PopoverBackdrop,
+  PopoverButton,
+  PopoverPanel,
+} from "@headlessui/react";
 import classNames from "classnames";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -277,6 +282,7 @@ const TTSPlayer = () => {
           <PopoverButton className="bg-gray-900 px-2 relative h-[34px] w-14 rounded-full text-sm">
             {playbackRate}
           </PopoverButton>
+          <PopoverBackdrop className="fixed inset-0 bg-black/15" />
           <PopoverPanel
             anchor={{
               gap: 16,
