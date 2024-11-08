@@ -25,6 +25,9 @@ const highlightWord = ({
   currentTime: number;
   store: TTSWithHighlight;
 }) => {
+  if (!("Highlight" in window)) {
+    return;
+  }
   const words = store.polly.Marks.filter((mark) => mark.type === "word");
   if (!words.length) {
     return;
@@ -63,13 +66,11 @@ const TTSPlayer = () => {
   }, [audio, status]);
 
   const prepare = (audio: HTMLAudioElement) => {
-    if (!instance || !("Highlight" in window)) {
+    if (!instance) {
       return;
     }
 
     const currentTime = Math.round((audio.currentTime || 0) * 1000);
-
-    highlightWord({ currentTime, store: instance });
 
     setHasPreviousSentence(
       instance.polly.Marks.some(
@@ -82,6 +83,8 @@ const TTSPlayer = () => {
         (mark) => mark.type === "sentence" && Number(mark.time) > currentTime
       )
     );
+
+    highlightWord({ currentTime, store: instance });
   };
 
   const onLoadedData = () => {
@@ -162,9 +165,7 @@ const TTSPlayer = () => {
     );
     const word = instance.polly.Marks[sentenceIndex + 1];
     audio.current.currentTime = Number(word.time) / 1000;
-    if (audio.current) {
-      prepare(audio.current);
-    }
+    prepare(audio.current);
   };
 
   const onNextSentence = () => {
