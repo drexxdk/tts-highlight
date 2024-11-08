@@ -6,7 +6,7 @@ import {
   useTTSWithHighlightStore,
 } from "@/features/tts/stores/useTTSWithHighlightStore";
 import classNames from "classnames";
-import { SyntheticEvent, useRef, useState } from "react";
+import { SyntheticEvent, useEffect, useRef, useState } from "react";
 import {
   BsArrowCounterclockwise,
   BsPauseFill,
@@ -50,13 +50,24 @@ const TTSPlayer = () => {
   const [hasNextSentence, setHasNextSentence] = useState<boolean>();
   useTTSWithHighlight();
 
-  const prepare = (e: SyntheticEvent<HTMLAudioElement>) => {
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (status === "playing") {
+      interval = setInterval(() => {
+        if (audio.current) {
+          prepare(audio.current);
+        }
+      }, 50);
+    }
+    return () => clearInterval(interval);
+  }, [audio, status]);
+
+  const prepare = (audio: HTMLAudioElement) => {
     if (!instance || !("Highlight" in window)) {
       return;
     }
 
-    const target = e.target as HTMLAudioElement;
-    const currentTime = Math.round((target.currentTime || 0) * 1000);
+    const currentTime = Math.round((audio.currentTime || 0) * 1000);
 
     highlightWord({ currentTime, store: instance });
 
@@ -75,11 +86,9 @@ const TTSPlayer = () => {
 
   const onLoadedData = (e: SyntheticEvent<HTMLAudioElement>) => {
     setStatus("ready");
-    prepare(e);
-  };
-
-  const onTimeUpdate = (e: SyntheticEvent<HTMLAudioElement>) => {
-    prepare(e);
+    if (audio.current) {
+      prepare(audio.current);
+    }
   };
 
   const onEnded = () => {
@@ -154,6 +163,9 @@ const TTSPlayer = () => {
     );
     const word = instance.polly.Marks[sentenceIndex + 1];
     audio.current.currentTime = Number(word.time) / 1000;
+    if (audio.current) {
+      prepare(audio.current);
+    }
   };
 
   const onNextSentence = () => {
@@ -171,6 +183,9 @@ const TTSPlayer = () => {
     }
     const word = instance.polly.Marks[sentenceIndex + 1];
     audio.current.currentTime = Number(word.time) / 1000;
+    if (audio.current) {
+      prepare(audio.current);
+    }
   };
 
   return (
@@ -181,7 +196,6 @@ const TTSPlayer = () => {
         onLoadStart={() => setStatus("loading")}
         onLoadedData={onLoadedData}
         onEnded={onEnded}
-        onTimeUpdate={onTimeUpdate}
       />
       <div
         className={classNames(

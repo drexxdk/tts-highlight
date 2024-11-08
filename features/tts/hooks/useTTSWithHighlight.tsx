@@ -92,57 +92,75 @@ export const useTTSWithHighlight = () => {
             )
           ) {
             const leadingZeroes = currentNode.nodeValue?.search(/\S/) || 0;
+
             let startOffset =
               currentNode === range.startContainer
                 ? range.startOffset
                 : leadingZeroes;
             const endOffset =
               currentNode === range.endContainer ? range.endOffset : undefined;
+
+            // TextNode can contain multiple words
+            // Nolly's marks are for each individual word
+            // This splits the textNode to match with Polly's marks
             const tempWords = currentNode.nodeValue
               ?.substring(startOffset, endOffset)
               .split(" ")
               .filter((text) => text.length);
 
-            tempWords?.forEach((word, i) => {
-              if (IGNORE_TEXT_NODE_IF_ONLY_CONTAINS.test(word)) {
-                startOffset += word.length + 1;
+            tempWords?.forEach((tempWord, i) => {
+              // Polly will ignore words that only consist of the these characters
+              // This ensures that our selection also ignores these words
+              // We ignore these words, but they still exist, so we still need to add their offset to the other words offset
+              if (IGNORE_TEXT_NODE_IF_ONLY_CONTAINS.test(tempWord)) {
+                startOffset += tempWord.length + 1;
                 return;
               }
-              let optimized = word.replaceAll(
+
+              // Polly can't handle these characters
+              // If the word contains these it would cause unpredictable sentences and words
+              let word = tempWord.replaceAll(
                 REMOVE_CHARACTERS_FROM_TEXT_TO_POLLY,
                 ""
               );
 
+              // If this word is the last in the TextNode
               if (i + 1 === tempWords.length) {
+                // If this TextNode does not have any siblings after itself
                 if (!currentNode?.nextSibling) {
-                  const parentElement = currentNode?.parentElement;
-                  if (parentElement) {
+                  let parentElement = currentNode?.parentElement;
+
+                  // This ensures that we add punctuation at the end of sentence
+                  // It goes from parentElement to parentElement and checks if it is a type that is within ADD_PUNCTUATION_FOR_ELEMENT_TYPES
+                  // It also checks that this TextNode doesn't already end with a sentence ender within DONT_ADD_PUNCTION_FOR_ELEMENT_ENDING_WITH
+                  while (parentElement) {
                     if (
                       ADD_PUNCTUATION_FOR_ELEMENT_TYPES.some(
                         (value) =>
-                          value === parentElement.nodeName.toLowerCase()
+                          value === parentElement?.nodeName.toLowerCase()
                       ) &&
                       !DONT_ADD_PUNCTION_FOR_ELEMENT_ENDING_WITH.some(
                         (value) =>
-                          value ===
-                          optimized.substring(
-                            optimized.length - 1,
-                            optimized.length
-                          )
+                          value === word.substring(word.length - 1, word.length)
                       )
                     ) {
-                      optimized = `${optimized}.`;
+                      // Add punctuation to make Polly understand this is the sentence ending
+                      word = `${word}.`;
+
+                      // Stop looping through parentElement
+                      break;
                     }
+                    parentElement = parentElement.parentElement;
                   }
                 }
               }
               words.push({
                 startOffset: startOffset,
-                endOffset: startOffset + word.length,
+                endOffset: startOffset + tempWord.length,
                 node: currentNode as Node,
-                text: optimized,
+                word: word,
               });
-              startOffset += word.length + 1;
+              startOffset += tempWord.length + 1;
             });
             allTextNodes.push(currentNode);
           }
@@ -151,7 +169,7 @@ export const useTTSWithHighlight = () => {
 
         setTTSSelection({
           words: words,
-          inputText: words.map((word) => word.text).join(" "),
+          inputText: words.map((word) => word.word).join(" "),
         });
         if ("Highlight" in window) {
           const highlight = new Highlight(range);

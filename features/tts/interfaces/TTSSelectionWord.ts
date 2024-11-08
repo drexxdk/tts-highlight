@@ -1,6 +1,6 @@
 export interface TTSSelectionWord {
   node: Node;
-  text: string;
+  word: string;
   startOffset: number;
   endOffset: number;
 }
