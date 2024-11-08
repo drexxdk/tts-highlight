@@ -6,7 +6,7 @@ import {
   useTTSWithHighlightStore,
 } from "@/features/tts/stores/useTTSWithHighlightStore";
 import classNames from "classnames";
-import { SyntheticEvent, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   BsArrowCounterclockwise,
   BsPauseFill,
@@ -84,7 +84,7 @@ const TTSPlayer = () => {
     );
   };
 
-  const onLoadedData = (e: SyntheticEvent<HTMLAudioElement>) => {
+  const onLoadedData = () => {
     setStatus("ready");
     if (audio.current) {
       prepare(audio.current);

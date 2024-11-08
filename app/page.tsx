@@ -21,8 +21,9 @@ const Page = () => {
           <li>Works on all browsers and devices</li>
           <li>
             Punctuations on sentence endings for text given to polly, to get
-            correct sentences. Polly would think all "li" items was one big
-            sentence since the text within them doesnt end with: . or ! or ?
+            correct sentences. Polly would think all &quot;li&quot; items was
+            one big sentence since the text within them doesnt end with: . or !
+            or ?
           </li>
         </ul>
       </section>
@@ -77,7 +78,7 @@ const Page = () => {
               </u>
               !&quot;,.?&apos;
             </li>
-            <li>Random symbol test ??!"#¤""!%&/()=?"</li>
+            <li>Random symbol test ??!&quot;#¤&quot;&quot;!%&/()=?&quot;</li>
           </ol>
           <p>This is amazing!</p>
           <p>

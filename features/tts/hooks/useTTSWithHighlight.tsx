@@ -128,7 +128,7 @@ export const useTTSWithHighlight = () => {
               if (i + 1 === tempWords.length) {
                 // If this TextNode does not have any siblings after itself
                 if (!currentNode?.nextSibling) {
-                  let parentElement = currentNode?.parentElement;
+                  let parentElement = currentNode?.parentNode;
 
                   // This ensures that we add punctuation at the end of sentence
                   // It goes from parentElement to parentElement and checks if it is a type that is within ADD_PUNCTUATION_FOR_ELEMENT_TYPES
@@ -149,11 +149,15 @@ export const useTTSWithHighlight = () => {
 
                       // Stop looping through parentElement
                       break;
+                    } else if (parentElement.nextSibling) {
+                      break;
+                    } else {
+                      parentElement = parentElement.parentElement;
                     }
-                    parentElement = parentElement.parentElement;
                   }
                 }
               }
+
               words.push({
                 startOffset: startOffset,
                 endOffset: startOffset + tempWord.length,
