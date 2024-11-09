@@ -10,7 +10,6 @@ import {
   useTTSWithHighlightStore,
 } from "../stores/useTTSWithHighlightStore";
 import { fixRange } from "../utils/fixRange";
-import { isBackwards } from "../utils/isBackwards";
 import { nodesInRange } from "../utils/nodesInRange";
 import { postRequest } from "../utils/requests";
 
@@ -19,9 +18,7 @@ const POLLY_LANGUAGE = "en";
 const POLLY_API_ROOT = "https://web-next-api-dev.azurewebsites.net/api/";
 const POLLY_API_URL = "polly/tts";
 const IGNORE_TEXT_NODE_IF_ONLY_CONTAINS = new RegExp(/^[!?.,"'()[\]]+$/);
-
 const REMOVE_CHARACTERS_FROM_TEXT_TO_POLLY = new RegExp(/[()_?\\\"]/g);
-
 const ADD_PUNCTUATION_FOR_HTML_ELEMENT_TYPES: string[] = [
   "p",
   "li",
@@ -44,8 +41,7 @@ const ADD_PUNCTUATION_FOR_HTML_ELEMENT_TYPES: string[] = [
   "legend", // The Field Set Legend element
   "label",
 ];
-
-const DONT_ADD_PUNCTION_FOR_ELEMENT_ENDING_WITH: string[] = [".", "!", "?"];
+const DONT_ADD_PUNCTION_FOR_ELEMENTS_ENDING_WITH: string[] = [".", "!", "?"];
 
 export const useTTSWithHighlight = () => {
   const [ttsSelection, setTTSSelection] = useState<TTSSelection>();
@@ -53,19 +49,8 @@ export const useTTSWithHighlight = () => {
 
   const checkSelection = useDebouncedCallback(() => {
     const selection = window.getSelection();
-    if (selection?.type === "Range") {
-      if (!selection.toString().length) {
-        return;
-      }
-      let range = document.createRange();
-      if (isBackwards()) {
-        range.setStart(selection.focusNode as Node, selection.focusOffset);
-        range.setEnd(selection.anchorNode as Node, selection.anchorOffset);
-      } else {
-        range.setStart(selection.anchorNode as Node, selection.anchorOffset);
-        range.setEnd(selection.focusNode as Node, selection.focusOffset);
-      }
-      range = fixRange(range);
+    if (selection?.type === "Range" && selection.toString().trim().length) {
+      const range = fixRange(selection);
       const originalRange = selection.getRangeAt(0);
       if (
         range.startOffset === originalRange.startOffset &&
@@ -149,7 +134,7 @@ export const useTTSWithHighlight = () => {
                         (value) =>
                           value === parentElement?.nodeName.toLowerCase()
                       ) &&
-                      !DONT_ADD_PUNCTION_FOR_ELEMENT_ENDING_WITH.some(
+                      !DONT_ADD_PUNCTION_FOR_ELEMENTS_ENDING_WITH.some(
                         (value) =>
                           value === word.substring(word.length - 1, word.length)
                       )

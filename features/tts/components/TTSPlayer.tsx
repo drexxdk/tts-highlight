@@ -1,10 +1,7 @@
 "use client";
 
 import { useTTSWithHighlight } from "@/features/tts/hooks/useTTSWithHighlight";
-import {
-  TTSWithHighlight,
-  useTTSWithHighlightStore,
-} from "@/features/tts/stores/useTTSWithHighlightStore";
+import { useTTSWithHighlightStore } from "@/features/tts/stores/useTTSWithHighlightStore";
 import {
   Popover,
   PopoverBackdrop,
@@ -17,46 +14,30 @@ import {
   BsArrowCounterclockwise,
   BsPauseFill,
   BsPlayFill,
-  BsSkipEndFill,
-  BsSkipStartFill,
   BsX,
 } from "react-icons/bs";
+import {
+  FaFastBackward,
+  FaFastForward,
+  FaStepBackward,
+  FaStepForward,
+} from "react-icons/fa";
+import { PreviousNextInfo } from "../interfaces/PreviousNextInfo";
+import { getNextSentence } from "../utils/getNextSentence";
+import { getNextWord } from "../utils/getNextWord";
+import { getPreviousNextInfo } from "../utils/getPreviousNextInfo";
+import { getPreviousSentence } from "../utils/getPreviousSentence";
+import { getPreviousWord } from "../utils/getPreviousWord";
+import { highlightWord } from "../utils/highlightWord";
 
 type AudioStatus = "loading" | "ready" | "playing" | "paused" | "ended";
-
-const highlightWord = ({
-  currentTime,
-  store,
-}: {
-  currentTime: number;
-  store: TTSWithHighlight;
-}) => {
-  if (!("Highlight" in window)) {
-    return;
-  }
-  const words = store.polly.Marks.filter((mark) => mark.type === "word");
-  if (!words.length) {
-    return;
-  }
-
-  const marks = words.filter((mark) => Number(mark.time) <= currentTime);
-  const mark = marks.length ? marks[marks.length - 1] : words[0];
-  const index = words.findIndex((item) => item === mark);
-  const word = store.selection.words[index];
-  const range = document.createRange();
-  range.setStart(word.node, word.startOffset);
-  range.setEnd(word.node, word.endOffset);
-  const highlight = new Highlight(range);
-  CSS.highlights.set("word", highlight);
-};
 
 const TTSPlayer = () => {
   const instance = useTTSWithHighlightStore((state) => state.instance);
   const setInstance = useTTSWithHighlightStore((state) => state.setInstance);
   const audio = useRef<HTMLAudioElement>(null);
   const [status, setStatus] = useState<AudioStatus>();
-  const [hasPreviousSentence, setHasPreviousSentence] = useState<boolean>();
-  const [hasNextSentence, setHasNextSentence] = useState<boolean>();
+  const [previousNextInfo, setPreviousNextInfo] = useState<PreviousNextInfo>();
   const [playbackRate, setPlaybackRate] = useState<number>(1);
   useTTSWithHighlight();
 
@@ -84,19 +65,9 @@ const TTSPlayer = () => {
     }
 
     const currentTime = Math.round((audio.currentTime || 0) * 1000);
-
-    setHasPreviousSentence(
-      instance.polly.Marks.some(
-        (mark) => mark.type === "word" && Number(mark.time) < currentTime
-      )
+    setPreviousNextInfo(
+      getPreviousNextInfo({ instance: instance, currentTime })
     );
-
-    setHasNextSentence(
-      instance.polly.Marks.some(
-        (mark) => mark.type === "sentence" && Number(mark.time) > currentTime
-      )
-    );
-
     highlightWord({ currentTime, store: instance });
   };
 
@@ -137,6 +108,7 @@ const TTSPlayer = () => {
     audio.current.pause();
     audio.current.currentTime = 0;
     setStatus("ready");
+    prepare(audio.current);
   };
 
   const onClose = () => {
@@ -146,8 +118,7 @@ const TTSPlayer = () => {
     audio.current.pause();
     setStatus(undefined);
     setInstance(undefined);
-    setHasPreviousSentence(undefined);
-    setHasNextSentence(undefined);
+    setPreviousNextInfo(undefined);
 
     const selection = window.getSelection();
     if (selection) {
@@ -158,45 +129,58 @@ const TTSPlayer = () => {
     }
   };
 
+  const onPreviousWord = () => {
+    if (!instance || !audio.current) {
+      return;
+    }
+    const mark = getPreviousWord({
+      instance,
+      currentTime: audio.current.currentTime,
+    });
+    if (mark) {
+      audio.current.currentTime = Number(mark.time) / 1000;
+      prepare(audio.current);
+    }
+  };
+
+  const onNextWord = () => {
+    if (!instance || !audio.current) {
+      return;
+    }
+    const mark = getNextWord({
+      instance,
+      currentTime: audio.current.currentTime,
+    });
+    if (mark) {
+      audio.current.currentTime = Number(mark.time) / 1000;
+      prepare(audio.current);
+    }
+  };
+
   const onPreviousSentence = () => {
     if (!instance || !audio.current) {
       return;
     }
-
-    const currentTime = audio.current.currentTime;
-    const sentences = instance.polly.Marks.filter(
-      (mark) =>
-        mark.type === "sentence" && Number(mark.time) / 1000 < currentTime
-    );
-    if (!sentences.length) {
-      return;
+    const mark = getPreviousSentence({
+      instance,
+      currentTime: audio.current.currentTime,
+    });
+    if (mark) {
+      audio.current.currentTime = Number(mark.time) / 1000;
+      prepare(audio.current);
     }
-    const sentenceIndex = instance.polly.Marks.findIndex(
-      (sentence) =>
-        sentence ===
-        sentences[sentences.length - (sentences.length > 1 ? 2 : 1)]
-    );
-    const word = instance.polly.Marks[sentenceIndex + 1];
-    audio.current.currentTime = Number(word.time) / 1000;
-    prepare(audio.current);
   };
 
   const onNextSentence = () => {
     if (!instance || !audio.current) {
       return;
     }
-
-    const currentTime = audio.current.currentTime;
-    const sentenceIndex = instance.polly.Marks.findIndex(
-      (mark) =>
-        mark.type === "sentence" && Number(mark.time) / 1000 > currentTime
-    );
-    if (!sentenceIndex || instance.polly.Marks.length <= sentenceIndex) {
-      return;
-    }
-    const word = instance.polly.Marks[sentenceIndex + 1];
-    audio.current.currentTime = Number(word.time) / 1000;
-    if (audio.current) {
+    const mark = getNextSentence({
+      instance,
+      currentTime: audio.current.currentTime,
+    });
+    if (mark) {
+      audio.current.currentTime = Number(mark.time) / 1000;
       prepare(audio.current);
     }
   };
@@ -219,22 +203,38 @@ const TTSPlayer = () => {
           { hidden: !status }
         )}
       >
-        {instance?.hasSentences ? (
-          <button
-            className={classNames(
-              "bg-gray-900 p-2 rounded-full",
-              hasPreviousSentence ? "hover:bg-gray-700" : "opacity-50"
-            )}
-            onClick={onPreviousSentence}
-            disabled={!hasPreviousSentence}
-          >
-            <BsSkipStartFill size={24} />
-          </button>
+        {instance?.hasSentences && previousNextInfo ? (
+          <>
+            <button
+              className={classNames(
+                "bg-gray-900 rounded-full size-10 grid place-items-center",
+                previousNextInfo.hasPreviousSentence
+                  ? "hover:bg-gray-700"
+                  : "opacity-50"
+              )}
+              onClick={onPreviousSentence}
+              disabled={!previousNextInfo.hasPreviousSentence}
+            >
+              <FaFastBackward size={16} />
+            </button>
+            <button
+              className={classNames(
+                "bg-gray-900 rounded-full size-10 grid place-items-center",
+                previousNextInfo.hasPreviousWord
+                  ? "hover:bg-gray-700"
+                  : "opacity-50"
+              )}
+              onClick={onPreviousWord}
+              disabled={!previousNextInfo.hasPreviousWord}
+            >
+              <FaStepBackward size={16} />
+            </button>
+          </>
         ) : null}
 
         <button
           className={classNames(
-            "bg-gray-200 p-2 rounded-full text-gray-950",
+            "bg-gray-200 rounded-full text-gray-950 size-10 grid place-items-center",
             status === "ready" || status === "paused"
               ? "hover:opacity-75"
               : "hidden"
@@ -246,7 +246,7 @@ const TTSPlayer = () => {
         </button>
         <button
           className={classNames(
-            "bg-gray-200 p-2 rounded-full text-gray-950",
+            "bg-gray-200 rounded-full text-gray-950 size-10 grid place-items-center",
             status === "playing" ? "hover:opacity-75" : "hidden"
           )}
           onClick={onPause}
@@ -256,7 +256,7 @@ const TTSPlayer = () => {
         </button>
         <button
           className={classNames(
-            "bg-gray-900 p-2 rounded-full",
+            "bg-gray-900 rounded-full size-10 grid place-items-center",
             status === "playing" || status === "paused"
               ? "hover:opacity-75"
               : "opacity-50"
@@ -266,17 +266,31 @@ const TTSPlayer = () => {
         >
           <BsArrowCounterclockwise />
         </button>
-        {instance?.hasSentences ? (
-          <button
-            className={classNames(
-              "bg-gray-900 p-2 rounded-full",
-              hasNextSentence ? "hover:opacity-75" : "opacity-50"
-            )}
-            onClick={onNextSentence}
-            disabled={!hasNextSentence}
-          >
-            <BsSkipEndFill size={24} />
-          </button>
+        {instance?.hasSentences && previousNextInfo ? (
+          <>
+            <button
+              className={classNames(
+                "bg-gray-900 rounded-full size-10 grid place-items-center",
+                previousNextInfo.hasNextWord ? "hover:opacity-75" : "opacity-50"
+              )}
+              onClick={onNextWord}
+              disabled={!previousNextInfo.hasNextWord}
+            >
+              <FaStepForward size={16} />
+            </button>
+            <button
+              className={classNames(
+                "bg-gray-900 rounded-full size-10 grid place-items-center",
+                previousNextInfo.hasNextSentence
+                  ? "hover:opacity-75"
+                  : "opacity-50"
+              )}
+              onClick={onNextSentence}
+              disabled={!previousNextInfo.hasNextSentence}
+            >
+              <FaFastForward size={16} />
+            </button>
+          </>
         ) : null}
         <Popover className="relative">
           <PopoverButton className="bg-gray-900 px-2 relative h-[34px] w-14 rounded-full text-sm">
@@ -303,7 +317,7 @@ const TTSPlayer = () => {
           </PopoverPanel>
         </Popover>
         <button
-          className="bg-gray-950 p-2 hover:opacity-75 rounded-full"
+          className="bg-gray-950 hover:opacity-75 rounded-full size-10 grid place-items-center"
           onClick={onClose}
         >
           <BsX size={24} />

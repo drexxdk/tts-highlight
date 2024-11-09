@@ -1,4 +1,15 @@
-export const fixRange = (range: Range) => {
+import { isBackwards } from "./isBackwards";
+
+export const fixRange = (selection: Selection) => {
+  let range = document.createRange();
+  if (isBackwards()) {
+    range.setStart(selection.focusNode as Node, selection.focusOffset);
+    range.setEnd(selection.anchorNode as Node, selection.anchorOffset);
+  } else {
+    range.setStart(selection.anchorNode as Node, selection.anchorOffset);
+    range.setEnd(selection.focusNode as Node, selection.focusOffset);
+  }
+
   let rangeString = range.toString();
   try {
     while (rangeString[0].trim().length) {
