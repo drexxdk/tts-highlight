@@ -70,7 +70,12 @@ const Page = () => {
             Switch polly audio files when needed (it only uses first file
             currently)
           </li>
-          <li>Change voice</li>
+          <li>Change language</li>
+          <li>Change language region (fx: en-AU, en-GB, en-NZ, en-US)</li>
+          <li>
+            Change language voice (male child, male adult, female child, female
+            adult - Most languages only have adult voices)
+          </li>
           <li>Custom text used for reader on elements</li>
         </ul>
       </section>

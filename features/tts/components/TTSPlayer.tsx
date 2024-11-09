@@ -11,17 +11,16 @@ import {
 import classNames from "classnames";
 import { useEffect, useRef, useState } from "react";
 import {
-  BsArrowCounterclockwise,
-  BsPauseFill,
-  BsPlayFill,
-  BsX,
-} from "react-icons/bs";
-import {
-  FaFastBackward,
-  FaFastForward,
-  FaStepBackward,
-  FaStepForward,
-} from "react-icons/fa";
+  FaBackwardFast,
+  FaBackwardStep,
+  FaBoltLightning,
+  FaForwardFast,
+  FaForwardStep,
+  FaPause,
+  FaPlay,
+  FaRotateLeft,
+  FaXmark,
+} from "react-icons/fa6";
 import { PreviousNextInfo } from "../interfaces/PreviousNextInfo";
 import { getNextSentence } from "../utils/getNextSentence";
 import { getNextWord } from "../utils/getNextWord";
@@ -215,7 +214,7 @@ const TTSPlayer = () => {
               onClick={onPreviousSentence}
               disabled={!previousNextInfo.hasPreviousSentence}
             >
-              <FaFastBackward size={16} />
+              <FaBackwardFast size={16} />
             </button>
             <button
               className={classNames(
@@ -227,7 +226,7 @@ const TTSPlayer = () => {
               onClick={onPreviousWord}
               disabled={!previousNextInfo.hasPreviousWord}
             >
-              <FaStepBackward size={16} />
+              <FaBackwardStep size={16} />
             </button>
           </>
         ) : null}
@@ -242,7 +241,7 @@ const TTSPlayer = () => {
           onClick={onPlay}
           disabled={status !== "ready" && status !== "paused"}
         >
-          <BsPlayFill size={24} />
+          <FaPlay size={24} />
         </button>
         <button
           className={classNames(
@@ -252,7 +251,7 @@ const TTSPlayer = () => {
           onClick={onPause}
           disabled={status !== "playing"}
         >
-          <BsPauseFill size={24} />
+          <FaPause size={24} />
         </button>
         <button
           className={classNames(
@@ -264,7 +263,7 @@ const TTSPlayer = () => {
           onClick={onReset}
           disabled={status !== "playing" && status !== "paused"}
         >
-          <BsArrowCounterclockwise />
+          <FaRotateLeft size={16} />
         </button>
         {instance?.hasSentences && previousNextInfo ? (
           <>
@@ -276,7 +275,7 @@ const TTSPlayer = () => {
               onClick={onNextWord}
               disabled={!previousNextInfo.hasNextWord}
             >
-              <FaStepForward size={16} />
+              <FaForwardStep size={16} />
             </button>
             <button
               className={classNames(
@@ -288,13 +287,14 @@ const TTSPlayer = () => {
               onClick={onNextSentence}
               disabled={!previousNextInfo.hasNextSentence}
             >
-              <FaFastForward size={16} />
+              <FaForwardFast size={16} />
             </button>
           </>
         ) : null}
         <Popover className="relative">
-          <PopoverButton className="bg-gray-900 px-2 relative h-[34px] w-14 rounded-full text-sm">
-            {playbackRate}
+          <PopoverButton className="bg-gray-900 px-4 relative w-20 rounded-full text-sm inline-flex gap-2 items-center justify-between h-10">
+            <FaBoltLightning size={16} />
+            <span>{playbackRate}</span>
           </PopoverButton>
           <PopoverBackdrop className="fixed inset-0 bg-black/15" />
           <PopoverPanel
@@ -320,7 +320,7 @@ const TTSPlayer = () => {
           className="bg-gray-950 hover:opacity-75 rounded-full size-10 grid place-items-center"
           onClick={onClose}
         >
-          <BsX size={24} />
+          <FaXmark size={16} />
         </button>
       </div>
     </>
