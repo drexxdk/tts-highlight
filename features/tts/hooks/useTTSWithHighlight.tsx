@@ -67,9 +67,7 @@ export const useTTSWithHighlight = () => {
           selection.empty();
         }
         const nodes = nodesInRange(range);
-
         const treeWalker = document.createTreeWalker(range.commonAncestorContainer, NodeFilter.SHOW_TEXT);
-        const allTextNodes = [];
         let currentNode: Node | null;
 
         if (range.startContainer === range.endContainer) {
@@ -160,7 +158,6 @@ export const useTTSWithHighlight = () => {
               });
               startOffset += tempWord.length + 1;
             });
-            allTextNodes.push(currentNode);
           }
           currentNode = treeWalker.nextNode();
         }
