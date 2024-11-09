@@ -1,4 +1,5 @@
 import { TTSWithHighlight } from "../stores/useTTSWithHighlightStore";
+import { currentTimeToPollyMarkTime } from "./currentTimeToPollyMarkTime";
 
 export const highlightWord = ({
   currentTime,
@@ -15,7 +16,9 @@ export const highlightWord = ({
     return;
   }
 
-  const marks = words.filter((mark) => Number(mark.time) <= currentTime);
+  const marks = words.filter(
+    (mark) => Number(mark.time) <= currentTimeToPollyMarkTime(currentTime)
+  );
   const mark = marks.length ? marks[marks.length - 1] : words[0];
   const index = words.findIndex((item) => item === mark);
   const word = store.selection.words[index];

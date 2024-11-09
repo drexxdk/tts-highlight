@@ -1,5 +1,6 @@
 import { PollyMark } from "../interfaces/PollyMark";
 import { TTSWithHighlight } from "../stores/useTTSWithHighlightStore";
+import { currentTimeToPollyMarkTime } from "./currentTimeToPollyMarkTime";
 
 export const getPreviousSentence = ({
   instance,
@@ -9,7 +10,9 @@ export const getPreviousSentence = ({
   currentTime: number;
 }): PollyMark | undefined => {
   const sentences = instance.polly.Marks.filter(
-    (mark) => mark.type === "sentence" && Number(mark.time) / 1000 < currentTime
+    (mark) =>
+      mark.type === "sentence" &&
+      Number(mark.time) / 1000 < currentTimeToPollyMarkTime(currentTime)
   );
   if (!sentences.length) {
     return;

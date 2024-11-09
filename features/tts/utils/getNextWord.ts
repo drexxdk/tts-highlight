@@ -1,5 +1,6 @@
 import { PollyMark } from "../interfaces/PollyMark";
 import { TTSWithHighlight } from "../stores/useTTSWithHighlightStore";
+import { currentTimeToPollyMarkTime } from "./currentTimeToPollyMarkTime";
 
 export const getNextWord = ({
   instance,
@@ -9,7 +10,9 @@ export const getNextWord = ({
   currentTime: number;
 }): PollyMark | undefined => {
   const word = instance.polly.Marks.find(
-    (mark) => mark.type === "word" && Number(mark.time) / 1000 > currentTime
+    (mark) =>
+      mark.type === "word" &&
+      Number(mark.time) / 1000 > currentTimeToPollyMarkTime(currentTime)
   );
   return word;
 };
