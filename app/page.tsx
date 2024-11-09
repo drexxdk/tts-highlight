@@ -107,7 +107,7 @@ const Page = () => {
           <p>This is a long paragraph with many different words.</p>
           <ol className="list-decimal list-inside">
             <li>
-              This is a <b>list</b> item.
+              This is a <b>list</b> &nbsp;&nbsp;&nbsp;item.
             </li>
             <li>
               One{" "}

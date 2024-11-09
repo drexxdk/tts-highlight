@@ -22,7 +22,7 @@ const IGNORE_TEXT_NODE_IF_ONLY_CONTAINS = new RegExp(/^[!?.,"'()[\]]+$/);
 
 const REMOVE_CHARACTERS_FROM_TEXT_TO_POLLY = new RegExp(/[()_?\\\"]/g);
 
-const ADD_PUNCTUATION_FOR_ELEMENT_TYPES: string[] = [
+const ADD_PUNCTUATION_FOR_HTML_ELEMENT_TYPES: string[] = [
   "p",
   "li",
   "div",
@@ -32,6 +32,17 @@ const ADD_PUNCTUATION_FOR_ELEMENT_TYPES: string[] = [
   "h4",
   "h5",
   "h6",
+  "th", // The Table Header element
+  "td", // The Table Data Cell element
+  "caption", // The Table Caption element
+  "dt", // The Description List element
+  "dd", // The Description Details element
+  "figcaption", // The Figure Caption element
+  "blockquote",
+  "cite", // The Citation element
+  "option",
+  "legend", // The Field Set Legend element
+  "label",
 ];
 
 const DONT_ADD_PUNCTION_FOR_ELEMENT_ENDING_WITH: string[] = [".", "!", "?"];
@@ -91,12 +102,11 @@ export const useTTSWithHighlight = () => {
                 !IGNORE_TEXT_NODE_IF_ONLY_CONTAINS.test(currentNode.nodeValue)
             )
           ) {
-            const leadingZeroes = currentNode.nodeValue?.search(/\S/) || 0;
+            // A textnode can start with any number of spaces before the text
+            // We need to ignore these spaces in our selection
 
             let startOffset =
-              currentNode === range.startContainer
-                ? range.startOffset
-                : leadingZeroes;
+              currentNode === range.startContainer ? range.startOffset : 0;
             const endOffset =
               currentNode === range.endContainer ? range.endOffset : undefined;
 
@@ -135,7 +145,7 @@ export const useTTSWithHighlight = () => {
                   // It also checks that this TextNode doesn't already end with a sentence ender within DONT_ADD_PUNCTION_FOR_ELEMENT_ENDING_WITH
                   while (parentElement) {
                     if (
-                      ADD_PUNCTUATION_FOR_ELEMENT_TYPES.some(
+                      ADD_PUNCTUATION_FOR_HTML_ELEMENT_TYPES.some(
                         (value) =>
                           value === parentElement?.nodeName.toLowerCase()
                       ) &&
@@ -158,9 +168,15 @@ export const useTTSWithHighlight = () => {
                 }
               }
 
+              const leadingSpaces =
+                tempWord.length - tempWord.trimStart().length;
+              if (leadingSpaces) {
+                startOffset += leadingSpaces;
+              }
+
               words.push({
                 startOffset: startOffset,
-                endOffset: startOffset + tempWord.length,
+                endOffset: startOffset + tempWord.trim().length,
                 node: currentNode as Node,
                 word: word,
               });
