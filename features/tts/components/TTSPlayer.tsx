@@ -297,7 +297,7 @@ const TTSPlayer = () => {
               min={0.5}
               max={1.5}
               step={0.25}
-              defaultValue={1}
+              value={playbackRate}
               onChange={(e) => setPlaybackRate(Number(e.target.value))}
             ></input>
           </PopoverPanel>
