@@ -200,7 +200,10 @@ export const useTTSWithHighlight = () => {
             const instance: TTSWithHighlight = {
               polly: response,
               selection: ttsSelection,
-              hasSentences:
+              hasMultipleWords:
+                response.Marks.filter((mark) => mark.type === "word").length >
+                1,
+              hasMultipleSentences:
                 response.Marks.filter((mark) => mark.type === "sentence")
                   .length > 1,
             };

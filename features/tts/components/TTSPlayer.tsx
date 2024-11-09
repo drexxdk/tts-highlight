@@ -202,33 +202,33 @@ const TTSPlayer = () => {
           { hidden: !status }
         )}
       >
-        {instance?.hasSentences && previousNextInfo ? (
-          <>
-            <button
-              className={classNames(
-                "bg-gray-900 rounded-full size-10 grid place-items-center",
-                previousNextInfo.hasPreviousSentence
-                  ? "hover:bg-gray-700"
-                  : "opacity-50"
-              )}
-              onClick={onPreviousSentence}
-              disabled={!previousNextInfo.hasPreviousSentence}
-            >
-              <FaBackwardFast size={16} />
-            </button>
-            <button
-              className={classNames(
-                "bg-gray-900 rounded-full size-10 grid place-items-center",
-                previousNextInfo.hasPreviousWord
-                  ? "hover:bg-gray-700"
-                  : "opacity-50"
-              )}
-              onClick={onPreviousWord}
-              disabled={!previousNextInfo.hasPreviousWord}
-            >
-              <FaBackwardStep size={16} />
-            </button>
-          </>
+        {instance?.hasMultipleSentences && previousNextInfo ? (
+          <button
+            className={classNames(
+              "bg-gray-900 rounded-full size-10 grid place-items-center",
+              previousNextInfo.hasPreviousSentence
+                ? "hover:bg-gray-700"
+                : "opacity-50"
+            )}
+            onClick={onPreviousSentence}
+            disabled={!previousNextInfo.hasPreviousSentence}
+          >
+            <FaBackwardFast size={16} />
+          </button>
+        ) : null}
+        {instance?.hasMultipleWords && previousNextInfo ? (
+          <button
+            className={classNames(
+              "bg-gray-900 rounded-full size-10 grid place-items-center",
+              previousNextInfo.hasPreviousWord
+                ? "hover:bg-gray-700"
+                : "opacity-50"
+            )}
+            onClick={onPreviousWord}
+            disabled={!previousNextInfo.hasPreviousWord}
+          >
+            <FaBackwardStep size={16} />
+          </button>
         ) : null}
 
         <button
@@ -265,31 +265,31 @@ const TTSPlayer = () => {
         >
           <FaRotateLeft size={16} />
         </button>
-        {instance?.hasSentences && previousNextInfo ? (
-          <>
-            <button
-              className={classNames(
-                "bg-gray-900 rounded-full size-10 grid place-items-center",
-                previousNextInfo.hasNextWord ? "hover:opacity-75" : "opacity-50"
-              )}
-              onClick={onNextWord}
-              disabled={!previousNextInfo.hasNextWord}
-            >
-              <FaForwardStep size={16} />
-            </button>
-            <button
-              className={classNames(
-                "bg-gray-900 rounded-full size-10 grid place-items-center",
-                previousNextInfo.hasNextSentence
-                  ? "hover:opacity-75"
-                  : "opacity-50"
-              )}
-              onClick={onNextSentence}
-              disabled={!previousNextInfo.hasNextSentence}
-            >
-              <FaForwardFast size={16} />
-            </button>
-          </>
+        {instance?.hasMultipleWords && previousNextInfo ? (
+          <button
+            className={classNames(
+              "bg-gray-900 rounded-full size-10 grid place-items-center",
+              previousNextInfo.hasNextWord ? "hover:opacity-75" : "opacity-50"
+            )}
+            onClick={onNextWord}
+            disabled={!previousNextInfo.hasNextWord}
+          >
+            <FaForwardStep size={16} />
+          </button>
+        ) : null}
+        {instance?.hasMultipleSentences && previousNextInfo ? (
+          <button
+            className={classNames(
+              "bg-gray-900 rounded-full size-10 grid place-items-center",
+              previousNextInfo.hasNextSentence
+                ? "hover:opacity-75"
+                : "opacity-50"
+            )}
+            onClick={onNextSentence}
+            disabled={!previousNextInfo.hasNextSentence}
+          >
+            <FaForwardFast size={16} />
+          </button>
         ) : null}
         <Popover className="relative">
           <PopoverButton className="bg-gray-900 px-4 relative w-20 rounded-full text-sm inline-flex gap-2 items-center justify-between h-10">

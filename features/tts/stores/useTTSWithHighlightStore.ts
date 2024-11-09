@@ -5,7 +5,8 @@ import { TTSSelection } from "../interfaces/TTSSelection";
 export interface TTSWithHighlight {
   selection: TTSSelection;
   polly: Polly;
-  hasSentences: boolean;
+  hasMultipleWords: boolean;
+  hasMultipleSentences: boolean;
 }
 
 export interface TTSWithHighlightState {
