@@ -30,6 +30,7 @@ import { LanguageCode } from '../interfaces/LanguageCode';
 import { PreviousNextInfo } from '../interfaces/PreviousNextInfo';
 import DAFlagIcon from '../svg/flags/da-flag-icon';
 import ENFlagIcon from '../svg/flags/en-flag-icon';
+import { getFirstWord } from '../utils/getFirstWord';
 import { getNextSentence } from '../utils/getNextSentence';
 import { getNextWord } from '../utils/getNextWord';
 import { getPreviousNextInfo } from '../utils/getPreviousNextInfo';
@@ -94,12 +95,16 @@ const TTSPlayer = () => {
   };
 
   const onLoadedData = () => {
-    if (!audio.current) {
+    if (!instance || !audio.current) {
       return;
     }
     audio.current.playbackRate = playbackRate;
-    setStatus('ready');
-    prepare(audio.current);
+    const mark = getFirstWord({ instance });
+    if (mark) {
+      audio.current.currentTime = Number(mark.time) / 1000;
+      setStatus('ready');
+      prepare(audio.current);
+    }
   };
 
   const onEnded = () => {
