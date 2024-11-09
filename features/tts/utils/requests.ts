@@ -1,4 +1,4 @@
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 
 /** Used for sending POST requests
  * @param baseURL The url for the specific API you want to send the request to
@@ -12,11 +12,5 @@ export const postRequest = async <T>(baseURL: string, url: string, body: object,
       baseURL,
       params,
     })
-    .then((x) => x.data)
-    .catch((error: AxiosError) => handleError(error));
-};
-
-/** Method to handle a generic way to handle all errors coming from requests to the APIs */
-export const handleError = (error: AxiosError) => {
-  console.log(error);
+    .then((response) => response.data);
 };

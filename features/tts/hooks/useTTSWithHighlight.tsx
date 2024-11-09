@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 import { Polly } from '../interfaces/Polly';
+import { PollyBody } from '../interfaces/PollyBody';
 import { TTSSelection } from '../interfaces/TTSSelection';
 import { TTSSelectionWord } from '../interfaces/TTSSelectionWord';
 import { TTSWithHighlight } from '../interfaces/TTSWithHighlight';
@@ -48,8 +49,12 @@ export const useTTSWithHighlight = () => {
   const checkSelection = useDebouncedCallback(() => {
     const selection = window.getSelection();
     if (selectedLanguage && selection?.type === 'Range' && selection.toString().trim().length) {
+      // This ensures that selecttion starts at the beginning of a word and ends at the ending of a word,
+      // no matter how the selection is made
       const range = fixRange(selection);
       const originalRange = selection.getRangeAt(0);
+
+      // We don't want to do any highlighting work until the selections range is perfect
       if (
         range.startOffset === originalRange.startOffset &&
         range.startContainer === originalRange.startContainer &&
@@ -82,9 +87,6 @@ export const useTTSWithHighlight = () => {
                 !IGNORE_TEXT_NODE_IF_ONLY_CONTAINS.test(currentNode.nodeValue),
             )
           ) {
-            // A textnode can start with any number of spaces before the text
-            // We need to ignore these spaces in our selection
-
             let startOffset = currentNode === range.startContainer ? range.startOffset : 0;
             const endOffset = currentNode === range.endContainer ? range.endOffset : undefined;
 
@@ -133,14 +135,18 @@ export const useTTSWithHighlight = () => {
                       // Stop looping through parentElement
                       break;
                     } else if (parentElement.nextSibling) {
+                      // Stop looping through parentElement
                       break;
                     } else {
+                      // Check next parent element
                       parentElement = parentElement.parentElement;
                     }
                   }
                 }
               }
 
+              // A TextNode can start with any number of spaces
+              // We need to account for those but not visually highlight them
               const leadingSpaces = tempWord.length - tempWord.trimStart().length;
               if (leadingSpaces) {
                 startOffset += leadingSpaces;
@@ -168,7 +174,9 @@ export const useTTSWithHighlight = () => {
           CSS.highlights.set('highlight', highlight);
         }
       } else {
+        // Remove the selection the user have made
         selection.removeAllRanges();
+        // Change the range into the fixed range
         selection.addRange(range);
       }
     }
@@ -176,23 +184,21 @@ export const useTTSWithHighlight = () => {
 
   useEffect(() => {
     if (ttsSelection && selectedLanguage) {
-      const body = {
+      const body: PollyBody = {
         Language: selectedLanguage.id,
         InputText: ttsSelection.inputText,
       };
 
       postRequest<Polly>(POLLY_API_ROOT, POLLY_API_URL, body).then(
         (response) => {
-          if (response) {
-            const instance: TTSWithHighlight = {
-              polly: response,
-              selection: ttsSelection,
-              hasMultipleWords: response.Marks.filter((mark) => mark.type === 'word').length > 1,
-              hasMultipleSentences: response.Marks.filter((mark) => mark.type === 'sentence').length > 1,
-            };
-            setInstance(instance);
-            console.log('instance', instance);
-          }
+          const instance: TTSWithHighlight = {
+            polly: response,
+            selection: ttsSelection,
+            hasMultipleWords: response.Marks.filter((mark) => mark.type === 'word').length > 1,
+            hasMultipleSentences: response.Marks.filter((mark) => mark.type === 'sentence').length > 1,
+          };
+          setInstance(instance);
+          console.log('instance', instance);
         },
         (error) => {
           console.log(error);
