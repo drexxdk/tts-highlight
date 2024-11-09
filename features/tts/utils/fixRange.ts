@@ -1,7 +1,7 @@
-import { isBackwards } from "./isBackwards";
+import { isBackwards } from './isBackwards';
 
 export const fixRange = (selection: Selection) => {
-  let range = document.createRange();
+  const range = document.createRange();
   if (isBackwards()) {
     range.setStart(selection.focusNode as Node, selection.focusOffset);
     range.setEnd(selection.anchorNode as Node, selection.anchorOffset);

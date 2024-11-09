@@ -1,4 +1,4 @@
-import { TTSSelectionWord } from "./TTSSelectionWord";
+import { TTSSelectionWord } from './TTSSelectionWord';
 
 export interface TTSSelection {
   words: TTSSelectionWord[];

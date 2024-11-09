@@ -1,6 +1,6 @@
-import { create } from "zustand";
-import { Language } from "../interfaces/Language";
-import { TTSWithHighlight } from "../interfaces/TTSWithHighlight";
+import { create } from 'zustand';
+import { Language } from '../interfaces/Language';
+import { TTSWithHighlight } from '../interfaces/TTSWithHighlight';
 
 export interface TTSWithHighlightState {
   instance?: TTSWithHighlight;
@@ -12,20 +12,15 @@ export interface TTSWithHighlightState {
 }
 
 const LANGUAGES: Language[] = [
-  { id: "en", name: "English" },
-  { id: "da", name: "Dansk" },
+  { id: 'en', name: 'English' },
+  { id: 'da', name: 'Dansk' },
 ];
 
-export const useTTSWithHighlightStore = create<TTSWithHighlightState>(
-  (set) => ({
-    instance: undefined,
-    selectedLanguage: LANGUAGES[0],
-    availableLanguages: LANGUAGES,
-    setInstance: (polly?: TTSWithHighlight) =>
-      set((state) => ({ ...state, instance: polly })),
-    setSelectedLanguage: (language: Language) =>
-      set((state) => ({ ...state, selectedLanguage: language })),
-    setAvailableLanguages: (languages: Language[]) =>
-      set((state) => ({ ...state, availableLanguages: languages })),
-  })
-);
+export const useTTSWithHighlightStore = create<TTSWithHighlightState>((set) => ({
+  instance: undefined,
+  selectedLanguage: LANGUAGES[0],
+  availableLanguages: LANGUAGES,
+  setInstance: (polly?: TTSWithHighlight) => set((state) => ({ ...state, instance: polly })),
+  setSelectedLanguage: (language: Language) => set((state) => ({ ...state, selectedLanguage: language })),
+  setAvailableLanguages: (languages: Language[]) => set((state) => ({ ...state, availableLanguages: languages })),
+}));

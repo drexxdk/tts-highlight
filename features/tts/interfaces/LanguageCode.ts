@@ -1,1 +1,1 @@
-export type LanguageCode = "en" | "da";
+export type LanguageCode = 'en' | 'da';
