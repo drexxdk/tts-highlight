@@ -13,7 +13,7 @@ import {
   PopoverPanel,
 } from '@headlessui/react';
 import classNames from 'classnames';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   FaBackwardFast,
   FaBackwardStep,
@@ -65,6 +65,19 @@ const TTSPlayer = () => {
   const [playbackRate, setPlaybackRate] = useState<number>(1);
   useTTSWithHighlight();
 
+  const prepare = useCallback(
+    (audio: HTMLAudioElement) => {
+      if (!instance) {
+        return;
+      }
+
+      const currentTime = Math.round((audio.currentTime || 0) * 1000);
+      setPreviousNextInfo(getPreviousNextInfo({ instance: instance, currentTime }));
+      highlightWord({ currentTime, store: instance });
+    },
+    [instance],
+  );
+
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (status === 'playing') {
@@ -75,7 +88,7 @@ const TTSPlayer = () => {
       }, 50);
     }
     return () => clearInterval(interval);
-  }, [audio, status]);
+  }, [audio, prepare, status]);
 
   useEffect(() => {
     if (!audio.current) {
@@ -83,16 +96,6 @@ const TTSPlayer = () => {
     }
     audio.current.playbackRate = playbackRate;
   }, [playbackRate]);
-
-  const prepare = (audio: HTMLAudioElement) => {
-    if (!instance) {
-      return;
-    }
-
-    const currentTime = Math.round((audio.currentTime || 0) * 1000);
-    setPreviousNextInfo(getPreviousNextInfo({ instance: instance, currentTime }));
-    highlightWord({ currentTime, store: instance });
-  };
 
   const onLoadedData = () => {
     if (!instance || !audio.current) {
