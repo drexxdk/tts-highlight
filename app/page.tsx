@@ -7,10 +7,10 @@ const StackedCard = () => {
     <div className="overflow-hidden rounded bg-white shadow-lg">
       <Image src={'/img/card.jpg'} alt="The Coldest Sunset" width={800} height={487} />
       <div className="px-6 py-4">
-        <div className="mb-2 text-xl font-bold">The Coldest Sunset</div>
+        <div className="mb-2 text-xl font-bold text-gray-950">The Coldest Sunset</div>
         <p className="text-base text-gray-700">
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptatibus quia, nulla! Maiores et perferendis
-          eaque, exercitationem praesentium nihil.
+          Lorem what ipsum dolor sit amet, consectetur adipisicing elit. Voluptatibus quia, nulla! Maiores et
+          perferendis eaque, exercitationem praesentium nihil.
         </p>
       </div>
       <div className="px-6 pb-2 pt-4">

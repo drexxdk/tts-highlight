@@ -16,16 +16,16 @@ export const fixRange = (selection: Selection) => {
       range.setStart(range.startContainer, range.startOffset - 1);
       rangeString = range.toString();
     }
-    const leadingSpaces = rangeString.length - rangeString.trimStart().length;
-    range.setStart(range.startContainer, range.startOffset + leadingSpaces);
+    const leadingWhitespaces = rangeString.length - rangeString.trimStart().length;
+    range.setStart(range.startContainer, range.startOffset + leadingWhitespaces);
   } catch {}
   try {
     while (rangeString[rangeString.length - 1].trim().length) {
       range.setEnd(range.endContainer, range.endOffset + 1);
       rangeString = range.toString();
     }
-    const trailingSpaces = rangeString.length - rangeString.trimEnd().length;
-    range.setEnd(range.endContainer, range.endOffset - trailingSpaces);
+    const trailingWhitespaces = rangeString.length - rangeString.trimEnd().length;
+    range.setEnd(range.endContainer, range.endOffset - trailingWhitespaces);
   } catch {}
   return range;
 };
