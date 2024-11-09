@@ -196,7 +196,7 @@ const TTSPlayer = () => {
       />
       <div
         className={classNames(
-          "bg-gray-800 p-1 flex gap-1 rounded-full items-center",
+          "bg-gray-800 p-1 flex gap-1 rounded-3xl items-center flex-wrap justify-center ml-auto",
           {
             "opacity-50": status === "loading",
           },
