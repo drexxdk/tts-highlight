@@ -5,16 +5,13 @@ import { useDebouncedCallback } from "use-debounce";
 import { Polly } from "../interfaces/Polly";
 import { TTSSelection } from "../interfaces/TTSSelection";
 import { TTSSelectionWord } from "../interfaces/TTSSelectionWord";
-import {
-  TTSWithHighlight,
-  useTTSWithHighlightStore,
-} from "../stores/useTTSWithHighlightStore";
+import { TTSWithHighlight } from "../interfaces/TTSWithHighlight";
+import { useTTSWithHighlightStore } from "../stores/useTTSWithHighlightStore";
 import { fixRange } from "../utils/fixRange";
 import { nodesInRange } from "../utils/nodesInRange";
 import { postRequest } from "../utils/requests";
 
 const CHECK_SELECTION_DEBOUNCE_DELAY = 500;
-const POLLY_LANGUAGE = "en";
 const POLLY_API_ROOT = "https://web-next-api-dev.azurewebsites.net/api/";
 const POLLY_API_URL = "polly/tts";
 const IGNORE_TEXT_NODE_IF_ONLY_CONTAINS = new RegExp(/^[!?.,"'()[\]]+$/);
@@ -46,10 +43,17 @@ const DONT_ADD_PUNCTION_FOR_ELEMENTS_ENDING_WITH: string[] = [".", "!", "?"];
 export const useTTSWithHighlight = () => {
   const [ttsSelection, setTTSSelection] = useState<TTSSelection>();
   const setInstance = useTTSWithHighlightStore((state) => state.setInstance);
+  const selectedLanguage = useTTSWithHighlightStore(
+    (state) => state.selectedLanguage
+  );
 
   const checkSelection = useDebouncedCallback(() => {
     const selection = window.getSelection();
-    if (selection?.type === "Range" && selection.toString().trim().length) {
+    if (
+      selectedLanguage &&
+      selection?.type === "Range" &&
+      selection.toString().trim().length
+    ) {
       const range = fixRange(selection);
       const originalRange = selection.getRangeAt(0);
       if (
@@ -188,9 +192,9 @@ export const useTTSWithHighlight = () => {
   }, CHECK_SELECTION_DEBOUNCE_DELAY);
 
   useEffect(() => {
-    if (ttsSelection) {
+    if (ttsSelection && selectedLanguage) {
       const body = {
-        Language: POLLY_LANGUAGE,
+        Language: selectedLanguage.id,
         InputText: ttsSelection.inputText,
       };
 
@@ -216,7 +220,7 @@ export const useTTSWithHighlight = () => {
         }
       );
     }
-  }, [ttsSelection]);
+  }, [ttsSelection, selectedLanguage]);
 
   useEffect(() => {
     document.addEventListener("selectionchange", checkSelection);

@@ -1,5 +1,5 @@
 import { PreviousNextInfo } from "../interfaces/PreviousNextInfo";
-import { TTSWithHighlight } from "../stores/useTTSWithHighlightStore";
+import { TTSWithHighlight } from "../interfaces/TTSWithHighlight";
 import { currentTimeToPollyMarkTime } from "./currentTimeToPollyMarkTime";
 
 export const getPreviousNextInfo = ({
