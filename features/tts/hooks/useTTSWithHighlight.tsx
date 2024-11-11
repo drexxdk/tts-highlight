@@ -166,7 +166,8 @@ export const useTTSWithHighlight = () => {
               const splitWord = tempWord.split(SPLIT_IN_WORD);
               splitWord.forEach((token, i) => {
                 const word = token.replaceAll(REMOVE_CHARACTERS_FROM_WORD, '');
-                if (word.length) {
+
+                if (word.length && !IGNORE_TEXT_NODE_IF_ONLY_CONTAINS.test(word)) {
                   words.push({
                     startOffset: startOffset,
                     endOffset: startOffset + token.length,
