@@ -102,6 +102,23 @@ const Page = () => {
             <li>Random symbol test ??!&quot;#¤&quot;&quot;!%&/()=?&quot;</li>
           </ol>
           <p>This is amazing!</p>
+          <p>1234567890+´¨ø-.,&lt;!&quot;#¤%&/()=?`^_:;&gt;`&quot;&apos;*æøåÆØÅ</p>
+          <p>
+            1 2 3 4 5 6 7 8 9 0 + ´ ¨ ø - . , &lt; ! &quot; # ¤ % & / ( ) = ? ` ^ _ : ; &gt; ` &quot; &apos; * æ ø å Æ Ø
+            Å |
+          </p>
+          <p>
+            a1 a2 a3 a4 a5 a6 a7 a8 a9 a0 a+ a´ a¨ aø a- a. a, a&lt; a! a&quot; a# a¤ a% a& a/ a( a) a= a? a` a^ a_ a:
+            a; a&gt; a` a&quot; a&apos; a* aæ aø aå aÆ aØ Åa a|
+          </p>
+          <p>
+            1a 2a 3a 4a 5a 6a 7a 8a 9a 0a +a ´a ¨a øa -a .a ,a &lt;a !a &quot;a #a ¤a %a &a /a (a )a =a ?a `a ^a _a :a
+            ;a &gt;a `a &quot;a &apos;a *a æa øa åa Æa Øa Åa |a
+          </p>
+          <p>
+            a1a a2a a3a a4a a5a a6a a7a a8a a9a a0a a+a a´a a¨a aøa a-a a.a a,a a&lt;a a!a a&quot;a a#a a¤a a%a a&a a/a
+            a(a a)a a=a a?a a`a a^a a_a a:a a;a a&gt;a a`a a&quot;a a&apos;a a*a aæa aøa aåa aÆa aØa aÅa a|a
+          </p>
           <p>
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed rutrum eros velit, in iaculis mi tempor sed. Ut
             odio odio, aliquet eu elit ac, ornare efficitur risus. Sed massa est, consectetur non ipsum eu, vehicula

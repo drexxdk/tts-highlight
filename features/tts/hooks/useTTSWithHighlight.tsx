@@ -15,8 +15,14 @@ import { postRequest } from '../utils/requests';
 const CHECK_SELECTION_DEBOUNCE_DELAY = 500;
 const POLLY_API_ROOT = 'https://web-next-api-dev.azurewebsites.net/api/';
 const POLLY_API_URL = 'polly/tts';
-const IGNORE_TEXT_NODE_IF_ONLY_CONTAINS = new RegExp(/^[!?.,"'()[\]]+$/);
-const REMOVE_CHARACTERS_FROM_TEXT_TO_POLLY = new RegExp(/[#()_?\\\"]/g);
+const IGNORE_TEXT_NODE_IF_ONLY_CONTAINS = new RegExp(/^[¤:;()!?.,\*\^\/\´\`\¨\"\'\[\-\]]+$/);
+const SPLIT_IN_WORD = new RegExp(/(?=[<>#%=/])|(?<=[<>#%=/])/g);
+
+// Danish does not understand this symbol: ¤. "¤" can't be trusted.
+// English combines "a & a" into a single word. "&" can't be trusted.
+const REMOVE_CHARACTERS_FROM_WORD = new RegExp(/[&¤:;(),\*\^\´\`\/\-\"\']/g);
+
+// const REMOVE_CHARACTERS_FROM_TEXT_TO_POLLY = new RegExp(/[#()_?\\\"]/g);
 const ADD_PUNCTUATION_FOR_HTML_ELEMENT_TYPES: string[] = [
   'p',
   'li',
@@ -75,6 +81,7 @@ export const useTTSWithHighlight = () => {
         } else {
           currentNode = treeWalker.nextNode();
         }
+
         const words: TTSSelectionWord[] = [];
         while (currentNode) {
           if (
@@ -105,7 +112,9 @@ export const useTTSWithHighlight = () => {
 
               // Polly can't handle these characters
               // If the word contains these, it would cause unpredictable breaks in sentences and words
-              let word = tempWord.replaceAll(REMOVE_CHARACTERS_FROM_TEXT_TO_POLLY, '');
+              // tempWord = tempWord.replaceAll(REMOVE_CHARACTERS_FROM_TEXT_TO_POLLY, '');
+
+              let addSentenceEnding = false;
 
               // If this word is the last in the TextNode
               // If this TextNode does not have any siblings after itself
@@ -117,17 +126,17 @@ export const useTTSWithHighlight = () => {
                 // It also checks that this TextNode doesn't already end with a sentence ender within DONT_ADD_PUNCTION_FOR_ELEMENT_ENDING_WITH
                 while (parentElement) {
                   if (
-                    ADD_PUNCTUATION_FOR_HTML_ELEMENT_TYPES.some(
-                      (value) => value === parentElement?.nodeName.toLowerCase(),
-                    ) &&
-                    !DONT_ADD_PUNCTION_FOR_ELEMENTS_ENDING_WITH.some(
-                      (value) => value === word.substring(word.length - 1, word.length),
+                    DONT_ADD_PUNCTION_FOR_ELEMENTS_ENDING_WITH.some(
+                      (value) => value === tempWord.substring(tempWord.length - 1, tempWord.length),
                     )
                   ) {
-                    // Add punctuation to make Polly understand this is the sentence ending
-                    word = `${word}.`;
-
-                    // Stop looping through parentElement
+                    break;
+                  } else if (
+                    ADD_PUNCTUATION_FOR_HTML_ELEMENT_TYPES.some(
+                      (value) => value === parentElement?.nodeName.toLowerCase(),
+                    )
+                  ) {
+                    addSentenceEnding = true;
                     break;
                   } else if (parentElement.nextSibling) {
                     // Stop looping through parentElement
@@ -146,25 +155,36 @@ export const useTTSWithHighlight = () => {
                 startOffset += leadingWhitespaces;
               }
 
-              words.push({
-                startOffset: startOffset,
-                endOffset: startOffset + tempWord.trim().length,
-                node: currentNode as Node,
-                word: word,
+              const splitWord = tempWord.split(SPLIT_IN_WORD);
+              splitWord.forEach((token, i) => {
+                const word = token.replaceAll(REMOVE_CHARACTERS_FROM_WORD, '');
+                if (word.length) {
+                  words.push({
+                    startOffset: startOffset,
+                    endOffset: startOffset + token.length,
+                    node: currentNode as Node,
+                    word: word + (addSentenceEnding && i + 1 === splitWord.length ? '.' : ''),
+                  });
+                }
+                startOffset += token.length;
               });
-              startOffset += tempWord.length + 1;
+              startOffset += 1;
             });
           }
           currentNode = treeWalker.nextNode();
         }
 
+        const inputText = words.map((word) => word.word).join(' ');
         setTTSSelection({
           words: words,
-          inputText: words.map((word) => word.word).join(' '),
+          inputText: inputText,
         });
-        if ('Highlight' in window) {
+
+        if ('Highlight' in window && inputText) {
           const highlight = new Highlight(range);
           CSS.highlights.set('highlight', highlight);
+        } else {
+          CSS.highlights.clear();
         }
       } else {
         // Remove the selection the user have made
@@ -182,21 +202,25 @@ export const useTTSWithHighlight = () => {
         InputText: ttsSelection.inputText,
       };
 
-      postRequest<Polly>(POLLY_API_ROOT, POLLY_API_URL, body).then(
-        (response) => {
-          const instance: TTSWithHighlight = {
-            polly: response,
-            selection: ttsSelection,
-            hasMultipleWords: response.Marks.filter((mark) => mark.type === 'word').length > 1,
-            hasMultipleSentences: response.Marks.filter((mark) => mark.type === 'sentence').length > 1,
-          };
-          setInstance(instance);
-          console.log('instance', instance);
-        },
-        (error) => {
-          console.log(error);
-        },
-      );
+      if (ttsSelection.inputText) {
+        postRequest<Polly>(POLLY_API_ROOT, POLLY_API_URL, body).then(
+          (response) => {
+            if (response) {
+              const instance: TTSWithHighlight = {
+                polly: response,
+                selection: ttsSelection,
+                hasMultipleWords: response.Marks.filter((mark) => mark.type === 'word').length > 1,
+                hasMultipleSentences: response.Marks.filter((mark) => mark.type === 'sentence').length > 1,
+              };
+              setInstance(instance);
+              console.log('instance', instance);
+            }
+          },
+          (error) => {
+            console.log(error);
+          },
+        );
+      }
     }
   }, [ttsSelection, selectedLanguage, setInstance]);
 
