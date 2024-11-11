@@ -17,6 +17,6 @@ export const highlightWord = ({ currentTime, store }: { currentTime: number; sto
   const range = document.createRange();
   range.setStart(word.node, word.startOffset);
   range.setEnd(word.node, word.endOffset);
-  const highlight = new Highlight(range);
-  CSS.highlights.set('word', highlight);
+  const selectedWordHighlight = new Highlight(range);
+  CSS.highlights.set('selected-word', selectedWordHighlight);
 };

@@ -35,9 +35,10 @@ const Page = () => {
         <h2 className="mb-2 text-xl font-bold">Features</h2>
         <ul className="list-inside list-disc">
           <li>Selected text player</li>
+          <li>Previous/Next word button functionality</li>
           <li>Previous/Next sentence button functionality</li>
           <li>Selection that stays until the player closes (Except for Firefox)</li>
-          <li>Selection across different react components</li>
+          <li>Supports selection across different react components</li>
           <li>Active word highlight (Except for Firefox)</li>
           <li>Polly integration</li>
           <li>No rerender of react components for TTS or Highlight</li>
@@ -45,8 +46,7 @@ const Page = () => {
           <li>Works on all browsers and devices</li>
           <li>Change playback rate</li>
           <li>
-            Punctuations on sentence endings for text given to polly, to get correct sentences. Polly would think all
-            &quot;li&quot; items was one big sentence since the text within them doesnt end with: . or ! or ?
+            Automatic punctuations on sentence endings for text given to polly, to get correct sentence seperations.
           </li>
           <li>Change language</li>
         </ul>
@@ -54,9 +54,10 @@ const Page = () => {
       <section>
         <h2 className="mb-2 text-xl font-bold">ToDo</h2>
         <ul className="list-inside list-disc">
-          <li>Full page player</li>
+          <li>Ignore elements that has data-attribute</li>
+          <li>Alternative text being read for element instead of what is visually shown</li>
           <li>Switch polly audio files when needed (it only uses first file currently)</li>
-          <li>Custom text used for reader on elements</li>
+          <li>Full page player</li>
         </ul>
       </section>
       <section>

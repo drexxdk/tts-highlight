@@ -7,10 +7,14 @@ body {
 }
 
 ::selection,
-::highlight(highlight) {
+::highlight(selection) {
   @apply bg-slate-600 text-white;
 }
 
 ::highlight(word) {
+  @apply bg-green-400 text-black;
+}
+
+::highlight(selected-word) {
   @apply bg-orange-400 text-black;
 }

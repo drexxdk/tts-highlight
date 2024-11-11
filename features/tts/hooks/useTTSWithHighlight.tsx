@@ -163,19 +163,19 @@ export const useTTSWithHighlight = () => {
                 startOffset += leadingWhitespaces;
               }
 
-              const splitWord = tempWord.split(SPLIT_IN_WORD);
-              splitWord.forEach((token, i) => {
-                const word = token.replaceAll(REMOVE_CHARACTERS_FROM_WORD, '');
-
-                if (word.length && !IGNORE_TEXT_NODE_IF_ONLY_CONTAINS.test(word)) {
+              const splitWords = tempWord.split(SPLIT_IN_WORD);
+              splitWords.forEach((splitWord, i) => {
+                const leadingSplitWordWhitespaces = splitWord.length - splitWord.trimStart().length;
+                const finalWord = splitWord.replaceAll(REMOVE_CHARACTERS_FROM_WORD, '').trimStart();
+                if (finalWord.length && !IGNORE_TEXT_NODE_IF_ONLY_CONTAINS.test(finalWord)) {
                   words.push({
                     startOffset: startOffset,
-                    endOffset: startOffset + token.length,
+                    endOffset: startOffset - leadingSplitWordWhitespaces + splitWord.length,
                     node: currentNode as Node,
-                    word: word + (addSentenceEnding && i + 1 === splitWord.length ? '.' : ''),
+                    word: finalWord + (addSentenceEnding && i + 1 === splitWords.length ? '.' : ''),
                   });
                 }
-                startOffset += token.length;
+                startOffset += splitWord.length;
               });
               startOffset += 1;
             });
@@ -190,8 +190,17 @@ export const useTTSWithHighlight = () => {
         });
 
         if ('Highlight' in window && inputText) {
-          const highlight = new Highlight(range);
-          CSS.highlights.set('highlight', highlight);
+          const selectionHighlight = new Highlight(range);
+          CSS.highlights.set('selection', selectionHighlight);
+
+          const wordHighlight = new Highlight();
+          words.forEach((word) => {
+            const range = document.createRange();
+            range.setStart(word.node, word.startOffset);
+            range.setEnd(word.node, word.endOffset);
+            wordHighlight.add(range);
+          });
+          CSS.highlights.set('word', wordHighlight);
         } else {
           CSS.highlights.clear();
         }
