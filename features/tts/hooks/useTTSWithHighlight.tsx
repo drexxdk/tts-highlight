@@ -15,14 +15,15 @@ import { postRequest } from '../utils/requests';
 const CHECK_SELECTION_DEBOUNCE_DELAY = 500;
 const POLLY_API_ROOT = 'https://web-next-api-dev.azurewebsites.net/api/';
 const POLLY_API_URL = 'polly/tts';
-const IGNORE_TEXT_NODE_IF_ONLY_CONTAINS = new RegExp(/^[¤:;()!?.,\*\^\/\´\`\¨\"\'\[\-\]]+$/);
 const SPLIT_IN_WORD = new RegExp(/(?=[<>#%=/])|(?<=[<>#%=/])/g);
 
 // Danish does not understand this symbol: ¤. "¤" can't be trusted.
 // English combines "a & a" into a single word. "&" can't be trusted.
 const REMOVE_CHARACTERS_FROM_WORD = new RegExp(/[&¤:;(),\*\^\´\`\/\-\"\']/g);
 
-// const REMOVE_CHARACTERS_FROM_TEXT_TO_POLLY = new RegExp(/[#()_?\\\"]/g);
+// Polly will ignore these characters if they stand alone
+const IGNORE_TEXT_NODE_IF_ONLY_CONTAINS = new RegExp(/^[!?.\¨\[\]]+$/);
+
 const ADD_PUNCTUATION_FOR_HTML_ELEMENT_TYPES: string[] = [
   'p',
   'li',
@@ -45,6 +46,7 @@ const ADD_PUNCTUATION_FOR_HTML_ELEMENT_TYPES: string[] = [
   'legend', // The Field Set Legend element
   'label',
 ];
+
 const DONT_ADD_PUNCTION_FOR_ELEMENTS_ENDING_WITH: string[] = ['.', '!', '?'];
 
 export const useTTSWithHighlight = () => {
