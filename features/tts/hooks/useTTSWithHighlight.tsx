@@ -15,15 +15,20 @@ import { postRequest } from '../utils/requests';
 const CHECK_SELECTION_DEBOUNCE_DELAY = 500;
 const POLLY_API_ROOT = 'https://web-next-api-dev.azurewebsites.net/api/';
 const POLLY_API_URL = 'polly/tts';
+
+// If word contains these characters then add whitespace around each of them.
+// Polly can't handle them within a word.
 const SPLIT_IN_WORD = new RegExp(/(?=[<>#%=/])|(?<=[<>#%=/])/g);
 
-// Danish does not understand this symbol: ¤. "¤" can't be trusted.
-// English combines "a & a" into a single word. "&" can't be trusted.
+// Polly Danish does not understand this symbol: ¤. "¤" can't be trusted.
+// Polly English combines "a & a" into a single word. "&" can't be trusted.
 const REMOVE_CHARACTERS_FROM_WORD = new RegExp(/[&¤:;(),\*\^\´\`\/\-\"\']/g);
 
-// Polly will ignore these characters if they stand alone
+// Polly will remove these characters if they stand alone.
+// We need to ignore them in our selection.
 const IGNORE_TEXT_NODE_IF_ONLY_CONTAINS = new RegExp(/^[!?.\¨\[\]]+$/);
 
+// Html elements that counts as sentences.
 const ADD_PUNCTUATION_FOR_HTML_ELEMENT_TYPES: string[] = [
   'p',
   'li',
@@ -47,6 +52,7 @@ const ADD_PUNCTUATION_FOR_HTML_ELEMENT_TYPES: string[] = [
   'label',
 ];
 
+// These symbols count as sentence endings for Polly.
 const DONT_ADD_PUNCTION_FOR_ELEMENTS_ENDING_WITH: string[] = ['.', '!', '?'];
 
 export const useTTSWithHighlight = () => {
