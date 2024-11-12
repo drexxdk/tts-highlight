@@ -1,5 +1,6 @@
 'use client';
 
+import SpecialCharacters from '@/features/tts/components/SpecialCharacters';
 import Image from 'next/image';
 
 const StackedCard = () => {
@@ -168,6 +169,10 @@ const Page = () => {
             volutpat. Vestibulum at urna dolor.
           </p>
         </div>
+      </section>
+      <section>
+        <h2 className="mb-2 text-xl font-bold">Special Characters</h2>
+        <SpecialCharacters />
       </section>
     </article>
   );

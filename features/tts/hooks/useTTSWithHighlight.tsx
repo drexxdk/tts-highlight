@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
+import { ADD_PUNCTUATION_FOR_HTML_ELEMENT_TYPES } from '../const/add-punctuation-for-html-element-types';
 import { Polly } from '../interfaces/Polly';
 import { PollyBody } from '../interfaces/PollyBody';
 import { TTSSelection } from '../interfaces/TTSSelection';
@@ -20,37 +21,9 @@ const POLLY_API_URL = 'polly/tts';
 // Polly can't handle them within a word.
 const SPLIT_IN_WORD = new RegExp(/(?=[?_.<>#%=/])|(?<=[?_.<>#%=/])/g);
 
-// Polly Danish does not understand this symbol: ¤. "¤" can't be trusted.
-// Polly English combines "a & a" into a single word. "&" can't be trusted.
-const REMOVE_CHARACTERS_FROM_WORD = new RegExp(/[&¤:;(),\*\^\´\`\/\-\"\']/g);
-
 // Polly will remove these characters if they stand alone.
 // We need to ignore them in our selection.
 const IGNORE_TEXT_NODE_IF_ONLY_CONTAINS = new RegExp(/^[!?.\¨\[\]]+$/);
-
-// Html elements that counts as sentences.
-const ADD_PUNCTUATION_FOR_HTML_ELEMENT_TYPES: string[] = [
-  'p',
-  'li',
-  'div',
-  'h1',
-  'h2',
-  'h3',
-  'h4',
-  'h5',
-  'h6',
-  'th', // The Table Header element
-  'td', // The Table Data Cell element
-  'caption', // The Table Caption element
-  'dt', // The Description List element
-  'dd', // The Description Details element
-  'figcaption', // The Figure Caption element
-  'blockquote',
-  'cite', // The Citation element
-  'option',
-  'legend', // The Field Set Legend element
-  'label',
-];
 
 // These symbols count as sentence endings for Polly.
 const DONT_ADD_PUNCTION_FOR_ELEMENTS_ENDING_WITH: string[] = ['.', '!', '?'];
@@ -67,6 +40,7 @@ export const useTTSWithHighlight = () => {
       // no matter how the selection is made
       const range = fixRange(selection);
       const originalRange = selection.getRangeAt(0);
+      const SUPPORTED_CHARS_REGEX = new RegExp(`[^${selectedLanguage.chars.join('')}]`, 'g');
 
       // We don't want to do any highlighting work until the selections range is perfect
       if (
@@ -166,7 +140,7 @@ export const useTTSWithHighlight = () => {
               const splitWords = tempWord.split(SPLIT_IN_WORD);
               splitWords.forEach((splitWord, i) => {
                 const leadingSplitWordWhitespaces = splitWord.length - splitWord.trimStart().length;
-                const finalWord = splitWord.replaceAll(REMOVE_CHARACTERS_FROM_WORD, '').trimStart();
+                const finalWord = splitWord.replaceAll(SUPPORTED_CHARS_REGEX, '').trimStart();
                 if (finalWord.length && !IGNORE_TEXT_NODE_IF_ONLY_CONTAINS.test(finalWord)) {
                   words.push({
                     startOffset: startOffset,
@@ -231,7 +205,8 @@ export const useTTSWithHighlight = () => {
                 hasMultipleSentences: response.Marks.filter((mark) => mark.type === 'sentence').length > 1,
               };
               setInstance(instance);
-              console.log('instance', instance);
+              // console.log('instance', instance);
+              console.log(instance.polly.Marks.filter((mark) => mark.type === 'word').map((word) => word.value));
             }
           },
           (error) => {
