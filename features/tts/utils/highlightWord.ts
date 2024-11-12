@@ -1,11 +1,20 @@
-import { TTSWithHighlight } from '../interfaces/TTSWithHighlight';
+import { Polly } from '../interfaces/Polly';
+import { TextSelection } from '../interfaces/TextSelection';
 import { currentTimeToPollyMarkTime } from './currentTimeToPollyMarkTime';
 
-export const highlightWord = ({ currentTime, store }: { currentTime: number; store: TTSWithHighlight }) => {
+export const highlightWord = ({
+  currentTime,
+  polly,
+  textSelection,
+}: {
+  currentTime: number;
+  polly: Polly;
+  textSelection: TextSelection;
+}) => {
   if (!('Highlight' in window)) {
     return;
   }
-  const words = store.polly.Marks.filter((mark) => mark.type === 'word');
+  const words = polly.marks.filter((mark) => mark.type === 'word');
   if (!words.length) {
     return;
   }
@@ -13,7 +22,7 @@ export const highlightWord = ({ currentTime, store }: { currentTime: number; sto
   const marks = words.filter((mark) => Number(mark.time) <= currentTimeToPollyMarkTime(currentTime));
   const mark = marks.length ? marks[marks.length - 1] : words[0];
   const index = words.findIndex((item) => item === mark);
-  const word = store.selection.words[index];
+  const word = textSelection.words[index];
   const range = document.createRange();
   range.setStart(word.node, word.startOffset);
   range.setEnd(word.node, word.endOffset);

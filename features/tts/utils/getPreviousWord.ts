@@ -1,15 +1,15 @@
+import { Polly } from '../interfaces/Polly';
 import { PollyMark } from '../interfaces/PollyMark';
-import { TTSWithHighlight } from '../interfaces/TTSWithHighlight';
 import { currentTimeToPollyMarkTime } from './currentTimeToPollyMarkTime';
 
 export const getPreviousWord = ({
-  instance,
+  polly,
   currentTime,
 }: {
-  instance: TTSWithHighlight;
+  polly: Polly;
   currentTime: number;
 }): PollyMark | undefined => {
-  const word = instance.polly.Marks.findLast(
+  const word = polly.marks.findLast(
     (mark) => mark.type === 'word' && Number(mark.time) / 1000 < currentTimeToPollyMarkTime(currentTime),
   );
   return word;

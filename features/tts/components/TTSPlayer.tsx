@@ -54,8 +54,10 @@ const LanguageIcon = ({ code, className }: { code: LanguageCode; className?: str
 };
 
 const TTSPlayer = () => {
-  const instance = useTTSWithHighlightStore((state) => state.instance);
-  const setInstance = useTTSWithHighlightStore((state) => state.setInstance);
+  const textSelection = useTTSWithHighlightStore((state) => state.textSelection);
+  const setTextSelection = useTTSWithHighlightStore((state) => state.setTextSelection);
+  const polly = useTTSWithHighlightStore((state) => state.polly);
+  const setInstance = useTTSWithHighlightStore((state) => state.setPolly);
   const selectedLanguage = useTTSWithHighlightStore((state) => state.selectedLanguage);
   const setSelectedLanguage = useTTSWithHighlightStore((state) => state.setSelectedLanguage);
   const availableLanguages = useTTSWithHighlightStore((state) => state.availableLanguages);
@@ -67,15 +69,15 @@ const TTSPlayer = () => {
 
   const prepare = useCallback(
     (audio: HTMLAudioElement) => {
-      if (!instance) {
+      if (!polly || !textSelection) {
         return;
       }
 
       const currentTime = Math.round((audio.currentTime || 0) * 1000);
-      setPreviousNextInfo(getPreviousNextInfo({ instance: instance, currentTime }));
-      highlightWord({ currentTime, store: instance });
+      setPreviousNextInfo(getPreviousNextInfo({ polly: polly, currentTime }));
+      highlightWord({ currentTime, polly: polly, textSelection });
     },
-    [instance],
+    [polly, textSelection],
   );
 
   useEffect(() => {
@@ -98,11 +100,11 @@ const TTSPlayer = () => {
   }, [playbackRate]);
 
   const onLoadedData = () => {
-    if (!instance || !audio.current) {
+    if (!polly || !audio.current) {
       return;
     }
     audio.current.playbackRate = playbackRate;
-    const mark = getFirstWord({ instance });
+    const mark = getFirstWord({ polly: polly });
     if (mark) {
       audio.current.currentTime = Number(mark.time) / 1000;
       setStatus('ready');
@@ -149,6 +151,7 @@ const TTSPlayer = () => {
     }
     audio.current.pause();
     setStatus(undefined);
+    setTextSelection(undefined);
     setInstance(undefined);
     setPreviousNextInfo(undefined);
 
@@ -162,11 +165,11 @@ const TTSPlayer = () => {
   };
 
   const onPreviousWord = () => {
-    if (!instance || !audio.current) {
+    if (!polly || !audio.current) {
       return;
     }
     const mark = getPreviousWord({
-      instance,
+      polly,
       currentTime: audio.current.currentTime,
     });
     if (mark) {
@@ -176,11 +179,11 @@ const TTSPlayer = () => {
   };
 
   const onNextWord = () => {
-    if (!instance || !audio.current) {
+    if (!polly || !audio.current) {
       return;
     }
     const mark = getNextWord({
-      instance,
+      polly,
       currentTime: audio.current.currentTime,
     });
     if (mark) {
@@ -190,11 +193,11 @@ const TTSPlayer = () => {
   };
 
   const onPreviousSentence = () => {
-    if (!instance || !audio.current) {
+    if (!polly || !audio.current) {
       return;
     }
     const mark = getPreviousSentence({
-      instance,
+      polly,
       currentTime: audio.current.currentTime,
     });
     if (mark) {
@@ -204,11 +207,11 @@ const TTSPlayer = () => {
   };
 
   const onNextSentence = () => {
-    if (!instance || !audio.current) {
+    if (!polly || !audio.current) {
       return;
     }
     const mark = getNextSentence({
-      instance,
+      polly,
       currentTime: audio.current.currentTime,
     });
     if (mark) {
@@ -218,33 +221,29 @@ const TTSPlayer = () => {
   };
 
   const onLanguageSelect = (language: Language) => {
-    if (!audio.current) {
-      return;
-    }
-    audio.current.pause();
-    setStatus('loading');
+    onClose();
     setSelectedLanguage(language);
   };
 
   return selectedLanguage ? (
-    <>
+    <div className="ml-auto flex flex-wrap items-center justify-center gap-2">
       <audio
         ref={audio}
-        src={instance?.polly.Audio[0]}
+        src={polly?.audio[0]}
         onLoadStart={() => setStatus('loading')}
         onLoadedData={onLoadedData}
         onEnded={onEnded}
       />
       <div
         className={classNames(
-          'ml-auto flex flex-wrap items-center justify-center gap-1 rounded-3xl bg-gray-800 p-1',
+          'flex flex-wrap items-center justify-center gap-1 rounded-3xl bg-gray-800 p-1',
           {
             'opacity-50': status === 'loading',
           },
           { hidden: !status },
         )}
       >
-        {instance?.hasMultipleSentences && previousNextInfo ? (
+        {polly?.hasMultipleSentences && previousNextInfo ? (
           <button
             className={classNames(
               'grid size-10 place-items-center rounded-full bg-gray-900',
@@ -256,7 +255,7 @@ const TTSPlayer = () => {
             <FaBackwardFast size={16} />
           </button>
         ) : null}
-        {instance?.hasMultipleWords && previousNextInfo ? (
+        {polly?.hasMultipleWords && previousNextInfo ? (
           <button
             className={classNames(
               'grid size-10 place-items-center rounded-full bg-gray-900',
@@ -289,7 +288,7 @@ const TTSPlayer = () => {
         >
           <FaPause size={24} />
         </button>
-        {instance?.hasMultipleWords && previousNextInfo ? (
+        {polly?.hasMultipleWords && previousNextInfo ? (
           <button
             className={classNames(
               'grid size-10 place-items-center rounded-full bg-gray-900',
@@ -301,7 +300,7 @@ const TTSPlayer = () => {
             <FaForwardStep size={16} />
           </button>
         ) : null}
-        {instance?.hasMultipleSentences && previousNextInfo ? (
+        {polly?.hasMultipleSentences && previousNextInfo ? (
           <button
             className={classNames(
               'grid size-10 place-items-center rounded-full bg-gray-900',
@@ -324,67 +323,68 @@ const TTSPlayer = () => {
         >
           <FaRotateLeft size={16} />
         </button>
-        <Popover className="relative">
-          <PopoverButton className="relative inline-flex h-10 w-20 items-center justify-between gap-2 rounded-full bg-gray-900 px-4 text-sm hover:opacity-75">
-            <FaBoltLightning size={16} />
-            <span>{playbackRate}</span>
-          </PopoverButton>
-          <PopoverBackdrop className="fixed inset-0 bg-black/15" />
-          <PopoverPanel
-            anchor={{
-              gap: 16,
-              offset: 0,
-              padding: 16,
-              to: 'bottom',
-            }}
-            className="flex flex-col rounded bg-gray-950 px-6 py-4"
-          >
-            <input
-              type="range"
-              min={0.5}
-              max={1.5}
-              step={0.25}
-              value={playbackRate}
-              onChange={(e) => setPlaybackRate(Number(e.target.value))}
-            ></input>
-          </PopoverPanel>
-        </Popover>
-        <Listbox value={selectedLanguage} onChange={onLanguageSelect}>
-          <ListboxButton
-            aria-label={selectedLanguage.name}
-            className="grid size-10 place-items-center gap-2 rounded-full bg-gray-900 hover:opacity-75"
-          >
-            <LanguageIcon code={selectedLanguage.id} className="size-6" />
-          </ListboxButton>
-          <ListboxOptions
-            anchor={{
-              gap: 16,
-              offset: 0,
-              padding: 16,
-              to: 'bottom',
-            }}
-            className="flex flex-col rounded bg-gray-950 p-2"
-          >
-            {availableLanguages.map((availableLanguage) => (
-              <ListboxOption
-                as="button"
-                key={availableLanguage.id}
-                value={availableLanguage}
-                className={classNames(
-                  'flex items-center gap-2 px-4 py-2 data-[focus]:bg-gray-600 data-[selected]:bg-gray-700',
-                )}
-              >
-                <LanguageIcon code={availableLanguage.id} className="size-4" />
-                <span>{availableLanguage.name}</span>
-              </ListboxOption>
-            ))}
-          </ListboxOptions>
-        </Listbox>
+
         <button className="grid size-10 place-items-center rounded-full bg-gray-950 hover:opacity-75" onClick={onClose}>
           <FaXmark size={16} />
         </button>
       </div>
-    </>
+      <Popover className="relative">
+        <PopoverButton className="relative inline-flex h-10 w-20 items-center justify-between gap-2 rounded-full bg-gray-900 px-4 text-sm hover:opacity-75">
+          <FaBoltLightning size={16} />
+          <span>{playbackRate}</span>
+        </PopoverButton>
+        <PopoverBackdrop className="fixed inset-0 bg-black/15" />
+        <PopoverPanel
+          anchor={{
+            gap: 16,
+            offset: 0,
+            padding: 16,
+            to: 'bottom',
+          }}
+          className="flex flex-col rounded bg-gray-950 px-6 py-4"
+        >
+          <input
+            type="range"
+            min={0.5}
+            max={1.5}
+            step={0.25}
+            value={playbackRate}
+            onChange={(e) => setPlaybackRate(Number(e.target.value))}
+          ></input>
+        </PopoverPanel>
+      </Popover>
+      <Listbox value={selectedLanguage} onChange={onLanguageSelect}>
+        <ListboxButton
+          aria-label={selectedLanguage.name}
+          className="grid size-10 place-items-center gap-2 rounded-full bg-gray-900 hover:opacity-75"
+        >
+          <LanguageIcon code={selectedLanguage.id} className="size-6" />
+        </ListboxButton>
+        <ListboxOptions
+          anchor={{
+            gap: 16,
+            offset: 0,
+            padding: 16,
+            to: 'bottom',
+          }}
+          className="flex flex-col rounded bg-gray-950 p-2"
+        >
+          {availableLanguages.map((availableLanguage) => (
+            <ListboxOption
+              as="button"
+              key={availableLanguage.id}
+              value={availableLanguage}
+              className={classNames(
+                'flex items-center gap-2 px-4 py-2 data-[focus]:bg-gray-600 data-[selected]:bg-gray-700',
+              )}
+            >
+              <LanguageIcon code={availableLanguage.id} className="size-4" />
+              <span>{availableLanguage.name}</span>
+            </ListboxOption>
+          ))}
+        </ListboxOptions>
+      </Listbox>
+    </div>
   ) : null;
 };
 export default TTSPlayer;

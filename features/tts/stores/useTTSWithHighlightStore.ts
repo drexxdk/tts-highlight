@@ -2,13 +2,16 @@ import { create } from 'zustand';
 import { POLLY_SUPPORTED_DANISH_CHARS } from '../const/polly-supported-danish-chars';
 import { POLLY_SUPPORTED_ENGLISH_CHARS } from '../const/polly-supported-english-chars';
 import { Language } from '../interfaces/Language';
-import { TTSWithHighlight } from '../interfaces/TTSWithHighlight';
+import { Polly } from '../interfaces/Polly';
+import { TextSelection } from '../interfaces/TextSelection';
 
 export interface TTSWithHighlightState {
-  instance?: TTSWithHighlight;
+  textSelection?: TextSelection;
+  polly?: Polly;
   selectedLanguage?: Language;
   availableLanguages: Language[];
-  setInstance: (polly?: TTSWithHighlight) => void;
+  setTextSelection: (textSelection?: TextSelection) => void;
+  setPolly: (polly?: Polly) => void;
   setSelectedLanguage: (language: Language) => void;
   setAvailableLanguages: (languages: Language[]) => void;
 }
@@ -19,10 +22,12 @@ const LANGUAGES: Language[] = [
 ];
 
 export const useTTSWithHighlightStore = create<TTSWithHighlightState>((set) => ({
-  instance: undefined,
+  textSelection: undefined,
+  polly: undefined,
   selectedLanguage: LANGUAGES[0],
   availableLanguages: LANGUAGES,
-  setInstance: (polly?: TTSWithHighlight) => set((state) => ({ ...state, instance: polly })),
-  setSelectedLanguage: (language: Language) => set((state) => ({ ...state, selectedLanguage: language })),
-  setAvailableLanguages: (languages: Language[]) => set((state) => ({ ...state, availableLanguages: languages })),
+  setTextSelection: (textSelection?: TextSelection) => set((state) => ({ ...state, textSelection })),
+  setPolly: (polly?: Polly) => set((state) => ({ ...state, polly })),
+  setSelectedLanguage: (selectedLanguage: Language) => set((state) => ({ ...state, selectedLanguage })),
+  setAvailableLanguages: (availableLanguages: Language[]) => set((state) => ({ ...state, availableLanguages })),
 }));

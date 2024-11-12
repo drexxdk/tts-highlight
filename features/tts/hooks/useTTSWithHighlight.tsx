@@ -1,13 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 import { ADD_PUNCTUATION_FOR_HTML_ELEMENT_TYPES } from '../const/add-punctuation-for-html-element-types';
-import { Polly } from '../interfaces/Polly';
+import { Polly, PollyRequest } from '../interfaces/Polly';
 import { PollyBody } from '../interfaces/PollyBody';
-import { TTSSelection } from '../interfaces/TTSSelection';
-import { TTSSelectionWord } from '../interfaces/TTSSelectionWord';
-import { TTSWithHighlight } from '../interfaces/TTSWithHighlight';
+import { TextSelectionWord } from '../interfaces/TextSelectionWord';
 import { useTTSWithHighlightStore } from '../stores/useTTSWithHighlightStore';
 import { fixRange } from '../utils/fixRange';
 import { nodesInRange } from '../utils/nodesInRange';
@@ -29,8 +27,11 @@ const IGNORE_TEXT_NODE_IF_ONLY_CONTAINS = new RegExp(/^[!?.\¨\[\]]+$/);
 const DONT_ADD_PUNCTION_FOR_ELEMENTS_ENDING_WITH: string[] = ['.', '!', '?'];
 
 export const useTTSWithHighlight = () => {
-  const [ttsSelection, setTTSSelection] = useState<TTSSelection>();
-  const setInstance = useTTSWithHighlightStore((state) => state.setInstance);
+  // const [ttsSelection, setTTSSelection] = useState<TTSSelection>();
+
+  const textSelection = useTTSWithHighlightStore((state) => state.textSelection);
+  const setTextSelection = useTTSWithHighlightStore((state) => state.setTextSelection);
+  const setPolly = useTTSWithHighlightStore((state) => state.setPolly);
   const selectedLanguage = useTTSWithHighlightStore((state) => state.selectedLanguage);
 
   const checkSelection = useDebouncedCallback(() => {
@@ -64,7 +65,7 @@ export const useTTSWithHighlight = () => {
           currentNode = treeWalker.nextNode();
         }
 
-        const words: TTSSelectionWord[] = [];
+        const words: TextSelectionWord[] = [];
         while (currentNode) {
           if (
             nodes.find(
@@ -158,7 +159,7 @@ export const useTTSWithHighlight = () => {
         }
 
         const inputText = words.map((word) => word.word).join(' ');
-        setTTSSelection({
+        setTextSelection({
           words: words,
           inputText: inputText,
         });
@@ -188,25 +189,23 @@ export const useTTSWithHighlight = () => {
   }, CHECK_SELECTION_DEBOUNCE_DELAY);
 
   useEffect(() => {
-    if (ttsSelection && selectedLanguage) {
+    if (textSelection && selectedLanguage) {
       const body: PollyBody = {
         Language: selectedLanguage.id,
-        InputText: ttsSelection.inputText,
+        InputText: textSelection.inputText,
       };
 
-      if (ttsSelection.inputText) {
-        postRequest<Polly>(POLLY_API_ROOT, POLLY_API_URL, body).then(
+      if (textSelection.inputText) {
+        postRequest<PollyRequest>(POLLY_API_ROOT, POLLY_API_URL, body).then(
           (response) => {
             if (response) {
-              const instance: TTSWithHighlight = {
-                polly: response,
-                selection: ttsSelection,
+              const polly: Polly = {
+                audio: response.Audio,
+                marks: response.Marks,
                 hasMultipleWords: response.Marks.filter((mark) => mark.type === 'word').length > 1,
                 hasMultipleSentences: response.Marks.filter((mark) => mark.type === 'sentence').length > 1,
               };
-              setInstance(instance);
-              // console.log('instance', instance);
-              console.log(instance.polly.Marks.filter((mark) => mark.type === 'word').map((word) => word.value));
+              setPolly(polly);
             }
           },
           (error) => {
@@ -215,7 +214,7 @@ export const useTTSWithHighlight = () => {
         );
       }
     }
-  }, [ttsSelection, selectedLanguage, setInstance]);
+  }, [textSelection, selectedLanguage, setPolly]);
 
   useEffect(() => {
     document.addEventListener('selectionchange', checkSelection);
@@ -225,5 +224,5 @@ export const useTTSWithHighlight = () => {
     };
   }, [checkSelection]);
 
-  return ttsSelection;
+  return textSelection;
 };

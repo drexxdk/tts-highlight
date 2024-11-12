@@ -1,23 +1,23 @@
+import { Polly } from '../interfaces/Polly';
 import { PollyMark } from '../interfaces/PollyMark';
-import { TTSWithHighlight } from '../interfaces/TTSWithHighlight';
 import { currentTimeToPollyMarkTime } from './currentTimeToPollyMarkTime';
 
 export const getPreviousSentence = ({
-  instance,
+  polly,
   currentTime,
 }: {
-  instance: TTSWithHighlight;
+  polly: Polly;
   currentTime: number;
 }): PollyMark | undefined => {
-  const sentences = instance.polly.Marks.filter(
+  const sentences = polly.marks.filter(
     (mark) => mark.type === 'sentence' && Number(mark.time) / 1000 < currentTimeToPollyMarkTime(currentTime),
   );
   if (!sentences.length) {
     return;
   }
-  const sentenceIndex = instance.polly.Marks.findIndex(
+  const sentenceIndex = polly.marks.findIndex(
     (sentence) => sentence === sentences[sentences.length - (sentences.length > 1 ? 2 : 1)],
   );
-  const word = instance.polly.Marks[sentenceIndex + 1];
+  const word = polly.marks[sentenceIndex + 1];
   return word;
 };
