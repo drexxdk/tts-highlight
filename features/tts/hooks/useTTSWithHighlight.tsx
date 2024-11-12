@@ -18,7 +18,7 @@ const POLLY_API_URL = 'polly/tts';
 
 // If word contains these characters then add whitespace around each of them.
 // Polly can't handle them within a word.
-const SPLIT_IN_WORD = new RegExp(/(?=[<>#%=/])|(?<=[<>#%=/])/g);
+const SPLIT_IN_WORD = new RegExp(/(?=[?_.<>#%=/])|(?<=[?_.<>#%=/])/g);
 
 // Polly Danish does not understand this symbol: ¤. "¤" can't be trusted.
 // Polly English combines "a & a" into a single word. "&" can't be trusted.

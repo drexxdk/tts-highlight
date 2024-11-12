@@ -54,10 +54,20 @@ const Page = () => {
       <section>
         <h2 className="mb-2 text-xl font-bold">ToDo</h2>
         <ul className="list-inside list-disc">
-          <li>Ignore elements that has data-attribute</li>
-          <li>Alternative text being read for element instead of what is visually shown</li>
+          <li>
+            Support all languages specified here{' '}
+            <a
+              href="https://bitbucket.org/alineadigital/next-api/src/master/Alinea.Api.Next/Controllers/PollyController.cs"
+              className="text-orange-300 underline hover:no-underline"
+            >
+              https://bitbucket.org/alineadigital/next-api/src/master/Alinea.Api.Next/Controllers/PollyController.cs
+            </a>
+          </li>
+          <li>Ignore elements that has some specific data-attribute</li>
+          <li>Support for alternative being used for TTS on element instead of what is visually shown</li>
           <li>Switch polly audio files when needed (it only uses first file currently)</li>
           <li>Full page player</li>
+          <li>Duration slider</li>
         </ul>
       </section>
       <section>
@@ -75,7 +85,6 @@ const Page = () => {
           <li>Auto detect text language</li>
           <li>Support multiple spoken languages at the same time</li>
           <li>Audio streaming instead of mp3</li>
-          <li>Duration slider</li>
           <li>Some way of giving ::highlight higher z-index than ::selection</li>
           <li>More options for ::highlight styling</li>
         </ul>
