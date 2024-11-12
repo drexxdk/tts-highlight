@@ -38,7 +38,7 @@ import { getPreviousSentence } from '../utils/getPreviousSentence';
 import { getPreviousWord } from '../utils/getPreviousWord';
 import { highlightWord } from '../utils/highlightWord';
 
-type AudioStatus = 'loading' | 'ready' | 'playing' | 'paused' | 'ended';
+type AudioStatus = 'loading' | 'ready' | 'playing' | 'paused';
 
 const LanguageIcon = ({ code, className }: { code: LanguageCode; className?: string }) => {
   switch (code) {
@@ -292,10 +292,10 @@ const TTSPlayer = () => {
         <button
           className={classNames(
             'grid size-10 place-items-center rounded-full bg-gray-900',
-            status === 'playing' || status === 'paused' ? 'hover:opacity-75' : 'opacity-50',
+            status === 'playing' || status === 'paused' || status === 'ready' ? 'hover:opacity-75' : 'opacity-50',
           )}
           onClick={onReset}
-          disabled={status !== 'playing' && status !== 'paused'}
+          disabled={status !== 'playing' && status !== 'paused' && status !== 'ready'}
         >
           <FaRotateLeft size={16} />
         </button>
