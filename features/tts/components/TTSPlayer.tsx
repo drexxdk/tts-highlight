@@ -289,16 +289,6 @@ const TTSPlayer = () => {
         >
           <FaPause size={24} />
         </button>
-        <button
-          className={classNames(
-            'grid size-10 place-items-center rounded-full bg-gray-900',
-            status === 'playing' || status === 'paused' || status === 'ready' ? 'hover:opacity-75' : 'opacity-50',
-          )}
-          onClick={onReset}
-          disabled={status !== 'playing' && status !== 'paused' && status !== 'ready'}
-        >
-          <FaRotateLeft size={16} />
-        </button>
         {instance?.hasMultipleWords && previousNextInfo ? (
           <button
             className={classNames(
@@ -323,6 +313,17 @@ const TTSPlayer = () => {
             <FaForwardFast size={16} />
           </button>
         ) : null}
+
+        <button
+          className={classNames(
+            'grid size-10 place-items-center rounded-full bg-gray-900',
+            status === 'playing' || status === 'paused' || status === 'ready' ? 'hover:opacity-75' : 'opacity-50',
+          )}
+          onClick={onReset}
+          disabled={status !== 'playing' && status !== 'paused' && status !== 'ready'}
+        >
+          <FaRotateLeft size={16} />
+        </button>
         <Popover className="relative">
           <PopoverButton className="relative inline-flex h-10 w-20 items-center justify-between gap-2 rounded-full bg-gray-900 px-4 text-sm hover:opacity-75">
             <FaBoltLightning size={16} />
