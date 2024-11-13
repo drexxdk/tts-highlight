@@ -10,10 +10,12 @@ export interface TTSWithHighlightState {
   polly?: Polly;
   selectedLanguage?: Language;
   availableLanguages: Language[];
+  playRequested: boolean;
   setTextSelection: (textSelection?: TextSelection) => void;
   setPolly: (polly?: Polly) => void;
   setSelectedLanguage: (language: Language) => void;
   setAvailableLanguages: (languages: Language[]) => void;
+  setPlayRequested: (playRequested: boolean) => void;
 }
 
 const LANGUAGES: Language[] = [
@@ -26,8 +28,10 @@ export const useTTSWithHighlightStore = create<TTSWithHighlightState>((set) => (
   polly: undefined,
   selectedLanguage: LANGUAGES[0],
   availableLanguages: LANGUAGES,
+  playRequested: false,
   setTextSelection: (textSelection?: TextSelection) => set((state) => ({ ...state, textSelection })),
   setPolly: (polly?: Polly) => set((state) => ({ ...state, polly })),
   setSelectedLanguage: (selectedLanguage: Language) => set((state) => ({ ...state, selectedLanguage })),
   setAvailableLanguages: (availableLanguages: Language[]) => set((state) => ({ ...state, availableLanguages })),
+  setPlayRequested: (playRequested: boolean) => set((state) => ({ ...state, playRequested })),
 }));

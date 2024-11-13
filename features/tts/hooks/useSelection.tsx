@@ -3,17 +3,12 @@
 import { useEffect } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 import { ADD_PUNCTUATION_FOR_HTML_ELEMENT_TYPES } from '../const/add-punctuation-for-html-element-types';
-import { Polly, PollyRequest } from '../interfaces/Polly';
-import { PollyBody } from '../interfaces/PollyBody';
 import { TextSelectionWord } from '../interfaces/TextSelectionWord';
 import { useTTSWithHighlightStore } from '../stores/useTTSWithHighlightStore';
 import { fixRange } from '../utils/fixRange';
 import { nodesInRange } from '../utils/nodesInRange';
-import { postRequest } from '../utils/requests';
 
 const CHECK_SELECTION_DEBOUNCE_DELAY = 500;
-const POLLY_API_ROOT = 'https://web-next-api-dev.azurewebsites.net/api/';
-const POLLY_API_URL = 'polly/tts';
 
 // If word contains these characters then add whitespace around each of them.
 // Polly can't handle them within a word.
@@ -26,12 +21,8 @@ const IGNORE_TEXT_NODE_IF_ONLY_CONTAINS = new RegExp(/^[!?.\¨\[\]]+$/);
 // These symbols count as sentence endings for Polly.
 const DONT_ADD_PUNCTION_FOR_ELEMENTS_ENDING_WITH: string[] = ['.', '!', '?'];
 
-export const useTTSWithHighlight = () => {
-  // const [ttsSelection, setTTSSelection] = useState<TTSSelection>();
-
-  const textSelection = useTTSWithHighlightStore((state) => state.textSelection);
+export const useSelection = () => {
   const setTextSelection = useTTSWithHighlightStore((state) => state.setTextSelection);
-  const setPolly = useTTSWithHighlightStore((state) => state.setPolly);
   const selectedLanguage = useTTSWithHighlightStore((state) => state.selectedLanguage);
 
   const checkSelection = useDebouncedCallback(() => {
@@ -189,40 +180,10 @@ export const useTTSWithHighlight = () => {
   }, CHECK_SELECTION_DEBOUNCE_DELAY);
 
   useEffect(() => {
-    if (textSelection && selectedLanguage) {
-      const body: PollyBody = {
-        Language: selectedLanguage.id,
-        InputText: textSelection.inputText,
-      };
-
-      if (textSelection.inputText) {
-        postRequest<PollyRequest>(POLLY_API_ROOT, POLLY_API_URL, body).then(
-          (response) => {
-            if (response) {
-              const polly: Polly = {
-                audio: response.Audio,
-                marks: response.Marks,
-                hasMultipleWords: response.Marks.filter((mark) => mark.type === 'word').length > 1,
-                hasMultipleSentences: response.Marks.filter((mark) => mark.type === 'sentence').length > 1,
-              };
-              setPolly(polly);
-            }
-          },
-          (error) => {
-            console.log(error);
-          },
-        );
-      }
-    }
-  }, [textSelection, selectedLanguage, setPolly]);
-
-  useEffect(() => {
     document.addEventListener('selectionchange', checkSelection);
 
     return () => {
       document.removeEventListener('selectionchange', checkSelection);
     };
   }, [checkSelection]);
-
-  return textSelection;
 };

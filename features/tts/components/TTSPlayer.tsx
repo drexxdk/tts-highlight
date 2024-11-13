@@ -1,6 +1,6 @@
 'use client';
 
-import { useTTSWithHighlight } from '@/features/tts/hooks/useTTSWithHighlight';
+import { useSelection } from '@/features/tts/hooks/useSelection';
 import { useTTSWithHighlightStore } from '@/features/tts/stores/useTTSWithHighlightStore';
 import {
   Listbox,
@@ -25,6 +25,7 @@ import {
   FaRotateLeft,
   FaXmark,
 } from 'react-icons/fa6';
+import { useLoadPolly } from '../hooks/useLoadPolly';
 import { Language } from '../interfaces/Language';
 import { LanguageCode } from '../interfaces/LanguageCode';
 import { PreviousNextInfo } from '../interfaces/PreviousNextInfo';
@@ -61,11 +62,13 @@ const TTSPlayer = () => {
   const selectedLanguage = useTTSWithHighlightStore((state) => state.selectedLanguage);
   const setSelectedLanguage = useTTSWithHighlightStore((state) => state.setSelectedLanguage);
   const availableLanguages = useTTSWithHighlightStore((state) => state.availableLanguages);
+  const setPlayRequested = useTTSWithHighlightStore((state) => state.setPlayRequested);
   const audio = useRef<HTMLAudioElement>(null);
   const [status, setStatus] = useState<AudioStatus>();
   const [previousNextInfo, setPreviousNextInfo] = useState<PreviousNextInfo>();
   const [playbackRate, setPlaybackRate] = useState<number>(1);
-  useTTSWithHighlight();
+  useSelection();
+  useLoadPolly();
 
   const prepare = useCallback(
     (audio: HTMLAudioElement) => {
@@ -82,7 +85,10 @@ const TTSPlayer = () => {
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    if (status === 'playing') {
+    if (audio.current && status === 'playing') {
+      if (audio.current.paused) {
+        audio.current.play();
+      }
       interval = setInterval(() => {
         if (audio.current) {
           prepare(audio.current);
@@ -107,8 +113,8 @@ const TTSPlayer = () => {
     const mark = getFirstWord({ polly: polly });
     if (mark) {
       audio.current.currentTime = Number(mark.time) / 1000;
-      setStatus('ready');
       prepare(audio.current);
+      setStatus('playing');
     }
   };
 
@@ -123,8 +129,12 @@ const TTSPlayer = () => {
     if (!audio.current) {
       return;
     }
-    audio.current.play();
-    setStatus('playing');
+    if (polly) {
+      setStatus('playing');
+    } else {
+      setPlayRequested(true);
+      setStatus('loading');
+    }
   };
 
   const onPause = () => {
@@ -141,8 +151,8 @@ const TTSPlayer = () => {
     }
     audio.current.pause();
     audio.current.currentTime = 0;
-    setStatus('ready');
     prepare(audio.current);
+    setStatus('ready');
   };
 
   const onClose = () => {
@@ -150,10 +160,11 @@ const TTSPlayer = () => {
       return;
     }
     audio.current.pause();
-    setStatus(undefined);
     setTextSelection(undefined);
     setInstance(undefined);
     setPreviousNextInfo(undefined);
+    setPlayRequested(false);
+    setStatus(undefined);
 
     const selection = window.getSelection();
     if (selection) {
@@ -227,20 +238,14 @@ const TTSPlayer = () => {
 
   return selectedLanguage ? (
     <div className="ml-auto flex flex-wrap items-center justify-center gap-2">
-      <audio
-        ref={audio}
-        src={polly?.audio[0]}
-        onLoadStart={() => setStatus('loading')}
-        onLoadedData={onLoadedData}
-        onEnded={onEnded}
-      />
+      <audio ref={audio} src={polly?.audio[0]} onLoadedData={onLoadedData} onEnded={onEnded} />
       <div
         className={classNames(
           'flex flex-wrap items-center justify-center gap-1 rounded-3xl bg-gray-800 p-1',
           {
             'opacity-50': status === 'loading',
           },
-          { hidden: !status },
+          { hidden: !textSelection },
         )}
       >
         {polly?.hasMultipleSentences && previousNextInfo ? (
@@ -271,10 +276,9 @@ const TTSPlayer = () => {
         <button
           className={classNames(
             'grid size-10 place-items-center rounded-full bg-gray-200 text-gray-950',
-            status === 'ready' || status === 'paused' ? 'hover:opacity-75' : 'hidden',
+            status !== 'playing' ? 'hover:opacity-75' : 'hidden',
           )}
           onClick={onPlay}
-          disabled={status !== 'ready' && status !== 'paused'}
         >
           <FaPlay size={24} />
         </button>
@@ -312,18 +316,18 @@ const TTSPlayer = () => {
             <FaForwardFast size={16} />
           </button>
         ) : null}
-
-        <button
-          className={classNames(
-            'grid size-10 place-items-center rounded-full bg-gray-900',
-            status === 'playing' || status === 'paused' || status === 'ready' ? 'hover:opacity-75' : 'opacity-50',
-          )}
-          onClick={onReset}
-          disabled={status !== 'playing' && status !== 'paused' && status !== 'ready'}
-        >
-          <FaRotateLeft size={16} />
-        </button>
-
+        {polly?.hasMultipleWords && previousNextInfo ? (
+          <button
+            className={classNames(
+              'grid size-10 place-items-center rounded-full bg-gray-900',
+              previousNextInfo.hasPreviousWord ? 'hover:opacity-75' : 'opacity-50',
+            )}
+            onClick={onReset}
+            disabled={!previousNextInfo.hasPreviousWord}
+          >
+            <FaRotateLeft size={16} />
+          </button>
+        ) : null}
         <button className="grid size-10 place-items-center rounded-full bg-gray-950 hover:opacity-75" onClick={onClose}>
           <FaXmark size={16} />
         </button>
@@ -333,7 +337,7 @@ const TTSPlayer = () => {
           <FaBoltLightning size={16} />
           <span>{playbackRate}</span>
         </PopoverButton>
-        <PopoverBackdrop className="fixed inset-0 bg-black/15" />
+        <PopoverBackdrop className="fixed inset-0 z-10 bg-black/15" />
         <PopoverPanel
           anchor={{
             gap: 16,
@@ -341,7 +345,7 @@ const TTSPlayer = () => {
             padding: 16,
             to: 'bottom',
           }}
-          className="flex flex-col rounded bg-gray-950 px-6 py-4"
+          className="z-10 flex flex-col rounded bg-gray-950 px-6 py-4"
         >
           <input
             type="range"
@@ -367,7 +371,10 @@ const TTSPlayer = () => {
             padding: 16,
             to: 'bottom',
           }}
-          className="flex flex-col rounded bg-gray-950 p-2"
+          className={classNames(
+            'z-10 flex flex-col rounded bg-gray-950 p-2',
+            'before:pointer-events-none before:fixed before:inset-0 before:z-10 before:bg-black/15',
+          )}
         >
           {availableLanguages.map((availableLanguage) => (
             <ListboxOption
