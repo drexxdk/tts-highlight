@@ -1,11 +1,41 @@
 import { ReactNode } from 'react';
 
-const Tr = ({ children }: { children: ReactNode }) => {
+const Table = ({ children }: { children?: ReactNode }) => {
   return (
-    <tr className='class="odd:bg-white dark:border-gray-700" border-b even:bg-gray-50 odd:dark:bg-gray-900 even:dark:bg-gray-800'>
-      {children}
-    </tr>
+    <div className="relative grid overflow-x-auto">
+      <table className="w-fit text-center text-sm text-gray-400">
+        <thead className="bg-orange-400 text-xs uppercase text-gray-950">
+          <tr>
+            <Th>0</Th>
+            <Th>1</Th>
+            <Th>2</Th>
+            <Th>3</Th>
+            <Th>4</Th>
+            <Th>5</Th>
+            <Th>6</Th>
+            <Th>7</Th>
+            <Th>8</Th>
+            <Th>9</Th>
+            <Th>a</Th>
+            <Th>b</Th>
+            <Th>c</Th>
+            <Th>d</Th>
+            <Th>e</Th>
+            <Th>f</Th>
+          </tr>
+        </thead>
+        <tbody>{children}</tbody>
+      </table>
+    </div>
   );
+};
+
+const Tr = ({ children }: { children: ReactNode }) => {
+  return <tr className='class="dark:border-gray-700" border-b odd:bg-gray-900 even:bg-gray-800'>{children}</tr>;
+};
+
+const Th = ({ children }: { children?: ReactNode }) => {
+  return <th className="px-2 py-1">{children}</th>;
 };
 
 const Td = ({ children }: { children?: ReactNode }) => {
@@ -14,28 +44,10 @@ const Td = ({ children }: { children?: ReactNode }) => {
 
 const SpecialCharacters = () => {
   return (
-    <div className="relative grid overflow-x-auto">
-      <table className="w-fit">
-        <tbody>
-          <Tr>
-            <Td>0</Td>
-            <Td>1</Td>
-            <Td>2</Td>
-            <Td>3</Td>
-            <Td>4</Td>
-            <Td>5</Td>
-            <Td>6</Td>
-            <Td>7</Td>
-            <Td>8</Td>
-            <Td>9</Td>
-            <Td>a</Td>
-            <Td>b</Td>
-            <Td>c</Td>
-            <Td>d</Td>
-            <Td>e</Td>
-            <Td>f</Td>
-          </Tr>
-
+    <section>
+      <h2 className="mb-2 text-xl font-bold">Special Characters</h2>
+      <div className="grid gap-4">
+        <Table>
           <Tr>
             <Td> </Td>
             <Td>!</Td>
@@ -576,24 +588,8 @@ const SpecialCharacters = () => {
             <Td>Ǿ</Td>
             <Td>ǿ</Td>
           </Tr>
-          <Tr>
-            <Td>0</Td>
-            <Td>1</Td>
-            <Td>2</Td>
-            <Td>3</Td>
-            <Td>4</Td>
-            <Td>5</Td>
-            <Td>6</Td>
-            <Td>7</Td>
-            <Td>8</Td>
-            <Td>9</Td>
-            <Td>a</Td>
-            <Td>b</Td>
-            <Td>c</Td>
-            <Td>d</Td>
-            <Td>e</Td>
-            <Td>f</Td>
-          </Tr>
+        </Table>
+        <Table>
           <Tr>
             <Td>Ȁ</Td>
             <Td>ȁ</Td>
@@ -1152,24 +1148,8 @@ const SpecialCharacters = () => {
             <Td>Ϯ</Td>
             <Td>ϯ</Td>
           </Tr>
-          <Tr>
-            <Td>0</Td>
-            <Td>1</Td>
-            <Td>2</Td>
-            <Td>3</Td>
-            <Td>4</Td>
-            <Td>5</Td>
-            <Td>6</Td>
-            <Td>7</Td>
-            <Td>8</Td>
-            <Td>9</Td>
-            <Td>a</Td>
-            <Td>b</Td>
-            <Td>c</Td>
-            <Td>d</Td>
-            <Td>e</Td>
-            <Td>f</Td>
-          </Tr>
+        </Table>
+        <Table>
           <Tr>
             <Td> </Td>
             <Td> </Td>
@@ -1746,24 +1726,8 @@ const SpecialCharacters = () => {
             <Td>⇾</Td>
             <Td>⇿</Td>
           </Tr>
-          <Tr>
-            <Td>0</Td>
-            <Td>1</Td>
-            <Td>2</Td>
-            <Td>3</Td>
-            <Td>4</Td>
-            <Td>5</Td>
-            <Td>6</Td>
-            <Td>7</Td>
-            <Td>8</Td>
-            <Td>9</Td>
-            <Td>a</Td>
-            <Td>b</Td>
-            <Td>c</Td>
-            <Td>d</Td>
-            <Td>e</Td>
-            <Td>f</Td>
-          </Tr>
+        </Table>
+        <Table>
           <Tr>
             <Td>∀</Td>
             <Td>∁</Td>
@@ -2340,24 +2304,8 @@ const SpecialCharacters = () => {
             <Td>⏾</Td>
             <Td>⏿</Td>
           </Tr>
-          <Tr>
-            <Td>0</Td>
-            <Td>1</Td>
-            <Td>2</Td>
-            <Td>3</Td>
-            <Td>4</Td>
-            <Td>5</Td>
-            <Td>6</Td>
-            <Td>7</Td>
-            <Td>8</Td>
-            <Td>9</Td>
-            <Td>a</Td>
-            <Td>b</Td>
-            <Td>c</Td>
-            <Td>d</Td>
-            <Td>e</Td>
-            <Td>f</Td>
-          </Tr>
+        </Table>
+        <Table>
           <Tr>
             <Td>␀</Td>
             <Td>␁</Td>
@@ -2934,24 +2882,8 @@ const SpecialCharacters = () => {
             <Td>◾</Td>
             <Td>◿</Td>
           </Tr>
-          <Tr>
-            <Td>0</Td>
-            <Td>1</Td>
-            <Td>2</Td>
-            <Td>3</Td>
-            <Td>4</Td>
-            <Td>5</Td>
-            <Td>6</Td>
-            <Td>7</Td>
-            <Td>8</Td>
-            <Td>9</Td>
-            <Td>a</Td>
-            <Td>b</Td>
-            <Td>c</Td>
-            <Td>d</Td>
-            <Td>e</Td>
-            <Td>f</Td>
-          </Tr>
+        </Table>
+        <Table>
           <Tr>
             <Td>☀</Td>
             <Td>☁</Td>
@@ -3258,9 +3190,9 @@ const SpecialCharacters = () => {
             <Td>✎</Td>
             <Td>✏</Td>
           </Tr>
-        </tbody>
-      </table>
-    </div>
+        </Table>
+      </div>
+    </section>
   );
 };
 export default SpecialCharacters;
