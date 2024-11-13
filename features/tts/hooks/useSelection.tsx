@@ -150,10 +150,14 @@ export const useSelection = () => {
         }
 
         const inputText = words.map((word) => word.word).join(' ');
-        setTextSelection({
-          words: words,
-          inputText: inputText,
-        });
+        setTextSelection(
+          inputText
+            ? {
+                words: words,
+                inputText: inputText,
+              }
+            : undefined,
+        );
 
         if ('Highlight' in window && inputText) {
           const selectionHighlight = new Highlight(range);

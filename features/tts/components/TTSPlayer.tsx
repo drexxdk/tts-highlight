@@ -335,7 +335,7 @@ const TTSPlayer = () => {
       <Popover className="relative">
         <PopoverButton className="relative inline-flex h-10 w-20 items-center justify-between gap-2 rounded-full bg-gray-900 px-4 text-sm hover:opacity-75">
           <FaBoltLightning size={16} />
-          <span>{playbackRate}</span>
+          <span className="whitespace-nowrap">{playbackRate}</span>
         </PopoverButton>
         <PopoverBackdrop className="fixed inset-0 z-10 bg-black/15" />
         <PopoverPanel
