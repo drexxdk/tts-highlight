@@ -39,7 +39,7 @@ import { getPreviousSentence } from '../utils/getPreviousSentence';
 import { getPreviousWord } from '../utils/getPreviousWord';
 import { highlightWord } from '../utils/highlightWord';
 
-type AudioStatus = 'loading' | 'ready' | 'playing' | 'paused';
+type AudioStatus = 'loading' | 'loaded' | 'ready' | 'playing' | 'paused';
 
 const LanguageIcon = ({ code, className }: { code: LanguageCode; className?: string }) => {
   switch (code) {
@@ -75,7 +75,6 @@ const TTSPlayer = () => {
       if (!polly || !textSelection) {
         return;
       }
-
       const currentTime = Math.round((audio.currentTime || 0) * 1000);
       setPreviousNextInfo(getPreviousNextInfo({ polly: polly, currentTime }));
       highlightWord({ currentTime, polly: polly, textSelection });
@@ -86,8 +85,8 @@ const TTSPlayer = () => {
   useEffect(() => {
     if (!textSelection) {
       if (status === 'playing') {
+        setStatus('paused');
         requestAnimationFrame(() => {
-          setStatus('paused');
           audio.current?.pause();
         });
       }
@@ -99,18 +98,38 @@ const TTSPlayer = () => {
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    if (audio.current && status === 'playing') {
-      if (audio.current.paused) {
-        audio.current.play();
-      }
-      interval = setInterval(() => {
-        if (audio.current) {
+    if (audio.current) {
+      if (status === 'loading') {
+        setPlayRequested(true);
+      } else if (status === 'loaded' && polly) {
+        setPlayRequested(false);
+        audio.current.playbackRate = playbackRate;
+        const mark = getFirstWord({ polly });
+        if (mark) {
+          audio.current.currentTime = Number(mark.time) / 1000;
           prepare(audio.current);
+          setStatus('playing');
         }
-      }, 50);
+      } else if (status === 'playing') {
+        requestAnimationFrame(() => {
+          audio.current?.play();
+        });
+
+        interval = setInterval(() => {
+          requestAnimationFrame(() => {
+            if (audio.current) {
+              prepare(audio.current);
+            }
+          });
+        }, 50);
+      } else if (status === 'paused') {
+        requestAnimationFrame(() => {
+          audio.current?.pause();
+        });
+      }
     }
     return () => clearInterval(interval);
-  }, [audio, prepare, status]);
+  }, [audio, playbackRate, polly, prepare, setPlayRequested, status]);
 
   useEffect(() => {
     if (!audio.current) {
@@ -118,47 +137,6 @@ const TTSPlayer = () => {
     }
     audio.current.playbackRate = playbackRate;
   }, [playbackRate]);
-
-  const onLoadedPolly = () => {
-    if (!polly || !audio.current) {
-      return;
-    }
-    setPlayRequested(false);
-    audio.current.playbackRate = playbackRate;
-    const mark = getFirstWord({ polly: polly });
-    if (mark) {
-      audio.current.currentTime = Number(mark.time) / 1000;
-      prepare(audio.current);
-      setStatus('playing');
-    }
-  };
-
-  const onEnded = () => {
-    if (!audio.current) {
-      return;
-    }
-    setStatus('ready');
-  };
-
-  const onPlay = () => {
-    if (!audio.current) {
-      return;
-    }
-    if (polly) {
-      setStatus('playing');
-    } else {
-      setPlayRequested(true);
-      setStatus('loading');
-    }
-  };
-
-  const onPause = () => {
-    if (!audio.current) {
-      return;
-    }
-    audio.current.pause();
-    setStatus('paused');
-  };
 
   const onReset = () => {
     if (!audio.current) {
@@ -253,7 +231,12 @@ const TTSPlayer = () => {
 
   return selectedLanguage ? (
     <div className="ml-auto flex flex-wrap items-center justify-center gap-2">
-      <audio ref={audio} src={polly?.audio[0]} onLoadedData={onLoadedPolly} onEnded={onEnded} />
+      <audio
+        ref={audio}
+        src={polly?.audio[0]}
+        onLoadedData={() => setStatus('loaded')}
+        onEnded={() => setStatus('ready')}
+      />
       <div
         className={classNames(
           'flex flex-wrap items-center justify-center gap-1 rounded-3xl bg-gray-800 p-1',
@@ -293,7 +276,13 @@ const TTSPlayer = () => {
             'grid size-10 place-items-center rounded-full bg-gray-200 text-gray-950',
             status !== 'playing' ? 'hover:opacity-75' : 'hidden',
           )}
-          onClick={onPlay}
+          onClick={() => {
+            if (polly) {
+              setStatus('playing');
+            } else {
+              setStatus('loading');
+            }
+          }}
         >
           <FaPlay size={24} />
         </button>
@@ -302,7 +291,7 @@ const TTSPlayer = () => {
             'grid size-10 place-items-center rounded-full bg-gray-200 text-gray-950',
             status === 'playing' ? 'hover:opacity-75' : 'hidden',
           )}
-          onClick={onPause}
+          onClick={() => setStatus('paused')}
           disabled={status !== 'playing'}
         >
           <FaPause size={24} />
