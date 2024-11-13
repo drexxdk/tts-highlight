@@ -1,7 +1,7 @@
 const SpecialCharacters = () => {
   return (
     <div className="relative grid overflow-x-auto">
-      <table>
+      <table className="w-full">
         <tbody>
           <tr className="bg-slate-400 text-black">
             <td>0</td>
