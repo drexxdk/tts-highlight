@@ -22,6 +22,17 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+    function ({ addComponents }: { addComponents: Function }) {
+      const components = {
+        '.word-break': {
+          'word-break': 'break-word',
+        },
+      };
+
+      addComponents(components);
+    },
+  ],
 };
 export default config;

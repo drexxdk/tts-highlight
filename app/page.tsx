@@ -170,7 +170,7 @@ const Page = () => {
           </p>
         </div>
       </section>
-      <section>
+      <section className="grid">
         <h2 className="mb-2 text-xl font-bold">Special Characters</h2>
         <SpecialCharacters />
       </section>

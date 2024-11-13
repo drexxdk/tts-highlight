@@ -1,6 +1,6 @@
 const SpecialCharacters = () => {
   return (
-    <section>
+    <div className="relative grid overflow-x-auto">
       <table>
         <tbody>
           <tr className="bg-slate-400 text-black">
@@ -3246,7 +3246,7 @@ const SpecialCharacters = () => {
           </tr>
         </tbody>
       </table>
-    </section>
+    </div>
   );
 };
 export default SpecialCharacters;

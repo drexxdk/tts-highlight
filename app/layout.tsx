@@ -25,8 +25,8 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="TTS + Highlight" />
         <link rel="manifest" href="/favicon/site.webmanifest" />
       </head>
-      <body className={`flex min-h-full flex-col antialiased`}>
-        <header className="sticky top-0 bg-orange-700">
+      <body className={`word-break flex min-h-full flex-col antialiased`}>
+        <header className="sticky top-0 z-10 bg-orange-700">
           <div className="container flex min-h-20 flex-wrap items-center justify-between gap-4 py-4">
             <h1 className="inline-flex items-center gap-4 text-3xl font-black">
               <Image width={32} height={32} priority src={logoIcon} alt="Follow us on Twitter" /> TTS + Highlight
