@@ -28,6 +28,7 @@ export const useSelection = () => {
   const checkSelection = useDebouncedCallback(() => {
     const selection = window.getSelection();
     if (selectedLanguage && selection?.type === 'Range' && selection.toString().trim().length) {
+      setTextSelection(undefined);
       // This ensures that selecttion starts at the beginning of a word and ends at the ending of a word,
       // no matter how the selection is made
       const range = fixRange(selection);
@@ -159,18 +160,24 @@ export const useSelection = () => {
             : undefined,
         );
 
-        if ('Highlight' in window && inputText) {
-          const selectionHighlight = new Highlight(range);
+        if ('Highlight' in window && words.length) {
+          const selectionHighlight = new Highlight(document.createRange());
           CSS.highlights.set('selection', selectionHighlight);
 
           const wordHighlight = new Highlight();
           words.forEach((word) => {
-            const range = document.createRange();
-            range.setStart(word.node, word.startOffset);
-            range.setEnd(word.node, word.endOffset);
-            wordHighlight.add(range);
+            const wordRange = document.createRange();
+            wordRange.setStart(word.node, word.startOffset);
+            wordRange.setEnd(word.node, word.endOffset);
+            wordHighlight.add(wordRange);
           });
           CSS.highlights.set('word', wordHighlight);
+
+          const selectedWordRange = document.createRange();
+          const selectedWord = words[0];
+          selectedWordRange.setStart(selectedWord.node, selectedWord.startOffset);
+          selectedWordRange.setEnd(selectedWord.node, selectedWord.endOffset);
+          CSS.highlights.set('selected-word', new Highlight(selectedWordRange));
         } else {
           CSS.highlights.clear();
         }

@@ -58,7 +58,7 @@ const TTSPlayer = () => {
   const textSelection = useTTSWithHighlightStore((state) => state.textSelection);
   const setTextSelection = useTTSWithHighlightStore((state) => state.setTextSelection);
   const polly = useTTSWithHighlightStore((state) => state.polly);
-  const setInstance = useTTSWithHighlightStore((state) => state.setPolly);
+  const setPolly = useTTSWithHighlightStore((state) => state.setPolly);
   const selectedLanguage = useTTSWithHighlightStore((state) => state.selectedLanguage);
   const setSelectedLanguage = useTTSWithHighlightStore((state) => state.setSelectedLanguage);
   const availableLanguages = useTTSWithHighlightStore((state) => state.availableLanguages);
@@ -84,6 +84,20 @@ const TTSPlayer = () => {
   );
 
   useEffect(() => {
+    if (!textSelection) {
+      if (status === 'playing') {
+        requestAnimationFrame(() => {
+          setStatus('paused');
+          audio.current?.pause();
+        });
+      }
+      if ('Highlight' in window) {
+        CSS.highlights.clear();
+      }
+    }
+  }, [status, textSelection]);
+
+  useEffect(() => {
     let interval: NodeJS.Timeout;
     if (audio.current && status === 'playing') {
       if (audio.current.paused) {
@@ -105,10 +119,11 @@ const TTSPlayer = () => {
     audio.current.playbackRate = playbackRate;
   }, [playbackRate]);
 
-  const onLoadedData = () => {
+  const onLoadedPolly = () => {
     if (!polly || !audio.current) {
       return;
     }
+    setPlayRequested(false);
     audio.current.playbackRate = playbackRate;
     const mark = getFirstWord({ polly: polly });
     if (mark) {
@@ -161,7 +176,7 @@ const TTSPlayer = () => {
     }
     audio.current.pause();
     setTextSelection(undefined);
-    setInstance(undefined);
+    setPolly(undefined);
     setPreviousNextInfo(undefined);
     setPlayRequested(false);
     setStatus(undefined);
@@ -238,7 +253,7 @@ const TTSPlayer = () => {
 
   return selectedLanguage ? (
     <div className="ml-auto flex flex-wrap items-center justify-center gap-2">
-      <audio ref={audio} src={polly?.audio[0]} onLoadedData={onLoadedData} onEnded={onEnded} />
+      <audio ref={audio} src={polly?.audio[0]} onLoadedData={onLoadedPolly} onEnded={onEnded} />
       <div
         className={classNames(
           'flex flex-wrap items-center justify-center gap-1 rounded-3xl bg-gray-800 p-1',

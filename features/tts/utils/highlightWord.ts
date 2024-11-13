@@ -26,6 +26,5 @@ export const highlightWord = ({
   const range = document.createRange();
   range.setStart(word.node, word.startOffset);
   range.setEnd(word.node, word.endOffset);
-  const selectedWordHighlight = new Highlight(range);
-  CSS.highlights.set('selected-word', selectedWordHighlight);
+  CSS.highlights.set('selected-word', new Highlight(range));
 };

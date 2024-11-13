@@ -29,7 +29,7 @@ export const useTTSWithHighlightStore = create<TTSWithHighlightState>((set) => (
   selectedLanguage: LANGUAGES[0],
   availableLanguages: LANGUAGES,
   playRequested: false,
-  setTextSelection: (textSelection?: TextSelection) => set((state) => ({ ...state, textSelection })),
+  setTextSelection: (textSelection?: TextSelection) => set((state) => ({ ...state, textSelection, polly: undefined })),
   setPolly: (polly?: Polly) => set((state) => ({ ...state, polly })),
   setSelectedLanguage: (selectedLanguage: Language) => set((state) => ({ ...state, selectedLanguage })),
   setAvailableLanguages: (availableLanguages: Language[]) => set((state) => ({ ...state, availableLanguages })),

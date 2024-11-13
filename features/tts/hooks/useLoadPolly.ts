@@ -19,7 +19,6 @@ export const useLoadPolly = () => {
         Language: selectedLanguage.id,
         InputText: textSelection.inputText,
       };
-
       if (textSelection.inputText) {
         postRequest<PollyRequest>(POLLY_API_ROOT, POLLY_API_URL, body).then(
           (response) => {
