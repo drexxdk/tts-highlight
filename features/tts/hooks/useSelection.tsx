@@ -21,6 +21,8 @@ const IGNORE_TEXT_NODE_IF_ONLY_CONTAINS = new RegExp(/^[!?.\¨\[\]]+$/);
 // These symbols count as sentence endings for Polly.
 const DONT_ADD_PUNCTION_FOR_ELEMENTS_ENDING_WITH: string[] = ['.', '!', '?'];
 
+const IGNORE_ELEMENTS_WITH_DATA_ATTRIBUTE = "data-tts-ignore";
+
 export const useSelection = () => {
   const setTextSelection = useTTSWithHighlightStore((state) => state.setTextSelection);
   const selectedLanguage = useTTSWithHighlightStore((state) => state.selectedLanguage);
@@ -28,6 +30,7 @@ export const useSelection = () => {
   const checkSelection = useDebouncedCallback(() => {
     const selection = window.getSelection();
     if (selectedLanguage && selection?.type === 'Range' && selection.toString().trim().length) {
+      const ignoredElements = Array.from(document.querySelectorAll(`[${IGNORE_ELEMENTS_WITH_DATA_ATTRIBUTE}]`));
       setTextSelection(undefined);
       // This ensures that selecttion starts at the beginning of a word and ends at the ending of a word,
       // no matter how the selection is made
@@ -134,7 +137,7 @@ export const useSelection = () => {
               splitWords.forEach((splitWord, i) => {
                 const leadingSplitWordWhitespaces = splitWord.length - splitWord.trimStart().length;
                 const finalWord = splitWord.replaceAll(SUPPORTED_CHARS_REGEX, '').trimStart();
-                if (finalWord.length && !IGNORE_TEXT_NODE_IF_ONLY_CONTAINS.test(finalWord)) {
+                if (finalWord.length && !IGNORE_TEXT_NODE_IF_ONLY_CONTAINS.test(finalWord) && !ignoredElements.find(item => item.contains(currentNode?.parentElement as HTMLElement))) {
                   words.push({
                     startOffset: startOffset,
                     endOffset: startOffset - leadingSplitWordWhitespaces + splitWord.length,

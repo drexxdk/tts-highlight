@@ -50,6 +50,7 @@ const Page = () => {
             Automatic punctuations on sentence endings for text given to polly, to get correct sentence seperations.
           </li>
           <li>Change language</li>
+          <li>Ignore elements that has specific data-attribute</li>
         </ul>
       </section>
       <section>
@@ -64,7 +65,6 @@ const Page = () => {
               https://bitbucket.org/alineadigital/next-api/src/master/Alinea.Api.Next/Controllers/PollyController.cs
             </a>
           </li>
-          <li>Ignore elements that has some specific data-attribute</li>
           <li>Support for alternative being used for TTS on element instead of what is visually shown</li>
           <li>Switch polly audio files when needed (it only uses first file currently)</li>
           <li>Full page player</li>
@@ -92,8 +92,9 @@ const Page = () => {
       </section>
       <section>
         <h2 className="mb-2 text-xl font-bold">Test content</h2>
-
         <div className="grid gap-2">
+          <p>Ignore<span className='bg-red-500' data-tts-ignore>THIS SHOULD BE IGNORED</span>part</p>
+          <p>Ignore <span className='bg-red-500' data-tts-ignore>THIS SHOULD BE IGNORED</span> part</p>
           <div className="grid gap-4 sm:grid-cols-2">
             <StackedCard />
             <StackedCard />
