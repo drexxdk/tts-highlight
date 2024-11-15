@@ -1,6 +1,8 @@
+import { highlightSupport } from '../const/highlight-browser-support';
 import { Polly } from '../interfaces/Polly';
 import { TextSelection } from '../interfaces/TextSelection';
 import { currentTimeToPollyMarkTime } from './currentTimeToPollyMarkTime';
+import { highlightSelectedWord } from './highlight/highlightSelectedWord';
 
 export const highlightWord = ({
   currentTime,
@@ -11,7 +13,7 @@ export const highlightWord = ({
   polly: Polly;
   textSelection: TextSelection;
 }) => {
-  if (!('Highlight' in window)) {
+  if (!highlightSupport()) {
     return;
   }
   const words = polly.marks.filter((mark) => mark.type === 'word');
@@ -23,8 +25,6 @@ export const highlightWord = ({
   const mark = marks.length ? marks[marks.length - 1] : words[0];
   const index = words.findIndex((item) => item === mark);
   const word = textSelection.words[index];
-  const range = document.createRange();
-  range.setStart(word.node, word.startOffset);
-  range.setEnd(word.node, word.endOffset);
-  CSS.highlights.set('selected-word', new Highlight(range));
+
+  highlightSelectedWord({ word });
 };

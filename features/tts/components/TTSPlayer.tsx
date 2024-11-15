@@ -37,6 +37,7 @@ import { getNextWord } from '../utils/getNextWord';
 import { getPreviousNextInfo } from '../utils/getPreviousNextInfo';
 import { getPreviousSentence } from '../utils/getPreviousSentence';
 import { getPreviousWord } from '../utils/getPreviousWord';
+import { clearHighlight } from '../utils/highlight/clearHighlight';
 import { highlightWord } from '../utils/highlightWord';
 
 type AudioStatus = 'loading' | 'loaded' | 'ready' | 'playing' | 'paused';
@@ -90,9 +91,7 @@ const TTSPlayer = () => {
           audio.current?.pause();
         });
       }
-      if ('Highlight' in window) {
-        CSS.highlights.clear();
-      }
+      clearHighlight();
     }
   }, [status, textSelection]);
 
@@ -163,9 +162,7 @@ const TTSPlayer = () => {
     if (selection) {
       selection.empty();
     }
-    if ('Highlight' in window) {
-      CSS.highlights.clear();
-    }
+    clearHighlight();
   };
 
   const onPreviousWord = () => {
