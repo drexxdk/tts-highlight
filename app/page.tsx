@@ -51,6 +51,7 @@ const Page = () => {
           </li>
           <li>Change language</li>
           <li>Ignore elements that has specific data-attribute</li>
+          <li>Support for alternative being used for TTS on element instead of what is visually shown</li>
         </ul>
       </section>
       <section>
@@ -65,7 +66,6 @@ const Page = () => {
               https://bitbucket.org/alineadigital/next-api/src/master/Alinea.Api.Next/Controllers/PollyController.cs
             </a>
           </li>
-          <li>Support for alternative being used for TTS on element instead of what is visually shown</li>
           <li>Switch polly audio files when needed (it only uses first file currently)</li>
           <li>Full page player</li>
           <li>Duration slider</li>
@@ -91,10 +91,40 @@ const Page = () => {
         </ul>
       </section>
       <section>
+        <ul>
+          <li>
+            This is{' '}
+            <span data-tts-replace className="bg-red-500">
+              <span>
+                just{' '}
+                <span className="bg-yellow-500">
+                  another{' '}
+                  <span className="bg-blue-500">
+                    wild <span className="bg-pink-500">test</span>
+                  </span>
+                </span>
+              </span>
+              <span>Crazy stuff</span>
+            </span>{' '}
+            a test
+          </li>
+        </ul>
         <h2 className="mb-2 text-xl font-bold">Test content</h2>
         <div className="grid gap-2">
-          <p>Ignore<span className='bg-red-500' data-tts-ignore>THIS SHOULD BE IGNORED</span>part</p>
-          <p>Ignore <span className='bg-red-500' data-tts-ignore>THIS SHOULD BE IGNORED</span> part</p>
+          <p>
+            Ignore
+            <span className="bg-red-500" data-tts-ignore>
+              THIS SHOULD BE IGNORED
+            </span>
+            part
+          </p>
+          <p>
+            Ignore{' '}
+            <span className="bg-red-500" data-tts-ignore>
+              THIS SHOULD BE IGNORED
+            </span>{' '}
+            part
+          </p>
           <div className="grid gap-4 sm:grid-cols-2">
             <StackedCard />
             <StackedCard />

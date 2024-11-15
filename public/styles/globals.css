@@ -18,3 +18,7 @@ body {
 ::highlight(selected-word) {
   @apply bg-orange-400 text-black;
 }
+
+[data-tts-replace] > span:last-child {
+  display: none;
+}
