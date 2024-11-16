@@ -19,10 +19,10 @@ const SPLIT_IN_WORD = new RegExp(/(?=[?_.<>#%=/])|(?<=[?_.<>#%=/])/g);
 
 // Polly will remove these characters if they stand alone.
 // We need to ignore them in our selection.
-const IGNORE_TEXT_NODE_IF_ONLY_CONTAINS = new RegExp(/^[!?.\¨\[\]]+$/);
+const IGNORE_TEXT_NODE_IF_ONLY_CONTAINS = new RegExp(/^[\-!?.\¨\[\]]+$/);
 
 // These symbols count as sentence endings for Polly.
-const DONT_ADD_PUNCTION_FOR_ELEMENTS_ENDING_WITH: string[] = ['.', '!', '?'];
+const PUNCTUATION: string[] = ['.', '!', '?'];
 
 const IGNORE_ELEMENTS_WITH_DATA_ATTRIBUTE = 'data-tts-ignore';
 const REPLACE_ELEMENTS_WITH_DATA_ATTRIBUTE = 'data-tts-replace';
@@ -151,11 +151,8 @@ export const useSelection = () => {
               // It goes from parentElement to parentElement and checks if it is a type that is within ADD_PUNCTUATION_FOR_ELEMENT_TYPES
               // It also checks that this TextNode doesn't already end with a sentence ender within DONT_ADD_PUNCTION_FOR_ELEMENT_ENDING_WITH
               while (parentElement) {
-                if (
-                  DONT_ADD_PUNCTION_FOR_ELEMENTS_ENDING_WITH.some(
-                    (value) => value === tempWord.substring(tempWord.length - 1, tempWord.length),
-                  )
-                ) {
+                if (PUNCTUATION.some((value) => value === tempWord.substring(tempWord.length - 1, tempWord.length))) {
+                  // This node already ends with punctuation, so no need to check if we need to add punctuatino
                   break;
                 } else if (
                   // This ensures that specific elements will always be counted as a sentence for Polly
@@ -190,22 +187,21 @@ export const useSelection = () => {
                 finalWord.length &&
                 !ignoreElements.find((item) => item.contains(currentNode?.parentElement as HTMLElement))
               ) {
-                if (!IGNORE_TEXT_NODE_IF_ONLY_CONTAINS.test(finalWord)) {
+                if (IGNORE_TEXT_NODE_IF_ONLY_CONTAINS.test(finalWord)) {
+                  if (
+                    (PUNCTUATION.some((value) => value === finalWord) ||
+                      (addSentenceEnding && i + 1 === splitWords.length)) &&
+                    !words[words.length - 1].word.endsWith('.')
+                  ) {
+                    words[words.length - 1].word += '.';
+                  }
+                } else {
                   words.push({
                     startOffset: startOffset,
                     endOffset: startOffset - leadingSplitWordWhitespaces + splitWord.length,
                     node: currentNode as Node,
                     word: finalWord + (addSentenceEnding && i + 1 === splitWords.length ? '.' : ''),
                   });
-                } else if (
-                  // This makes "A... B" into "A. B" instead of "A B"
-                  DONT_ADD_PUNCTION_FOR_ELEMENTS_ENDING_WITH.some(
-                    (value) => value === tempWord.substring(tempWord.length - 1, tempWord.length),
-                  ) &&
-                  words.length &&
-                  !words[words.length - 1].word.endsWith('.')
-                ) {
-                  words[words.length - 1].word += '.';
                 }
               }
               startOffset += splitWord.length;

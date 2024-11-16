@@ -12,13 +12,25 @@ body {
 }
 
 ::highlight(word) {
-  @apply bg-green-400 text-black;
+  @apply bg-green-400 text-gray-950;
 }
 
 ::highlight(selected-word) {
-  @apply bg-orange-400 text-black;
+  @apply bg-orange-400 text-gray-950;
 }
 
 [data-tts-replace] > span:last-child {
   display: none;
+}
+
+.test-1 {
+  @apply bg-blue-400 text-gray-950;
+}
+
+.test-2 {
+  @apply bg-red-400 text-gray-950;
+}
+
+.test-3 {
+  @apply bg-purple-400 text-gray-950;
 }

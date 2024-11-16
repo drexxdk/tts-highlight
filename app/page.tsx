@@ -2,6 +2,27 @@
 
 import SpecialCharacters from '@/features/tts/components/SpecialCharacters';
 import Image from 'next/image';
+import { ReactNode } from 'react';
+
+const Heading = ({ children }: { children: ReactNode }) => {
+  return <h2 className="mb-2 text-xl font-bold">{children}</h2>;
+};
+
+const Link = ({ href, children }: { href: string; children: ReactNode }) => {
+  return (
+    <a href={href} className="text-orange-300 underline hover:no-underline">
+      {children}
+    </a>
+  );
+};
+
+const Ul = ({ children }: { children: ReactNode }) => {
+  return <ul className="grid list-inside list-disc gap-1">{children}</ul>;
+};
+
+const Ol = ({ children }: { children: ReactNode }) => {
+  return <ol className="grid list-inside list-decimal gap-1">{children}</ol>;
+};
 
 const StackedCard = () => {
   return (
@@ -33,8 +54,8 @@ const Page = () => {
   return (
     <article className="grid gap-8">
       <section>
-        <h2 className="mb-2 text-xl font-bold">Features</h2>
-        <ul className="list-inside list-disc">
+        <Heading>Features</Heading>
+        <Ul>
           <li>Selected text player</li>
           <li>Previous/Next word button functionality</li>
           <li>Previous/Next sentence button functionality</li>
@@ -52,43 +73,75 @@ const Page = () => {
           <li>Change language</li>
           <li>Ignore elements that has specific data-attribute</li>
           <li>Support for alternative being used for TTS on element instead of what is visually shown</li>
-        </ul>
+        </Ul>
       </section>
       <section>
-        <h2 className="mb-2 text-xl font-bold">ToDo</h2>
-        <ul className="list-inside list-disc">
+        <Heading>ToDo</Heading>
+        <Ul>
           <li>
             Support all languages specified here{' '}
-            <a
-              href="https://bitbucket.org/alineadigital/next-api/src/master/Alinea.Api.Next/Controllers/PollyController.cs"
-              className="text-orange-300 underline hover:no-underline"
-            >
+            <Link href="https://bitbucket.org/alineadigital/next-api/src/master/Alinea.Api.Next/Controllers/PollyController.cs">
               https://bitbucket.org/alineadigital/next-api/src/master/Alinea.Api.Next/Controllers/PollyController.cs
-            </a>
+            </Link>
           </li>
           <li>Switch polly audio files when needed (it only uses first file currently)</li>
           <li>Full page player</li>
           <li>Duration slider</li>
-        </ul>
+        </Ul>
       </section>
       <section>
-        <h2 className="mb-2 text-xl font-bold">Wish list</h2>
-        <ul className="list-inside list-disc">
+        <Heading>Wish list</Heading>
+        <Ul>
           <li>
             Firefox Highlight API support{' '}
-            <a
-              href="https://bugzilla.mozilla.org/show_bug.cgi?id=1703961"
-              className="text-orange-300 underline hover:no-underline"
-            >
+            <Link href="https://bugzilla.mozilla.org/show_bug.cgi?id=1703961">
               https://bugzilla.mozilla.org/show_bug.cgi?id=1703961
-            </a>
+            </Link>
           </li>
           <li>Auto detect text language</li>
           <li>Support multiple spoken languages at the same time</li>
           <li>Audio streaming instead of mp3</li>
           <li>Some way of giving ::highlight higher z-index than ::selection</li>
           <li>More options for ::highlight styling</li>
-        </ul>
+        </Ul>
+      </section>
+      <section>
+        <Heading>Testing edge cases</Heading>
+        <Ol>
+          <li>
+            "I choose to run toward my problems and not away from them. Because that - Because that's what heroes do."
+          </li>
+          <li>"I can't control their fear, only my own."</li>
+          <li>"It's not enough to be against something. You have to be for something better."</li>
+          <li>"Good is not a thing you are. It's a thing you do."</li>
+          <li>
+            "You were wrong, all of you were wrong, to turn your backs on the rest of the world! We let the fear of
+            discovery stop us from doing what is right."
+          </li>
+          <li>"Higher, further, faster, baby."</li>
+          <li>"The hardest choices require the strongest wills."</li>
+          <li>"You hope for the best and make do with what you get."</li>
+          <li>"I would rather be a good man than a great king."</li>
+          <li>"Part of the journey is the end."</li>
+          <li>"Just because something works, doesn't mean it can't be improved."</li>
+          <li>"Avengers, assemble!"</li>
+          <li>"No man can win every battle, but no man should fall without struggle."</li>
+          <li>"We never lose our demons, Mordo. We only learn to live above them."</li>
+          <li>"But what is grief, if not love persevering?"</li>
+          <li>"All we can do is our best, and sometimes the best that we can do is to start over."</li>
+          <li>"No amount of money ever bought a second of time."</li>
+          <li>"Nothing goes over my head. My reflexes are too fast. I would catch it."</li>
+          <li>"How is never as important as why."</li>
+          <li>"You are the product of all who came before you, the legacy of your family."</li>
+          <li>
+            "Love is a dagger. It's a weapon to be wielded far away or up close. You can see yourself in it. It's
+            beautiful until it makes you bleed."
+          </li>
+          <li>"You seek love. It's all any of us want."</li>
+          <li>"It's not about how much we lost, it's about how much we have left."</li>
+          <li>"At some point, we all have to choose, between what the world wants you to be, and who you are."</li>
+          <li>"If you're nothing without this suit, then you shouldn't have it."</li>
+        </Ol>
       </section>
       <section>
         <ul>
