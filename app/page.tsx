@@ -109,38 +109,41 @@ const Page = () => {
         <Heading>Testing edge cases</Heading>
         <Ol>
           <li>
-            "I choose to run toward my problems and not away from them. Because that - Because that's what heroes do."
+            &quot;I choose to run toward my problems and not away from them. Because that - Because that&apos;s what
+            heroes do.&quot;
           </li>
-          <li>"I can't control their fear, only my own."</li>
-          <li>"It's not enough to be against something. You have to be for something better."</li>
-          <li>"Good is not a thing you are. It's a thing you do."</li>
+          <li>&quot;I can&apos;t control their fear, only my own.&quot;</li>
+          <li>&quot;It&apos;s not enough to be against something. You have to be for something better.&quot;</li>
+          <li>&quot;Good is not a thing you are. It&apos;s a thing you do.&quot;</li>
           <li>
-            "You were wrong, all of you were wrong, to turn your backs on the rest of the world! We let the fear of
-            discovery stop us from doing what is right."
+            &quot;You were wrong, all of you were wrong, to turn your backs on the rest of the world! We let the fear of
+            discovery stop us from doing what is right.&quot;
           </li>
-          <li>"Higher, further, faster, baby."</li>
-          <li>"The hardest choices require the strongest wills."</li>
-          <li>"You hope for the best and make do with what you get."</li>
-          <li>"I would rather be a good man than a great king."</li>
-          <li>"Part of the journey is the end."</li>
-          <li>"Just because something works, doesn't mean it can't be improved."</li>
-          <li>"Avengers, assemble!"</li>
-          <li>"No man can win every battle, but no man should fall without struggle."</li>
-          <li>"We never lose our demons, Mordo. We only learn to live above them."</li>
-          <li>"But what is grief, if not love persevering?"</li>
-          <li>"All we can do is our best, and sometimes the best that we can do is to start over."</li>
-          <li>"No amount of money ever bought a second of time."</li>
-          <li>"Nothing goes over my head. My reflexes are too fast. I would catch it."</li>
-          <li>"How is never as important as why."</li>
-          <li>"You are the product of all who came before you, the legacy of your family."</li>
+          <li>&quot;Higher, further, faster, baby.&quot;</li>
+          <li>&quot;The hardest choices require the strongest wills.&quot;</li>
+          <li>&quot;You hope for the best and make do with what you get.&quot;</li>
+          <li>&quot;I would rather be a good man than a great king.&quot;</li>
+          <li>&quot;Part of the journey is the end.&quot;</li>
+          <li>&quot;Just because something works, doesn&apos;t mean it can&apos;t be improved.&quot;</li>
+          <li>&quot;Avengers, assemble!&quot;</li>
+          <li>&quot;No man can win every battle, but no man should fall without struggle.&quot;</li>
+          <li>&quot;We never lose our demons, Mordo. We only learn to live above them.&quot;</li>
+          <li>&quot;But what is grief, if not love persevering?&quot;</li>
+          <li>&quot;All we can do is our best, and sometimes the best that we can do is to start over.&quot;</li>
+          <li>&quot;No amount of money ever bought a second of time.&quot;</li>
+          <li>&quot;Nothing goes over my head. My reflexes are too fast. I would catch it.&quot;</li>
+          <li>&quot;How is never as important as why.&quot;</li>
+          <li>&quot;You are the product of all who came before you, the legacy of your family.&quot;</li>
           <li>
-            "Love is a dagger. It's a weapon to be wielded far away or up close. You can see yourself in it. It's
-            beautiful until it makes you bleed."
+            &quot;Love is a dagger. It&apos;s a weapon to be wielded far away or up close. You can see yourself in it.
+            It&apos;s beautiful until it makes you bleed.&quot;
           </li>
-          <li>"You seek love. It's all any of us want."</li>
-          <li>"It's not about how much we lost, it's about how much we have left."</li>
-          <li>"At some point, we all have to choose, between what the world wants you to be, and who you are."</li>
-          <li>"If you're nothing without this suit, then you shouldn't have it."</li>
+          <li>&quot;You seek love. It&apos;s all any of us want.&quot;</li>
+          <li>&quot;It&apos;s not about how much we lost, it&apos;s about how much we have left.&quot;</li>
+          <li>
+            &quot;At some point, we all have to choose, between what the world wants you to be, and who you are.&quot;
+          </li>
+          <li>&quot;If you&apos;re nothing without this suit, then you shouldn&apos;t have it.&quot;</li>
         </Ol>
       </section>
       <section>
