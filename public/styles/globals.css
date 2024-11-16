@@ -19,14 +19,14 @@ body {
   @apply bg-orange-400 text-gray-950;
 }
 
-.test-1 {
+[data-tts-replace] > span:last-child {
+  display: none;
+}
+
+[data-tts-replace] {
   @apply bg-blue-400 text-gray-950;
 }
 
-.test-2 {
+[data-tts-ignore] {
   @apply bg-red-400 text-gray-950;
-}
-
-.test-3 {
-  @apply bg-purple-400 text-gray-950;
 }

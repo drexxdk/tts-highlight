@@ -33,8 +33,8 @@ export const useLoadPolly = () => {
               setPolly(polly);
             }
           },
-          (error) => {
-            console.log(error);
+          (e) => {
+            console.warn('useLoadPolly', e);
           },
         );
       }
