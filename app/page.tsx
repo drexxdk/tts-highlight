@@ -1,8 +1,10 @@
 'use client';
 
 import SpecialCharacters from '@/features/tts/components/SpecialCharacters';
+import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react';
 import Image from 'next/image';
 import { ReactNode } from 'react';
+import { FaAngleDown } from 'react-icons/fa6';
 
 const Heading = ({ children }: { children: ReactNode }) => {
   return <h2 className="mb-2 text-xl font-bold">{children}</h2>;
@@ -22,6 +24,26 @@ const Ul = ({ children }: { children: ReactNode }) => {
 
 const Ol = ({ children }: { children: ReactNode }) => {
   return <ol className="grid list-inside list-decimal gap-1">{children}</ol>;
+};
+
+const Accordion = ({
+  buttonText,
+  children,
+  defaultOpen,
+}: {
+  buttonText: string;
+  children: ReactNode;
+  defaultOpen?: boolean;
+}) => {
+  return (
+    <Disclosure as={'div'} className="grid" defaultOpen={defaultOpen}>
+      <DisclosureButton className="group/button flex items-center justify-between bg-zinc-900 px-4 py-2 hover:bg-zinc-800">
+        <span>{buttonText}</span>
+        <FaAngleDown className="group-data-[open]/button:rotate-180" />
+      </DisclosureButton>
+      <DisclosurePanel className="border-t-2 border-zinc-900 p-4">{children}</DisclosurePanel>
+    </Disclosure>
+  );
 };
 
 const StackedCard = () => {
@@ -52,9 +74,9 @@ const StackedCard = () => {
 
 const Page = () => {
   return (
-    <article className="grid gap-8">
-      <section>
-        <Heading>Features</Heading>
+    <article className="grid divide-y-2 divide-zinc-900 border-2 border-zinc-900">
+      <Accordion buttonText="Features" defaultOpen={true}>
+        {' '}
         <Ul>
           <li>Selected text player</li>
           <li>Previous/Next word button functionality</li>
@@ -74,9 +96,8 @@ const Page = () => {
           <li>Ignore elements that has specific data-attribute</li>
           <li>Support for alternative being used for TTS on element instead of what is visually shown</li>
         </Ul>
-      </section>
-      <section>
-        <Heading>ToDo</Heading>
+      </Accordion>
+      <Accordion buttonText="ToDo">
         <Ul>
           <li>
             Support all languages specified here{' '}
@@ -88,9 +109,8 @@ const Page = () => {
           <li>Full page player</li>
           <li>Duration slider</li>
         </Ul>
-      </section>
-      <section>
-        <Heading>Wish list</Heading>
+      </Accordion>
+      <Accordion buttonText="Wish list">
         <Ul>
           <li>
             Firefox Highlight API support{' '}
@@ -104,9 +124,8 @@ const Page = () => {
           <li>Some way of giving ::highlight higher z-index than ::selection</li>
           <li>More options for ::highlight styling</li>
         </Ul>
-      </section>
-      <section>
-        <Heading>Testing edge cases</Heading>
+      </Accordion>
+      <Accordion buttonText="Quotes">
         <Ol>
           <li>
             &quot;I choose to run toward my problems and not away from them. Because that - Because that&apos;s what
@@ -145,28 +164,30 @@ const Page = () => {
           </li>
           <li>&quot;If you&apos;re nothing without this suit, then you shouldn&apos;t have it.&quot;</li>
         </Ol>
-      </section>
-      <section>
-        <ul>
-          <li>
-            <span data-tts-replace>Tester</span>
-          </li>
-          <li>
-            This is{' '}
-            <span data-tts-replace="Crazy... St . uff he.lo man!" className="bg-red-500">
-              just{' '}
-              <span className="bg-yellow-500">
-                another{' '}
-                <span className="bg-blue-500">
-                  wild <span className="bg-pink-500">test</span>
-                </span>
-              </span>
-            </span>{' '}
-            a test
-          </li>
-        </ul>
-        <h2 className="mb-2 text-xl font-bold">Test content</h2>
+      </Accordion>
+      <Accordion buttonText="Special Charactersaaa">
+        <SpecialCharacters />
+      </Accordion>
+      <Accordion buttonText="Random">
         <div className="grid gap-2">
+          <ul>
+            <li>
+              <span data-tts-replace>Tester</span>
+            </li>
+            <li>
+              This is{' '}
+              <span data-tts-replace="Crazy... St . uff he.lo man!" className="bg-red-500">
+                just{' '}
+                <span className="bg-yellow-500">
+                  another{' '}
+                  <span className="bg-blue-500">
+                    wild <span className="bg-pink-500">test</span>
+                  </span>
+                </span>
+              </span>{' '}
+              a test
+            </li>
+          </ul>
           <p>
             Ignore
             <span className="bg-red-500" data-tts-ignore>
@@ -257,8 +278,7 @@ const Page = () => {
             <StackedCard />
           </div>
         </div>
-      </section>
-      <SpecialCharacters />
+      </Accordion>
     </article>
   );
 };
