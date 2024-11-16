@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { ADD_PUNCTUATION_FOR_HTML_ELEMENT_TYPES } from '../const/add-punctuation-for-html-element-types';
+import { POLLY_PUNCTUATION } from '../const/polly-punctuation';
 import { TextSelectionWord } from '../interfaces/TextSelectionWord';
 import { useTTSWithHighlightStore } from '../stores/useTTSWithHighlightStore';
 import { elementIsVisible } from '../utils/elementIsVisible';
@@ -11,6 +11,7 @@ import { highlightSelectedWord } from '../utils/highlight/highlightSelectedWord'
 import { highlightSelection } from '../utils/highlight/highlightSelection';
 import { highlightWords } from '../utils/highlight/highlightWords';
 import { nodesInRange } from '../utils/range/nodesInRange';
+import { shouldAddPunctuation } from '../utils/shouldAddPunctuation';
 import { useRangeIfReady } from './useRangeIfReady';
 
 // If word contains these characters then add whitespace around each of them.
@@ -20,9 +21,6 @@ const SPLIT_IN_WORD = new RegExp(/(?=[!?._<>#%=/])|(?<=[!?._<>#%=/])/g);
 // Polly will remove these characters if they stand alone.
 // We need to ignore them in our selection.
 const IGNORE_TEXT_NODE_IF_ONLY_CONTAINS = new RegExp(/^[\-!?.\¨\[\]]+$/);
-
-// These symbols count as sentence endings for Polly.
-const PUNCTUATION: string[] = ['.', '!', '?'];
 
 const IGNORE_ELEMENTS_WITH_DATA_ATTRIBUTE = 'data-tts-ignore';
 const REPLACE_ELEMENTS_WITH_DATA_ATTRIBUTE = 'data-tts-replace';
@@ -67,6 +65,7 @@ export const useSelection = () => {
     }
 
     const words: TextSelectionWord[] = [];
+    const replacedElements: HTMLElement[] = [];
     while (currentNode) {
       if (
         nodes.find(
@@ -88,97 +87,51 @@ export const useSelection = () => {
         // then highlight the whole data-tts-ignore as one word,
         // while each word in the replacement is being read
         const replaceElement = replaceElements.find((item) => item.contains(currentNode?.parentElement as HTMLElement));
-        if (replaceElement) {
-          // data-tts-replace element must contain a child span that will be read instead of what is visually shown
-          const usedHtmlElement = replaceElement.querySelector<HTMLElement>(':scope > span:last-child') || undefined;
-          if (usedHtmlElement) {
+        // data-tts-replace element must contain a child span that will be read instead of what is visually shown
+        const usedHtmlElement = replaceElement?.querySelector<HTMLElement>(':scope > span:last-child') || undefined;
+        if (replaceElement && usedHtmlElement) {
+          if (!replacedElements.some((item) => item === replaceElement)) {
+            replacedElements.push(replaceElement);
             const usedNode = usedHtmlElement.innerText.trim();
-            const tempWords = usedNode.replaceAll(SUPPORTED_CHARS_REGEX, '').trim().split(' ');
-            tempWords?.forEach((tempWord) => {
-              if (IGNORE_TEXT_NODE_IF_ONLY_CONTAINS.test(tempWord) || tempWord.length === 0) {
-                return;
-              }
-              const word: TextSelectionWord = {
-                startOffset: startOffset,
-                endOffset: startOffset + 1,
-                node: replaceElement,
-                word: tempWord,
-              };
-              // the visually shown part of data-tts-replace might contain multiple elements,
-              // this ensures that it only adds the replacement words one time
-              if (
-                words.find(
-                  (item) =>
-                    item.startOffset === word.startOffset &&
-                    item.endOffset === word.endOffset &&
-                    item.word === word.word &&
-                    item.node === word.node,
-                )
-              ) {
-                return;
-              }
-              words.push(word);
+            const tempWords = usedNode.trim().split(' ');
+            tempWords?.forEach((tempWord, i) => {
+              const splitWords = tempWord.split(SPLIT_IN_WORD);
+              splitWords.forEach((splitWord, i) => {
+                // const leadingSplitWordWhitespaces = splitWord.length - splitWord.trimStart().length;
+                const finalWord = splitWord.replaceAll(SUPPORTED_CHARS_REGEX, '').trimStart();
+                if (!ignoreElements.find((item) => item.contains(currentNode?.parentElement as HTMLElement))) {
+                  if (IGNORE_TEXT_NODE_IF_ONLY_CONTAINS.test(splitWord)) {
+                    if (
+                      POLLY_PUNCTUATION.some((value) => value === splitWord) &&
+                      !words[words.length - 1].word.endsWith('.')
+                    ) {
+                      words[words.length - 1].word += '.';
+                    }
+                  } else if (finalWord.length) {
+                    words.push({
+                      startOffset: startOffset,
+                      endOffset: startOffset + 1,
+                      node: replaceElement,
+                      word: finalWord,
+                    });
+                  }
+                }
+              });
             });
-            startOffset += 1;
           }
+          startOffset += 1;
         } else {
           // TextNode can contain multiple words
           // Polly's marks are for each individual word
           // This splits the textNode to match with Polly's marks
-          const tempWords = currentNode.nodeValue?.substring(startOffset, endOffset).split(' ');
-          tempWords?.forEach((tempWord, i) => {
-            // Polly will ignore words that only consists of the these characters
-            // This ensures that our selection also ignores these characters
-            // Empty words are in reality spaces that needs to be accounted for
-            if (IGNORE_TEXT_NODE_IF_ONLY_CONTAINS.test(tempWord) || tempWord.length === 0) {
-              // This makes "<span>A</span>. B" into "A. B" instead of "A B"
-              if (/[!?.]/g.test(tempWord) && words.length && !words[words.length - 1].word.endsWith('.')) {
-                words[words.length - 1].word += '.';
-              }
-              // These characters still exist, so we need to account for them
-              startOffset += tempWord.length + 1;
-              return;
-            }
-
-            let addSentenceEnding = false;
-
-            // If this word is the last in the TextNode
-            // If this TextNode does not have any siblings after itself
-            if (i + 1 === tempWords.length && !currentNode?.nextSibling) {
-              let parentElement = currentNode?.parentNode;
-
-              // This ensures that we add punctuation at the end of sentence
-              // It goes from parentElement to parentElement and checks if it is a type that is within ADD_PUNCTUATION_FOR_ELEMENT_TYPES
-              // It also checks that this TextNode doesn't already end with a sentence ender within DONT_ADD_PUNCTION_FOR_ELEMENT_ENDING_WITH
-              while (parentElement) {
-                if (PUNCTUATION.some((value) => value === tempWord.substring(tempWord.length - 1, tempWord.length))) {
-                  // This node already ends with punctuation, so no need to check if we need to add punctuatino
-                  break;
-                } else if (
-                  // This ensures that specific elements will always be counted as a sentence for Polly
-                  ADD_PUNCTUATION_FOR_HTML_ELEMENT_TYPES.some(
-                    (value) => value === parentElement?.nodeName.toLowerCase(),
-                  )
-                ) {
-                  addSentenceEnding = true;
-                  break;
-                } else if (parentElement.nextSibling) {
-                  // Stop looping through parentElement
-                  break;
-                } else {
-                  // Check next parent element
-                  parentElement = parentElement.parentElement;
-                }
-              }
-            }
-
-            // A TextNode can start with any number of whitespaces
-            // We need to account for them, but not visually highlight them
-            const leadingWhitespaces = tempWord.length - tempWord.trimStart().length;
-            if (leadingWhitespaces) {
-              startOffset += leadingWhitespaces;
-            }
-
+          const tempWords = currentNode.nodeValue?.substring(startOffset, endOffset).split(' ') || [];
+          tempWords.forEach((tempWord, i) => {
+            const addPunctuation = shouldAddPunctuation({
+              index: i,
+              words: tempWords,
+              node: currentNode,
+              word: tempWord,
+            });
             const splitWords = tempWord.split(SPLIT_IN_WORD);
             splitWords.forEach((splitWord, i) => {
               const leadingSplitWordWhitespaces = splitWord.length - splitWord.trimStart().length;
@@ -186,8 +139,8 @@ export const useSelection = () => {
               if (!ignoreElements.find((item) => item.contains(currentNode?.parentElement as HTMLElement))) {
                 if (IGNORE_TEXT_NODE_IF_ONLY_CONTAINS.test(splitWord)) {
                   if (
-                    (PUNCTUATION.some((value) => value === splitWord) ||
-                      (addSentenceEnding && i + 1 === splitWords.length)) &&
+                    (POLLY_PUNCTUATION.some((value) => value === splitWord) ||
+                      (addPunctuation && i + 1 === splitWords.length)) &&
                     !words[words.length - 1].word.endsWith('.')
                   ) {
                     words[words.length - 1].word += '.';
@@ -197,7 +150,7 @@ export const useSelection = () => {
                     startOffset: startOffset,
                     endOffset: startOffset - leadingSplitWordWhitespaces + splitWord.length,
                     node: currentNode as Node,
-                    word: finalWord + (addSentenceEnding && i + 1 === splitWords.length ? '.' : ''),
+                    word: finalWord + (addPunctuation && i + 1 === splitWords.length ? '.' : ''),
                   });
                 }
               }
