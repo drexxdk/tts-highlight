@@ -79,14 +79,15 @@ export const useSelection = () => {
             elementIsVisible(currentNode.parentElement),
         )
       ) {
-        // startContainer can have on offset based on the selection
-        let startOffset = currentNode === range.startContainer ? range.startOffset : 0;
-        const endOffset = currentNode === range.endContainer ? range.endOffset : undefined;
-
         // If this node's parentElement is or within data-tts-replace element,
         // then highlight the whole data-tts-ignore as one word,
         // while each word in the replacement is being read
         const replaceElement = replaceElements.find((item) => item.contains(currentNode?.parentElement as HTMLElement));
+
+        // startContainer can have on offset based on the selection
+        let startOffset = currentNode === range.startContainer && !replaceElement ? range.startOffset : 0;
+        const endOffset = currentNode === range.endContainer && !replaceElement ? range.endOffset : undefined;
+
         if (replaceElement) {
           if (!replacedElements.some((item) => item === replaceElement)) {
             replacedElements.push(replaceElement);
@@ -110,6 +111,7 @@ export const useSelection = () => {
                       node: replaceElement,
                       word: finalWord,
                     });
+                    debugger;
                   }
                 }
               });

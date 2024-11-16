@@ -10,7 +10,7 @@ export const highlightSelection = ({ words }: { words: TextSelectionWord[] }) =>
       const highlight = new Highlight(range);
       CSS.highlights.set('selection', highlight);
     } catch (e) {
-      console.warn('highlightSelection', e);
+      console.log('highlightSelection', e);
     }
   }
 };

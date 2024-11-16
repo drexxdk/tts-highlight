@@ -9,7 +9,7 @@ export const highlightSelectedWord = ({ word }: { word: TextSelectionWord }) => 
       range.setEnd(word.node, word.endOffset);
       CSS.highlights.set('selected-word', new Highlight(range));
     } catch (e) {
-      console.warn('highlightSelectedWord', e);
+      console.log('highlightSelectedWord', e);
     }
   }
 };

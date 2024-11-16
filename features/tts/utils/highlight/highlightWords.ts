@@ -3,17 +3,17 @@ import { highlightSupport } from './highlight-browser-support';
 
 export const highlightWords = ({ words }: { words: TextSelectionWord[] }) => {
   if (highlightSupport() && words.length) {
-    try {
-      const highlight = new Highlight();
-      words.forEach((word) => {
+    const highlight = new Highlight();
+    words.forEach((word) => {
+      try {
         const range = document.createRange();
         range.setStart(word.node, word.startOffset);
         range.setEnd(word.node, word.endOffset);
         highlight.add(range);
-      });
-      CSS.highlights.set('word', highlight);
-    } catch (e) {
-      console.warn('highlightWords', e);
-    }
+      } catch (e) {
+        console.log('highlightWords', e);
+      }
+    });
+    CSS.highlights.set('word', highlight);
   }
 };

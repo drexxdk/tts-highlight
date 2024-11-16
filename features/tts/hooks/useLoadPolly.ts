@@ -34,7 +34,7 @@ export const useLoadPolly = () => {
             }
           },
           (e) => {
-            console.warn('useLoadPolly', e);
+            console.log('useLoadPolly', e);
           },
         );
       }
