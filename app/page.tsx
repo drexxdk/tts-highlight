@@ -146,21 +146,22 @@ const Page = () => {
           <li>&quot;If you&apos;re nothing without this suit, then you shouldn&apos;t have it.&quot;</li>
         </Ol>
       </section>
+      <SpecialCharacters />
       <section>
         <ul>
           <li>
+            <span data-tts-replace>Tester</span>
+          </li>
+          <li>
             This is{' '}
-            <span data-tts-replace className="bg-red-500">
-              <span>
-                just{' '}
-                <span className="bg-yellow-500">
-                  another{' '}
-                  <span className="bg-blue-500">
-                    wild <span className="bg-pink-500">test</span>
-                  </span>
+            <span data-tts-replace="Crazy... St . uff he.lo man!" className="bg-red-500">
+              just{' '}
+              <span className="bg-yellow-500">
+                another{' '}
+                <span className="bg-blue-500">
+                  wild <span className="bg-pink-500">test</span>
                 </span>
               </span>
-              <span>Crazy... Stuff hello man!</span>
             </span>{' '}
             a test
           </li>
@@ -258,7 +259,6 @@ const Page = () => {
           </p>
         </div>
       </section>
-      <SpecialCharacters />
     </article>
   );
 };

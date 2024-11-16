@@ -87,17 +87,13 @@ export const useSelection = () => {
         // then highlight the whole data-tts-ignore as one word,
         // while each word in the replacement is being read
         const replaceElement = replaceElements.find((item) => item.contains(currentNode?.parentElement as HTMLElement));
-        // data-tts-replace element must contain a child span that will be read instead of what is visually shown
-        const usedHtmlElement = replaceElement?.querySelector<HTMLElement>(':scope > span:last-child') || undefined;
-        if (replaceElement && usedHtmlElement) {
+        if (replaceElement) {
           if (!replacedElements.some((item) => item === replaceElement)) {
             replacedElements.push(replaceElement);
-            const usedNode = usedHtmlElement.innerText.trim();
-            const tempWords = usedNode.trim().split(' ');
-            tempWords?.forEach((tempWord, i) => {
+            const tempWords = replaceElement.dataset.ttsReplace?.trim().split(' ') || [];
+            tempWords.forEach((tempWord, i) => {
               const splitWords = tempWord.split(SPLIT_IN_WORD);
               splitWords.forEach((splitWord, i) => {
-                // const leadingSplitWordWhitespaces = splitWord.length - splitWord.trimStart().length;
                 const finalWord = splitWord.replaceAll(SUPPORTED_CHARS_REGEX, '').trimStart();
                 if (!ignoreElements.find((item) => item.contains(currentNode?.parentElement as HTMLElement))) {
                   if (IGNORE_TEXT_NODE_IF_ONLY_CONTAINS.test(splitWord)) {
@@ -110,7 +106,7 @@ export const useSelection = () => {
                   } else if (finalWord.length) {
                     words.push({
                       startOffset: startOffset,
-                      endOffset: startOffset + 1,
+                      endOffset: startOffset + replaceElement.childNodes.length,
                       node: replaceElement,
                       word: finalWord,
                     });

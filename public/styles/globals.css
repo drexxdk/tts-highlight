@@ -19,10 +19,6 @@ body {
   @apply bg-orange-400 text-gray-950;
 }
 
-[data-tts-replace] > span:last-child {
-  display: none;
-}
-
 .test-1 {
   @apply bg-blue-400 text-gray-950;
 }
