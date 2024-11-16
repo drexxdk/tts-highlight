@@ -1,5 +1,5 @@
-import { Polly } from '../interfaces/Polly';
-import { PollyMark } from '../interfaces/PollyMark';
+import { Polly } from '../../interfaces/Polly';
+import { PollyMark } from '../../interfaces/PollyMark';
 import { currentTimeToPollyMarkTime } from './currentTimeToPollyMarkTime';
 
 export const getPreviousSentence = ({

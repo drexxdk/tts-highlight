@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
-import { fixRange } from '../utils/fixRange';
+import { fixRange } from '../utils/range/fixRange';
 
 const CHECK_SELECTION_DEBOUNCE_DELAY = 500;
 
 export const useRangeIfReady = () => {
   const [range, setRange] = useState<Range>();
-  // const selection = window.getSelection();
+
   const checkSelection = useDebouncedCallback(() => {
     const selection = window.getSelection();
     if (selection?.type === 'Range' && selection.toString().trim().length) {

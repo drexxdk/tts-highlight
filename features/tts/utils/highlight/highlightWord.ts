@@ -1,8 +1,8 @@
-import { highlightSupport } from '../const/highlight-browser-support';
-import { Polly } from '../interfaces/Polly';
-import { TextSelection } from '../interfaces/TextSelection';
-import { currentTimeToPollyMarkTime } from './currentTimeToPollyMarkTime';
-import { highlightSelectedWord } from './highlight/highlightSelectedWord';
+import { Polly } from '../../interfaces/Polly';
+import { TextSelection } from '../../interfaces/TextSelection';
+import { currentTimeToPollyMarkTime } from '../polly/currentTimeToPollyMarkTime';
+import { highlightSupport } from './highlight-browser-support';
+import { highlightSelectedWord } from './highlightSelectedWord';
 
 export const highlightWord = ({
   currentTime,

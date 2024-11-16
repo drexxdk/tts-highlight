@@ -31,14 +31,14 @@ import { LanguageCode } from '../interfaces/LanguageCode';
 import { PreviousNextInfo } from '../interfaces/PreviousNextInfo';
 import DAFlagIcon from '../svg/flags/da-flag-icon';
 import ENFlagIcon from '../svg/flags/en-flag-icon';
-import { getFirstWord } from '../utils/getFirstWord';
-import { getNextSentence } from '../utils/getNextSentence';
-import { getNextWord } from '../utils/getNextWord';
-import { getPreviousNextInfo } from '../utils/getPreviousNextInfo';
-import { getPreviousSentence } from '../utils/getPreviousSentence';
-import { getPreviousWord } from '../utils/getPreviousWord';
 import { clearHighlight } from '../utils/highlight/clearHighlight';
-import { highlightWord } from '../utils/highlightWord';
+import { highlightWord } from '../utils/highlight/highlightWord';
+import { getFirstWord } from '../utils/polly/getFirstWord';
+import { getNextSentence } from '../utils/polly/getNextSentence';
+import { getNextWord } from '../utils/polly/getNextWord';
+import { getPreviousNextInfo } from '../utils/polly/getPreviousNextInfo';
+import { getPreviousSentence } from '../utils/polly/getPreviousSentence';
+import { getPreviousWord } from '../utils/polly/getPreviousWord';
 
 type AudioStatus = 'loading' | 'loaded' | 'ready' | 'playing' | 'paused';
 

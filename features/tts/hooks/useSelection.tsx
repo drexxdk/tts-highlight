@@ -2,15 +2,15 @@
 
 import { useEffect } from 'react';
 import { ADD_PUNCTUATION_FOR_HTML_ELEMENT_TYPES } from '../const/add-punctuation-for-html-element-types';
-import { highlightSupport } from '../const/highlight-browser-support';
 import { TextSelectionWord } from '../interfaces/TextSelectionWord';
 import { useTTSWithHighlightStore } from '../stores/useTTSWithHighlightStore';
 import { elementIsVisible } from '../utils/elementIsVisible';
 import { clearHighlight } from '../utils/highlight/clearHighlight';
+import { highlightSupport } from '../utils/highlight/highlight-browser-support';
 import { highlightSelectedWord } from '../utils/highlight/highlightSelectedWord';
 import { highlightSelection } from '../utils/highlight/highlightSelection';
 import { highlightWords } from '../utils/highlight/highlightWords';
-import { nodesInRange } from '../utils/nodesInRange';
+import { nodesInRange } from '../utils/range/nodesInRange';
 import { useRangeIfReady } from './useRangeIfReady';
 
 // If word contains these characters then add whitespace around each of them.
@@ -57,6 +57,9 @@ export const useSelection = () => {
     const treeWalker = document.createTreeWalker(range.commonAncestorContainer, NodeFilter.SHOW_TEXT);
     let currentNode: Node | null;
 
+    // if the node that is being selected is both the start and the end node then just use that
+    // TreeWalker starts with common ancestor if startContainer !== endContainer
+    // We need to loop through the treeWalker
     if (range.startContainer === range.endContainer) {
       currentNode = range.startContainer;
     } else {
@@ -68,25 +71,31 @@ export const useSelection = () => {
       if (
         nodes.find(
           (node) =>
+            // Only check the node if its in range
             node === currentNode &&
             currentNode.nodeValue &&
+            // Don't include text nodes that only contains characters that Polly doesn't support
             !IGNORE_TEXT_NODE_IF_ONLY_CONTAINS.test(currentNode.nodeValue) &&
+            // Don't include text nodes that are hidden/invisible
             elementIsVisible(currentNode.parentElement),
         )
       ) {
+        // startContainer can have on offset based on the selection
         let startOffset = currentNode === range.startContainer ? range.startOffset : 0;
         const endOffset = currentNode === range.endContainer ? range.endOffset : undefined;
 
+        // If this node's parentElement is or within data-tts-replace element,
+        // then highlight the whole data-tts-ignore as one word,
+        // while each word in the replacement is being read
         const replaceElement = replaceElements.find((item) => item.contains(currentNode?.parentElement as HTMLElement));
         if (replaceElement) {
+          // data-tts-replace element must contain a child span that will be read instead of what is visually shown
           const usedHtmlElement = replaceElement.querySelector<HTMLElement>(':scope > span:last-child') || undefined;
-
           if (usedHtmlElement) {
             const usedNode = usedHtmlElement.innerText.trim();
             const tempWords = usedNode.replaceAll(SUPPORTED_CHARS_REGEX, '').trim().split(' ');
             tempWords?.forEach((tempWord) => {
               if (IGNORE_TEXT_NODE_IF_ONLY_CONTAINS.test(tempWord) || tempWord.length === 0) {
-                debugger;
                 return;
               }
               const word: TextSelectionWord = {
@@ -95,6 +104,8 @@ export const useSelection = () => {
                 node: replaceElement,
                 word: tempWord,
               };
+              // the visually shown part of data-tts-replace might contain multiple elements,
+              // this ensures that it only adds the replacement words one time
               if (
                 words.find(
                   (item) =>
@@ -147,6 +158,7 @@ export const useSelection = () => {
                 ) {
                   break;
                 } else if (
+                  // This ensures that specific elements will always be counted as a sentence for Polly
                   ADD_PUNCTUATION_FOR_HTML_ELEMENT_TYPES.some(
                     (value) => value === parentElement?.nodeName.toLowerCase(),
                   )

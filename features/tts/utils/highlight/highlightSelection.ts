@@ -1,5 +1,5 @@
-import { highlightSupport } from '../../const/highlight-browser-support';
 import { TextSelectionWord } from '../../interfaces/TextSelectionWord';
+import { highlightSupport } from './highlight-browser-support';
 
 export const highlightSelection = ({ words }: { words: TextSelectionWord[] }) => {
   if (highlightSupport() && words.length) {

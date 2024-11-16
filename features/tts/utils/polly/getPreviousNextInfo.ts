@@ -1,5 +1,5 @@
-import { Polly } from '../interfaces/Polly';
-import { PreviousNextInfo } from '../interfaces/PreviousNextInfo';
+import { Polly } from '../../interfaces/Polly';
+import { PreviousNextInfo } from '../../interfaces/PreviousNextInfo';
 import { currentTimeToPollyMarkTime } from './currentTimeToPollyMarkTime';
 
 export const getPreviousNextInfo = ({

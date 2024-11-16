@@ -13,6 +13,7 @@ export const useLoadPolly = () => {
   const selectedLanguage = useTTSWithHighlightStore((state) => state.selectedLanguage);
   const playRequested = useTTSWithHighlightStore((state) => state.playRequested);
   const setPolly = useTTSWithHighlightStore((state) => state.setPolly);
+
   useEffect(() => {
     if (textSelection && selectedLanguage && !polly && playRequested) {
       const body: PollyBody = {
