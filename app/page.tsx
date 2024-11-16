@@ -6,22 +6,6 @@ import Image from 'next/image';
 import { ReactNode } from 'react';
 import { FaAngleDown } from 'react-icons/fa6';
 
-const Heading = ({ children }: { children: ReactNode }) => {
-  return <h2 className="mb-2 text-xl font-bold">{children}</h2>;
-};
-
-const Link = ({ href, children }: { href: string; children: ReactNode }) => {
-  return (
-    <a href={href} className="text-orange-300 underline hover:no-underline">
-      {children}
-    </a>
-  );
-};
-
-const Ul = ({ children }: { children: ReactNode }) => {
-  return <ul className="grid list-inside list-disc gap-1">{children}</ul>;
-};
-
 const Ol = ({ children }: { children: ReactNode }) => {
   return <ol className="grid list-inside list-decimal gap-1">{children}</ol>;
 };
@@ -29,7 +13,7 @@ const Ol = ({ children }: { children: ReactNode }) => {
 const Accordion = ({
   buttonText,
   children,
-  defaultOpen,
+  defaultOpen = true,
 }: {
   buttonText: string;
   children: ReactNode;
@@ -75,56 +59,6 @@ const StackedCard = () => {
 const Page = () => {
   return (
     <article className="grid divide-y-2 divide-zinc-900 border-2 border-zinc-900">
-      <Accordion buttonText="Features" defaultOpen={true}>
-        {' '}
-        <Ul>
-          <li>Selected text player</li>
-          <li>Previous/Next word button functionality</li>
-          <li>Previous/Next sentence button functionality</li>
-          <li>Selection that stays until the player closes (Except for Firefox)</li>
-          <li>Supports selection across different react components</li>
-          <li>Active word highlight (Except for Firefox)</li>
-          <li>Polly integration</li>
-          <li>No rerender of react components for TTS or Highlight</li>
-          <li>Reads and highlights correctly on all tested markup structures</li>
-          <li>Works on all browsers and devices</li>
-          <li>Change playback rate</li>
-          <li>
-            Automatic punctuations on sentence endings for text given to polly, to get correct sentence seperations.
-          </li>
-          <li>Change language</li>
-          <li>Ignore elements that has specific data-attribute</li>
-          <li>Support for alternative being used for TTS on element instead of what is visually shown</li>
-        </Ul>
-      </Accordion>
-      <Accordion buttonText="ToDo">
-        <Ul>
-          <li>
-            Support all languages specified here{' '}
-            <Link href="https://bitbucket.org/alineadigital/next-api/src/master/Alinea.Api.Next/Controllers/PollyController.cs">
-              https://bitbucket.org/alineadigital/next-api/src/master/Alinea.Api.Next/Controllers/PollyController.cs
-            </Link>
-          </li>
-          <li>Switch polly audio files when needed (it only uses first file currently)</li>
-          <li>Full page player</li>
-          <li>Duration slider</li>
-        </Ul>
-      </Accordion>
-      <Accordion buttonText="Wish list">
-        <Ul>
-          <li>
-            Firefox Highlight API support{' '}
-            <Link href="https://bugzilla.mozilla.org/show_bug.cgi?id=1703961">
-              https://bugzilla.mozilla.org/show_bug.cgi?id=1703961
-            </Link>
-          </li>
-          <li>Auto detect text language</li>
-          <li>Support multiple spoken languages at the same time</li>
-          <li>Audio streaming instead of mp3</li>
-          <li>Some way of giving ::highlight higher z-index than ::selection</li>
-          <li>More options for ::highlight styling</li>
-        </Ul>
-      </Accordion>
       <Accordion buttonText="Quotes">
         <Ol>
           <li>
