@@ -15,7 +15,7 @@ import { useRangeIfReady } from './useRangeIfReady';
 
 // If word contains these characters then add whitespace around each of them.
 // Polly can't handle them within a word.
-const SPLIT_IN_WORD = new RegExp(/(?=[?_.<>#%=/])|(?<=[?_.<>#%=/])/g);
+const SPLIT_IN_WORD = new RegExp(/(?=[!?._<>#%=/])|(?<=[!?._<>#%=/])/g);
 
 // Polly will remove these characters if they stand alone.
 // We need to ignore them in our selection.
@@ -183,19 +183,16 @@ export const useSelection = () => {
             splitWords.forEach((splitWord, i) => {
               const leadingSplitWordWhitespaces = splitWord.length - splitWord.trimStart().length;
               const finalWord = splitWord.replaceAll(SUPPORTED_CHARS_REGEX, '').trimStart();
-              if (
-                finalWord.length &&
-                !ignoreElements.find((item) => item.contains(currentNode?.parentElement as HTMLElement))
-              ) {
-                if (IGNORE_TEXT_NODE_IF_ONLY_CONTAINS.test(finalWord)) {
+              if (!ignoreElements.find((item) => item.contains(currentNode?.parentElement as HTMLElement))) {
+                if (IGNORE_TEXT_NODE_IF_ONLY_CONTAINS.test(splitWord)) {
                   if (
-                    (PUNCTUATION.some((value) => value === finalWord) ||
+                    (PUNCTUATION.some((value) => value === splitWord) ||
                       (addSentenceEnding && i + 1 === splitWords.length)) &&
                     !words[words.length - 1].word.endsWith('.')
                   ) {
                     words[words.length - 1].word += '.';
                   }
-                } else {
+                } else if (finalWord.length) {
                   words.push({
                     startOffset: startOffset,
                     endOffset: startOffset - leadingSplitWordWhitespaces + splitWord.length,

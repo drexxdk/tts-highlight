@@ -1,5 +1,5 @@
 import TTSPlayer from '@/features/tts/components/TTSPlayer';
-import '@/public/styles/globals.scss';
+import '@/public/styles/globals.css';
 import logoIcon from '@/public/svg/logo.svg';
 import type { Metadata } from 'next';
 import Image from 'next/image';

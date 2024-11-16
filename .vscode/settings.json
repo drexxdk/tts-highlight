@@ -4,7 +4,7 @@
     "source.organizeImports": "explicit",
     "source.fixAll.eslint": "explicit"
   },
-  "scss.lint.unknownAtRules": "ignore",
+  "css.lint.unknownAtRules": "ignore",
 
   "editor.linkedEditing": true,
   "tailwindCSS.classAttributes": ["class", "className"],
