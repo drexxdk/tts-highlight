@@ -146,7 +146,6 @@ const Page = () => {
           <li>&quot;If you&apos;re nothing without this suit, then you shouldn&apos;t have it.&quot;</li>
         </Ol>
       </section>
-      <SpecialCharacters />
       <section>
         <ul>
           <li>
@@ -182,14 +181,10 @@ const Page = () => {
             </span>{' '}
             part
           </p>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <StackedCard />
-            <StackedCard />
-          </div>
           <p>This is a long paragraph with many different words.</p>
           <ol className="list-inside list-decimal">
             <li>
-              This is a <b>list</b> &nbsp;&nbsp;&nbsp;item.
+              This is a <b>list</b>&nbsp;&nbsp;&nbsp;item.
             </li>
             <li>
               One{' '}
@@ -257,8 +252,13 @@ const Page = () => {
             vel mi a magna finibus tincidunt. Mauris scelerisque ligula nec ipsum laoreet laoreet. Aliquam erat
             volutpat. Vestibulum at urna dolor.
           </p>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <StackedCard />
+            <StackedCard />
+          </div>
         </div>
       </section>
+      <SpecialCharacters />
     </article>
   );
 };

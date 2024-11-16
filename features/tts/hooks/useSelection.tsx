@@ -143,8 +143,8 @@ export const useSelection = () => {
                   }
                 } else if (finalWord.length) {
                   words.push({
-                    startOffset: startOffset,
-                    endOffset: startOffset - leadingSplitWordWhitespaces + splitWord.length,
+                    startOffset: startOffset + leadingSplitWordWhitespaces,
+                    endOffset: startOffset + splitWord.length,
                     node: currentNode as Node,
                     word: finalWord + (addPunctuation && i + 1 === splitWords.length ? '.' : ''),
                   });
