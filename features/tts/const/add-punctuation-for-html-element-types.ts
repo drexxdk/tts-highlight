@@ -20,4 +20,5 @@ export const ADD_PUNCTUATION_FOR_HTML_ELEMENT_TYPES: string[] = [
   'option',
   'legend', // The Field Set Legend element
   'label',
+  'button',
 ];
