@@ -1,8 +1,8 @@
 ## Features
 
 - Selected text player
-- Previous/Next word button functionality
-- Previous/Next sentence button functionality
+- Previous/Next word buttons
+- Previous/Next sentence buttons
 - Selection that stays until the player closes (Except for Firefox)
 - Supports selection across different react components
 - Active word highlight (Except for Firefox)
@@ -15,6 +15,7 @@
 - Change language
 - Ignore elements that has specific data-attribute
 - Support for alternative being used for TTS on element instead of what is visually shown
+- Ignore display="none" and visibility="hidden" elements
 
 ## Missing
 

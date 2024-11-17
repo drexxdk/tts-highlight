@@ -63,10 +63,10 @@ const Page = () => {
         <div className="grid gap-6">
           <div className="grid gap-2">
             <p>
-              <span className="tts-replace">The blue text</span> is being replaced with other text for TTS.
+              <span className="tts-replace">The blue text</span> elements is replaced with other text for TTS.
             </p>
             <p>
-              <span className="tts-ignore">The red texx</span> is ignored by TTS.
+              <span className="tts-ignore">The red text</span> elements is ignored by TTS.
             </p>
           </div>
           <Ol>
@@ -235,6 +235,23 @@ const Page = () => {
             </li>
             <li>R</li>
           </Ol>
+        </div>
+      </Accordion>
+      <Accordion buttonText="Form">
+        <div className="grid gap-6">
+          <p>Not supported yet</p>
+          <input
+            className="border border-gray-500 bg-white p-4 text-gray-950"
+            type="text"
+            defaultValue={'Mauris hendrerit turpis sit amet elementum rhoncus.'}
+          />
+
+          <textarea
+            className="border border-gray-500 bg-white p-4 text-gray-950"
+            rows={6}
+            defaultValue={`Mauris hendrerit turpis sit amet elementum rhoncus. Curabitur et turpis sed velit efficitur lobortis
+elementum non turpis. Nulla dignissim in urna sed vulputate.`}
+          ></textarea>
         </div>
       </Accordion>
       <Accordion buttonText="Special Charactersaaa" defaultOpen={true}>
