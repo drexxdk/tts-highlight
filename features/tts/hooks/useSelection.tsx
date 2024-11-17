@@ -81,88 +81,61 @@ export const useSelection = () => {
           currentNode.parentElement?.closest<HTMLElement>(ADD_PUNCTUATION_FOR_HTML_ELEMENT_TYPES.toString()) ||
           undefined;
 
+        // TextNode can contain multiple words
+        // Polly's marks are for each individual word
+        // We split the textNode to match with Polly's marks
+        let tempWords: string[] = [];
         if (replaceElement) {
           if (!replacedElements.some((item) => item === replaceElement)) {
             replacedElements.push(replaceElement);
-            const tempWords = replaceElement.dataset.ttsReplace?.trim().split(' ') || [];
-            tempWords.forEach((tempWord, i) => {
-              const splitWords = tempWord.split(SPLIT_IN_WORD);
-              splitWords.forEach((splitWord, i) => {
-                const finalWord = splitWord.replaceAll(SUPPORTED_CHARS_REGEX, '').trimStart();
-                if (!ignoreElements.find((item) => item.contains(currentNode?.parentElement as HTMLElement))) {
-                  if (IGNORE_TEXT_NODE_IF_ONLY_CONTAINS.test(splitWord)) {
-                    const previousWord = words.length ? words[words.length - 1] : undefined;
-                    if (
-                      (POLLY_PUNCTUATION.some((value) => value === splitWord) || punctuationParentElement) &&
-                      previousWord &&
-                      !previousWord.text.endsWith('.')
-                    ) {
-                      previousWord.text += '.';
-                    }
-                  } else if (finalWord.length) {
-                    words = words.map((word) => {
-                      const same = word.punctuationParentElement === punctuationParentElement;
-                      return {
-                        ...word,
-                        text: same ? word.text.replace('.', '') : word.text,
-                        punctuationParentElement: same ? undefined : word.punctuationParentElement,
-                      };
-                    });
-                    words.push({
-                      startOffset: startOffset,
-                      endOffset: startOffset + replaceElement.childNodes.length,
-                      node: replaceElement,
-                      text: finalWord + (punctuationParentElement ? '.' : ''),
-                      punctuationParentElement: punctuationParentElement,
-                    });
-                  }
-                }
-              });
-            });
+            tempWords = replaceElement.dataset.ttsReplace?.trim().split(' ') || [];
           }
-          startOffset += 1;
         } else {
-          // TextNode can contain multiple words
-          // Polly's marks are for each individual word
-          // This splits the textNode to match with Polly's marks
-          const tempWords = currentNode.nodeValue?.substring(startOffset, endOffset).split(' ') || [];
-          tempWords.forEach((tempWord, i) => {
-            const splitWords = tempWord.split(SPLIT_IN_WORD);
-            splitWords.forEach((splitWord, i) => {
-              const leadingSplitWordWhitespaces = splitWord.length - splitWord.trimStart().length;
-              const finalWord = splitWord.replaceAll(SUPPORTED_CHARS_REGEX, '').trimStart();
-              if (!ignoreElements.find((item) => item.contains(currentNode?.parentElement as HTMLElement))) {
-                if (IGNORE_TEXT_NODE_IF_ONLY_CONTAINS.test(splitWord)) {
-                  const previousWord = words.length ? words[words.length - 1] : undefined;
-                  if (
-                    (POLLY_PUNCTUATION.some((value) => value === splitWord) || punctuationParentElement) &&
-                    previousWord &&
-                    !previousWord.text.endsWith('.')
-                  ) {
-                    previousWord.text += '.';
-                  }
-                } else if (finalWord.length) {
-                  words = words.map((word) => {
-                    const same = word.punctuationParentElement === punctuationParentElement;
-                    return {
-                      ...word,
-                      text: same ? word.text.replace('.', '') : word.text,
-                      punctuationParentElement: same ? undefined : word.punctuationParentElement,
-                    };
-                  });
-                  words.push({
-                    startOffset: startOffset + leadingSplitWordWhitespaces,
-                    endOffset: startOffset + splitWord.length,
-                    node: currentNode as Node,
-                    text: finalWord + (punctuationParentElement ? '.' : ''),
-                    punctuationParentElement: punctuationParentElement,
-                  });
+          tempWords = currentNode.nodeValue?.substring(startOffset, endOffset).split(' ') || [];
+        }
+
+        tempWords.forEach((tempWord) => {
+          const splitWords = tempWord.split(SPLIT_IN_WORD);
+          splitWords.forEach((splitWord) => {
+            const finalWord = splitWord.replaceAll(SUPPORTED_CHARS_REGEX, '').trimStart();
+            if (!ignoreElements.find((item) => item.contains(currentNode?.parentElement as HTMLElement))) {
+              if (IGNORE_TEXT_NODE_IF_ONLY_CONTAINS.test(splitWord)) {
+                const previousWord = words.length ? words[words.length - 1] : undefined;
+                if (
+                  (POLLY_PUNCTUATION.some((value) => value === splitWord) || punctuationParentElement) &&
+                  previousWord &&
+                  !previousWord.text.endsWith('.')
+                ) {
+                  previousWord.text += '.';
                 }
+              } else if (finalWord.length) {
+                words = words.map((word) => {
+                  const same = word.punctuationParentElement === punctuationParentElement;
+                  return {
+                    ...word,
+                    text: same ? word.text.replace('.', '') : word.text,
+                    punctuationParentElement: same ? undefined : word.punctuationParentElement,
+                  };
+                });
+                words.push({
+                  startOffset: startOffset + (replaceElement ? 0 : splitWord.length - splitWord.trimStart().length),
+                  endOffset: startOffset + (replaceElement ? replaceElement.childNodes.length : splitWord.length),
+                  node: replaceElement ? replaceElement : (currentNode as Node),
+                  text: finalWord + (punctuationParentElement ? '.' : ''),
+                  punctuationParentElement: punctuationParentElement,
+                });
               }
+            }
+            if (!replaceElement) {
               startOffset += splitWord.length;
-            });
-            startOffset += 1;
+            }
           });
+          if (!replaceElement) {
+            startOffset += 1;
+          }
+        });
+        if (replaceElement) {
+          startOffset += 1;
         }
       }
 
