@@ -23,10 +23,16 @@ body {
   display: none;
 }
 
+.tts-replace,
 [data-tts-replace] {
   @apply bg-blue-400 text-gray-950;
 }
 
+.tts-ignore,
 [data-tts-ignore] {
   @apply bg-red-400 text-gray-950;
+}
+
+.code {
+  @apply bg-gray-700;
 }

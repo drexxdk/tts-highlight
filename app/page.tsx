@@ -60,99 +60,109 @@ const Page = () => {
   return (
     <article className="grid divide-y-2 divide-zinc-900 border-2 border-zinc-900">
       <Accordion buttonText="data-tts-replace & data-tts-ignore" defaultOpen={true}>
-        <Ol>
-          <li>
-            &quot;I choose to run <span data-tts-replace="toward my">away from</span> problems and not away from them.
-            Because that - Because that&apos;s what heroes do.&quot;
-          </li>
-          <li>
-            <span data-tts-replace="Fear controls us all">
-              &quot;I can&apos;t control their fear, only my own.&quot;
-            </span>
-          </li>
-          <li>
-            &quot;It&apos;s <span data-tts-ignore>not</span> enough to be against something. You have to be for
-            something better.&quot;
-          </li>
-          <li>
-            &quot;Good is not a thing you are. <span data-tts-ignore>It&apos;s a thing you do</span>.&quot;
-          </li>
-          <li>
-            &quot;You were wrong, all of you were wrong, to turn your backs on <span data-tts-ignore>the</span>{' '}
-            <span data-tts-ignore>rest</span> <span data-tts-ignore>of</span> the world! We let the fear of discovery
-            stop us <span data-tts-ignore>from doing what is right</span>.&quot;
-          </li>
-          <li>
-            &quot;Higher, <span data-tts-replace="longer">further</span>, faster,{' '}
-            <span data-tts-replace="buddy">baby</span>.&quot;
-          </li>
-          <li>
-            &quot;The hardest choices require the <span data-tts-replace="weakest">strongest</span>{' '}
-            <span data-tts-replace="weapons">wills</span>.&quot;
-          </li>
-          <li>
-            &quot;You <span data-tts-replace="except nothing">hope for the best</span>{' '}
-            <span data-tts-replace="but hope for">and make do with what</span>{' '}
-            <span data-tts-replace="something">you get</span>.&quot;
-          </li>
-          <li data-tts-replace>&quot;I would rather be a good man than a great king.&quot;</li>
-          <li>&quot;Part of the journey is the end.&quot;</li>
-          <li>&quot;Just because something works, doesn&apos;t mean it can&apos;t be improved.&quot;</li>
-          <li>
-            <span data-tts-ignore>&quot;Avengers,</span> assemble!&quot;
-          </li>
-          <li>
-            &quot;No man can win <span data-tts-ignore>every battle</span>, but no man should fall without{' '}
-            <span data-tts-replace="effort">struggle.&quot;</span>
-          </li>
-          <li>
-            &quot;We never <span data-tts-replace="defeat">lose</span> our demons, Mordo. We only learn to live above
-            them.&quot;
-          </li>
-          <li>
-            &quot;But what is <span data-tts-replace="it">grief</span>, if not love persevering?&quot;
-          </li>
-          <li>
-            &quot;All <span data-tts-replace="they">we</span> can do is <span data-tts-replace="their">our</span> best,
-            and sometimes the best that we can do is to start over.&quot;
-          </li>
-          <li>&quot;No amount of money ever bought a second of time.&quot;</li>
-          <li>
-            &quot;<span data-tts-replace="Everything">Nothing</span> goes over my head. My reflexes are too fast.{' '}
-            <span data-tts-replace="We will">I would</span> catch it.&quot;
-          </li>
-          <li>
-            &quot;How is <span data-tts-replace="always">never</span> as important as why.&quot;
-          </li>
-          <li>
-            &quot;
-            <span data-tts-replace="We are the product of all that came before us, the legacy of our family">
-              You are the product of all who came before you, the legacy of your family.
-            </span>
-            &quot;
-          </li>
-          <li>
-            &quot;Love is a <span data-tts-replace="power">dagger</span>. It&apos;s a weapon to be wielded far away or
-            up close. You can see yourself in it. It&apos;s beautiful{' '}
-            <span data-tts-ignore>until it makes you bleed.&quot;</span>
-          </li>
-          <li>
-            &quot;You seek <span data-tts-replace="happiness">love</span>. It&apos;s all any of us want.&quot;
-          </li>
-          <li>
-            &quot;It&apos;s not about how much we <span data-tts-replace="win">lost</span>, it&apos;s about how much{' '}
-            <span data-tts-replace="others lose">we have left</span>.&quot;
-          </li>
-          <li>
-            &quot;At some point, we all have to <span data-tts-replace="give up">choose</span>,{' '}
-            <span data-tts-replace="on">between</span> what <span data-tts-replace="we">the world</span>{' '}
-            <span data-tts-replace="want">wants you to be, and who you are</span>.&quot;
-          </li>
-          <li>
-            &quot;If you&apos;re nothing without this <span data-tts-replace="hat">suit</span>, then you shouldn&apos;t
-            have it.&quot;
-          </li>
-        </Ol>
+        <div className="grid gap-6">
+          <div className="grid gap-2">
+            <p>
+              <span className="tts-replace">The blue text</span> is being replaced with other text for TTS.
+            </p>
+            <p>
+              <span className="tts-ignore">The red texx</span> is ignored by TTS.
+            </p>
+          </div>
+          <Ol>
+            <li>
+              &quot;I choose to run <span data-tts-replace="toward my">away from</span> problems and not away from them.
+              Because that - Because that&apos;s what heroes do.&quot;
+            </li>
+            <li>
+              <span data-tts-replace="Fear controls us all">
+                &quot;I can&apos;t control their fear, only my own.&quot;
+              </span>
+            </li>
+            <li>
+              &quot;It&apos;s <span data-tts-ignore>not</span> enough to be against something. You have to be for
+              something better.&quot;
+            </li>
+            <li>
+              &quot;Good is not a thing you are. <span data-tts-ignore>It&apos;s a thing you do</span>.&quot;
+            </li>
+            <li>
+              &quot;You were wrong, all of you were wrong, to turn your backs on <span data-tts-ignore>the</span>{' '}
+              <span data-tts-ignore>rest</span> <span data-tts-ignore>of</span> the world! We let the fear of discovery
+              stop us <span data-tts-ignore>from doing what is right</span>.&quot;
+            </li>
+            <li>
+              &quot;Higher, <span data-tts-replace="longer">further</span>, faster,{' '}
+              <span data-tts-replace="buddy">baby</span>.&quot;
+            </li>
+            <li>
+              &quot;The hardest choices require the <span data-tts-replace="weakest">strongest</span>{' '}
+              <span data-tts-replace="weapons">wills</span>.&quot;
+            </li>
+            <li>
+              &quot;You <span data-tts-replace="except nothing">hope for the best</span>{' '}
+              <span data-tts-replace="but hope for">and make do with what</span>{' '}
+              <span data-tts-replace="something">you get</span>.&quot;
+            </li>
+            <li data-tts-replace>&quot;I would rather be a good man than a great king.&quot;</li>
+            <li>&quot;Part of the journey is the end.&quot;</li>
+            <li>&quot;Just because something works, doesn&apos;t mean it can&apos;t be improved.&quot;</li>
+            <li>
+              <span data-tts-ignore>&quot;Avengers,</span> assemble!&quot;
+            </li>
+            <li>
+              &quot;No man can win <span data-tts-ignore>every battle</span>, but no man should fall without{' '}
+              <span data-tts-replace="effort">struggle.&quot;</span>
+            </li>
+            <li>
+              &quot;We never <span data-tts-replace="defeat">lose</span> our demons, Mordo. We only learn to live above
+              them.&quot;
+            </li>
+            <li>
+              &quot;But what is <span data-tts-replace="it">grief</span>, if not love persevering?&quot;
+            </li>
+            <li>
+              &quot;All <span data-tts-replace="they">we</span> can do is <span data-tts-replace="their">our</span>{' '}
+              best, and sometimes the best that we can do is to start over.&quot;
+            </li>
+            <li>&quot;No amount of money ever bought a second of time.&quot;</li>
+            <li>
+              &quot;<span data-tts-replace="Everything">Nothing</span> goes over my head. My reflexes are too fast.{' '}
+              <span data-tts-replace="We will">I would</span> catch it.&quot;
+            </li>
+            <li>
+              &quot;How is <span data-tts-replace="always">never</span> as important as why.&quot;
+            </li>
+            <li>
+              &quot;
+              <span data-tts-replace="We are the product of all that came before us, the legacy of our family">
+                You are the product of all who came before you, the legacy of your family.
+              </span>
+              &quot;
+            </li>
+            <li>
+              &quot;Love is a <span data-tts-replace="power">dagger</span>. It&apos;s a weapon to be wielded far away or
+              up close. You can see yourself in it. It&apos;s beautiful{' '}
+              <span data-tts-ignore>until it makes you bleed.&quot;</span>
+            </li>
+            <li>
+              &quot;You seek <span data-tts-replace="happiness">love</span>. It&apos;s all any of us want.&quot;
+            </li>
+            <li>
+              &quot;It&apos;s not about how much we <span data-tts-replace="win">lost</span>, it&apos;s about how much{' '}
+              <span data-tts-replace="others lose">we have left</span>.&quot;
+            </li>
+            <li>
+              &quot;At some point, we all have to <span data-tts-replace="give up">choose</span>,{' '}
+              <span data-tts-replace="on">between</span> what <span data-tts-replace="we">the world</span>{' '}
+              <span data-tts-replace="want">wants you to be, and who you are</span>.&quot;
+            </li>
+            <li>
+              &quot;If you&apos;re nothing without this <span data-tts-replace="hat">suit</span>, then you
+              shouldn&apos;t have it.&quot;
+            </li>
+          </Ol>
+        </div>
       </Accordion>
       <Accordion buttonText="Unmodified quotes">
         <Ol>
@@ -194,8 +204,44 @@ const Page = () => {
           <li>&quot;If you&apos;re nothing without this suit, then you shouldn&apos;t have it.&quot;</li>
         </Ol>
       </Accordion>
+      <Accordion buttonText="hidden / invisible elements" defaultOpen={true}>
+        <div className="grid gap-6">
+          <p>
+            There is several <span className="code">display=&quot;none&quot;</span> and{' '}
+            <span className="code">visibility=&quot;hidden&quot;</span> elements, within this list.
+          </p>
+          <Ol>
+            <li>A</li>
+            <li className="hidden">B</li>
+            <li>C</li>
+            <li>
+              D <span className="invisible">E</span> F <span className="hidden">G</span> H
+            </li>
+            <li>
+              I{' '}
+              <span>
+                J{' '}
+                <span className="hidden">
+                  K <span className="invisible">L</span>
+                </span>
+              </span>{' '}
+              M <span className="invisible">N</span>
+            </li>
+            <li>
+              O{' '}
+              <span className="invisible">
+                P <span className="hidden">Q</span>
+              </span>
+            </li>
+            <li>R</li>
+          </Ol>
+        </div>
+      </Accordion>
       <Accordion buttonText="Special Charactersaaa" defaultOpen={true}>
-        <SpecialCharacters />
+        <div className="grid gap-6">
+          <p>This is used to test character support for Polly, on different languages.</p>
+          <SpecialCharacters />
+        </div>
       </Accordion>
       <Accordion buttonText="Random stuff for testing">
         <div className="grid gap-2">

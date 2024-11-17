@@ -111,7 +111,6 @@ export const useSelection = () => {
                       node: replaceElement,
                       word: finalWord,
                     });
-                    debugger;
                   }
                 }
               });
