@@ -1,6 +1,7 @@
 export interface TextSelectionWord {
   node: Node;
-  word: string;
+  text: string;
   startOffset: number;
   endOffset: number;
+  punctuationParentElement?: HTMLElement;
 }

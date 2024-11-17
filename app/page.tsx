@@ -242,7 +242,7 @@ const Page = () => {
           <p>
             Highlight is not supported in{' '}
             <code data-tts-replace="input type text">&lt;input type=&quot;text&quot;/&gt;</code> or{' '}
-            <code data-tts-replace="textarea">&lt;textarea&gt;&lt;/textarea&gt;&lt;/textarea&gt;</code>.
+            <code data-tts-replace="textarea">&lt;textarea&gt;&lt;/textarea&gt;</code>.
           </p>
           <input
             className="border border-gray-500 bg-white p-4 text-gray-950"

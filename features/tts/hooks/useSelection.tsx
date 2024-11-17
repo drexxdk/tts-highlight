@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { ADD_PUNCTUATION_FOR_HTML_ELEMENT_TYPES } from '../const/add-punctuation-for-html-element-types';
 import { POLLY_PUNCTUATION } from '../const/polly-punctuation';
 import { TextSelectionWord } from '../interfaces/TextSelectionWord';
 import { useTTSWithHighlightStore } from '../stores/useTTSWithHighlightStore';
@@ -11,7 +12,6 @@ import { highlightSelectedWord } from '../utils/highlight/highlightSelectedWord'
 import { highlightSelection } from '../utils/highlight/highlightSelection';
 import { highlightWords } from '../utils/highlight/highlightWords';
 import { nodesInRange } from '../utils/range/nodesInRange';
-import { shouldAddPunctuation } from '../utils/shouldAddPunctuation';
 import { useRangeIfReady } from './useRangeIfReady';
 
 // If word contains these characters then add whitespace around each of them.
@@ -55,7 +55,7 @@ export const useSelection = () => {
       currentNode = treeWalker.nextNode();
     }
 
-    const words: TextSelectionWord[] = [];
+    let words: TextSelectionWord[] = [];
     const replacedElements: HTMLElement[] = [];
     while (currentNode) {
       if (
@@ -64,8 +64,6 @@ export const useSelection = () => {
             // Only check the node if its in range
             node === currentNode &&
             currentNode.nodeValue &&
-            // Don't include text nodes that only contains characters that Polly doesn't support
-            !IGNORE_TEXT_NODE_IF_ONLY_CONTAINS.test(currentNode.nodeValue) &&
             // Don't include text nodes that are hidden/invisible
             elementIsVisible(currentNode.parentElement),
         )
@@ -79,6 +77,10 @@ export const useSelection = () => {
         let startOffset = currentNode === range.startContainer && !replaceElement ? range.startOffset : 0;
         const endOffset = currentNode === range.endContainer && !replaceElement ? range.endOffset : undefined;
 
+        const punctuationParentElement =
+          currentNode.parentElement?.closest<HTMLElement>(ADD_PUNCTUATION_FOR_HTML_ELEMENT_TYPES.toString()) ||
+          undefined;
+
         if (replaceElement) {
           if (!replacedElements.some((item) => item === replaceElement)) {
             replacedElements.push(replaceElement);
@@ -89,18 +91,29 @@ export const useSelection = () => {
                 const finalWord = splitWord.replaceAll(SUPPORTED_CHARS_REGEX, '').trimStart();
                 if (!ignoreElements.find((item) => item.contains(currentNode?.parentElement as HTMLElement))) {
                   if (IGNORE_TEXT_NODE_IF_ONLY_CONTAINS.test(splitWord)) {
+                    const previousWord = words.length ? words[words.length - 1] : undefined;
                     if (
-                      POLLY_PUNCTUATION.some((value) => value === splitWord) &&
-                      !words[words.length - 1].word.endsWith('.')
+                      (POLLY_PUNCTUATION.some((value) => value === splitWord) || punctuationParentElement) &&
+                      previousWord &&
+                      !previousWord.text.endsWith('.')
                     ) {
-                      words[words.length - 1].word += '.';
+                      previousWord.text += '.';
                     }
                   } else if (finalWord.length) {
+                    words = words.map((word) => {
+                      const same = word.punctuationParentElement === punctuationParentElement;
+                      return {
+                        ...word,
+                        text: same ? word.text.replace('.', '') : word.text,
+                        punctuationParentElement: same ? undefined : word.punctuationParentElement,
+                      };
+                    });
                     words.push({
                       startOffset: startOffset,
                       endOffset: startOffset + replaceElement.childNodes.length,
                       node: replaceElement,
-                      word: finalWord,
+                      text: finalWord + (punctuationParentElement ? '.' : ''),
+                      punctuationParentElement: punctuationParentElement,
                     });
                   }
                 }
@@ -114,31 +127,35 @@ export const useSelection = () => {
           // This splits the textNode to match with Polly's marks
           const tempWords = currentNode.nodeValue?.substring(startOffset, endOffset).split(' ') || [];
           tempWords.forEach((tempWord, i) => {
-            const addPunctuation = shouldAddPunctuation({
-              index: i,
-              words: tempWords,
-              node: currentNode,
-              word: tempWord,
-            });
             const splitWords = tempWord.split(SPLIT_IN_WORD);
             splitWords.forEach((splitWord, i) => {
               const leadingSplitWordWhitespaces = splitWord.length - splitWord.trimStart().length;
               const finalWord = splitWord.replaceAll(SUPPORTED_CHARS_REGEX, '').trimStart();
               if (!ignoreElements.find((item) => item.contains(currentNode?.parentElement as HTMLElement))) {
                 if (IGNORE_TEXT_NODE_IF_ONLY_CONTAINS.test(splitWord)) {
+                  const previousWord = words.length ? words[words.length - 1] : undefined;
                   if (
-                    (POLLY_PUNCTUATION.some((value) => value === splitWord) ||
-                      (addPunctuation && i + 1 === splitWords.length)) &&
-                    !words[words.length - 1].word.endsWith('.')
+                    (POLLY_PUNCTUATION.some((value) => value === splitWord) || punctuationParentElement) &&
+                    previousWord &&
+                    !previousWord.text.endsWith('.')
                   ) {
-                    words[words.length - 1].word += '.';
+                    previousWord.text += '.';
                   }
                 } else if (finalWord.length) {
+                  words = words.map((word) => {
+                    const same = word.punctuationParentElement === punctuationParentElement;
+                    return {
+                      ...word,
+                      text: same ? word.text.replace('.', '') : word.text,
+                      punctuationParentElement: same ? undefined : word.punctuationParentElement,
+                    };
+                  });
                   words.push({
                     startOffset: startOffset + leadingSplitWordWhitespaces,
                     endOffset: startOffset + splitWord.length,
                     node: currentNode as Node,
-                    word: finalWord + (addPunctuation && i + 1 === splitWords.length ? '.' : ''),
+                    text: finalWord + (punctuationParentElement ? '.' : ''),
+                    punctuationParentElement: punctuationParentElement,
                   });
                 }
               }
@@ -148,6 +165,7 @@ export const useSelection = () => {
           });
         }
       }
+
       currentNode = treeWalker.nextNode();
     }
 
@@ -164,7 +182,7 @@ export const useSelection = () => {
       hasWords
         ? {
             words: words,
-            inputText: words.map((word) => word.word).join(' '),
+            inputText: words.map((word) => word.text).join(' '),
           }
         : undefined,
     );
