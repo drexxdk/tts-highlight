@@ -207,8 +207,8 @@ const Page = () => {
       <Accordion buttonText="hidden / invisible elements" defaultOpen={true}>
         <div className="grid gap-6">
           <p>
-            There is several <span className="code">display=&quot;none&quot;</span> and{' '}
-            <span className="code">visibility=&quot;hidden&quot;</span> elements, within this list.
+            There is several <code data-tts-replace="display none">display=&quot;none&quot;</code> and{' '}
+            <code data-tts-replace="visibility hidden">visibility=&quot;hidden&quot;</code> elements, within this list.
           </p>
           <Ol>
             <li>A</li>
@@ -239,7 +239,11 @@ const Page = () => {
       </Accordion>
       <Accordion buttonText="Form">
         <div className="grid gap-6">
-          <p>Not supported yet</p>
+          <p>
+            Highlight is not supported in{' '}
+            <code data-tts-replace="input type text">&lt;input type=&quot;text&quot;/&gt;</code> or{' '}
+            <code data-tts-replace="textarea">&lt;textarea&gt;&lt;/textarea&gt;&lt;/textarea&gt;</code>.
+          </p>
           <input
             className="border border-gray-500 bg-white p-4 text-gray-950"
             type="text"

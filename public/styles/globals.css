@@ -33,6 +33,6 @@ body {
   @apply bg-red-400 text-gray-950;
 }
 
-.code {
+code {
   @apply bg-gray-700;
 }

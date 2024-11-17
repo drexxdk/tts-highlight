@@ -44,13 +44,6 @@ export const useSelection = () => {
     setTextSelection(undefined);
 
     const SUPPORTED_CHARS_REGEX = new RegExp(`[^${selectedLanguage.chars.join('')}]`, 'g');
-
-    if (highlightSupport() && !('ontouchend' in document)) {
-      // We dont want to keep the browser selection on desktop if that desktop supports Highlight API
-      // Firefox will keep the selection
-      const selection = window.getSelection();
-      selection?.empty();
-    }
     const nodes = nodesInRange(range);
     const treeWalker = document.createTreeWalker(range.commonAncestorContainer, NodeFilter.SHOW_TEXT);
     let currentNode: Node | null;
@@ -161,6 +154,13 @@ export const useSelection = () => {
     }
 
     const hasWords = words.length > 0;
+
+    if (highlightSupport() && !('ontouchend' in document) && hasWords) {
+      // We dont want to keep the browser selection on desktop if that desktop supports Highlight API
+      // Firefox will keep the selection
+      const selection = window.getSelection();
+      selection?.empty();
+    }
 
     setTextSelection(
       hasWords
