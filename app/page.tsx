@@ -204,6 +204,15 @@ const Page = () => {
           <li>&quot;If you&apos;re nothing without this suit, then you shouldn&apos;t have it.&quot;</li>
         </Ol>
       </Accordion>
+      <Accordion buttonText="Line breaks">
+        <p>
+          Lorem ipsum
+          <br /> dolor sit amet, consectetur adipiscing elit.
+          <br />
+          <br /> Sed non orci suscipit, maximus
+          <br /> odio id, facilisis lacus.
+        </p>
+      </Accordion>
       <Accordion buttonText="hidden / invisible elements" defaultOpen={true}>
         <div className="grid gap-6">
           <p>
