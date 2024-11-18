@@ -2,8 +2,8 @@ export const nodesInRange = (range: Range) => {
   const start = range.startContainer;
   const end = range.endContainer;
   const commonAncestor = range.commonAncestorContainer;
-  const nodes = [];
-  let node;
+  const nodes: (Node | ParentNode)[] = [];
+  let node: ParentNode | Node | null;
 
   // walk parent nodes from start to common ancestor
   for (node = start.parentNode; node; node = node.parentNode) {

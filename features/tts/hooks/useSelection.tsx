@@ -109,19 +109,11 @@ export const useSelection = () => {
                   previousWord.text += '.';
                 }
               } else if (finalWord.length) {
-                words = words.map((word) => {
-                  const same = word.punctuationParentElement === punctuationParentElement;
-                  return {
-                    ...word,
-                    text: same ? word.text.replace('.', '') : word.text,
-                    punctuationParentElement: same ? undefined : word.punctuationParentElement,
-                  };
-                });
                 words.push({
                   startOffset: startOffset + (replaceElement ? 0 : splitWord.length - splitWord.trimStart().length),
                   endOffset: startOffset + (replaceElement ? replaceElement.childNodes.length : splitWord.length),
                   node: replaceElement ? replaceElement : (currentNode as Node),
-                  text: finalWord + (punctuationParentElement ? '.' : ''),
+                  text: finalWord,
                   punctuationParentElement: punctuationParentElement,
                 });
               }
@@ -141,6 +133,16 @@ export const useSelection = () => {
 
       currentNode = treeWalker.nextNode();
     }
+
+    words = words.map((word, i) => {
+      const other = words.find(
+        (word2, j) => word2.punctuationParentElement === word.punctuationParentElement && word2 !== word && j > i,
+      );
+      return {
+        ...word,
+        text: other || word.text.endsWith('.') ? word.text : word.text + '.',
+      };
+    });
 
     const hasWords = words.length > 0;
 
