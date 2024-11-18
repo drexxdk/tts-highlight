@@ -22,7 +22,7 @@ const SPLIT_IN_WORD = new RegExp(/(?=[!?._<>#%=/])|(?<=[!?._<>#%=/])/g);
 // We need to ignore them in our selection.
 const IGNORE_TEXT_NODE_IF_ONLY_CONTAINS = new RegExp(/^[\-!?.\¨\[\]]+$/);
 
-const IGNORE_ELEMENTS_SELECTOR: string[] = ['data-tts-ignore', 'input[type="text"]', 'textarea'];
+const IGNORE_ELEMENTS_SELECTOR: string[] = ['[data-tts-ignore]', 'input[type="text"]', 'textarea'];
 const REPLACE_ELEMENTS_WITH_DATA_ATTRIBUTE = 'data-tts-replace';
 
 export const useSelection = () => {
