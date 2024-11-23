@@ -16,14 +16,14 @@ import { useRangeIfReady } from './useRangeIfReady';
 
 // If word contains these characters then add whitespace around each of them.
 // Polly can't handle them within a word.
-const SPLIT_IN_WORD = new RegExp(/(?=[!?._<>#%=/])|(?<=[!?._<>#%=/])/g);
-
-// Polly will remove these characters if they stand alone.
-// We need to ignore them in our selection.
-const IGNORE_TEXT_NODE_IF_ONLY_CONTAINS = new RegExp(/^[\-!?.\¨\[\]]+$/);
+const SPLIT_IN_WORD = new RegExp(/(?=[&!?._<>#%=/\\])|(?<=[&!?._<>#%=/\\])/g);
 
 const IGNORE_ELEMENTS_SELECTOR: string[] = ['[data-tts-ignore]', 'input[type="text"]', 'textarea'];
 const REPLACE_ELEMENTS_WITH_DATA_ATTRIBUTE = 'data-tts-replace';
+
+// Polly will remove these characters if they stand alone.
+// We need to ignore them in our selection.
+const IGNORE_TEXT_NODE_IF_ONLY_CONTAINS = new RegExp(/^[\-]+$/);
 
 export const useSelection = () => {
   const setTextSelection = useTTSWithHighlightStore((state) => state.setTextSelection);
@@ -41,7 +41,7 @@ export const useSelection = () => {
     );
     setTextSelection(undefined);
 
-    const SUPPORTED_CHARS_REGEX = new RegExp(`[^${selectedLanguage.chars.join('')}]`, 'g');
+    const SUPPORTED_CHARS_REGEX = new RegExp(`[^${selectedLanguage.supported.join('')}]`, 'g');
     const nodes = nodesInRange(range);
     const treeWalker = document.createTreeWalker(range.commonAncestorContainer, NodeFilter.SHOW_TEXT);
     let currentNode: Node | null;
@@ -88,6 +88,8 @@ export const useSelection = () => {
         if (replaceElement) {
           if (!replacedElements.some((item) => item === replaceElement)) {
             replacedElements.push(replaceElement);
+            // We can trim this text because we don't care about the offsets since this text won't be highlighted
+            // the parent element will be highlighed when this is being read
             tempWords = replaceElement.dataset.ttsReplace?.trim().split(' ') || [];
           }
         } else {
@@ -97,15 +99,18 @@ export const useSelection = () => {
         tempWords.forEach((tempWord) => {
           const splitWords = tempWord.split(SPLIT_IN_WORD);
           splitWords.forEach((splitWord) => {
-            const finalWord = splitWord.replaceAll(SUPPORTED_CHARS_REGEX, '').trimStart();
+            let finalWord = splitWord.trimStart();
+            selectedLanguage.definitions.forEach((definition) => {
+              finalWord = finalWord.replaceAll(definition.char, definition.name);
+            });
+            finalWord = finalWord.replaceAll(SUPPORTED_CHARS_REGEX, '');
+
             if (!ignoreElements.find((item) => item.contains(currentNode?.parentElement as HTMLElement))) {
               if (IGNORE_TEXT_NODE_IF_ONLY_CONTAINS.test(splitWord)) {
+                // This is supported, but not by itself
+              } else if (POLLY_PUNCTUATION.some((value) => value === splitWord)) {
                 const previousWord = words.length ? words[words.length - 1] : undefined;
-                if (
-                  (POLLY_PUNCTUATION.some((value) => value === splitWord) || punctuationParentElement) &&
-                  previousWord &&
-                  !previousWord.text.endsWith('.')
-                ) {
+                if (previousWord && !previousWord.text.endsWith('.')) {
                   previousWord.text += '.';
                 }
               } else if (finalWord.length) {
@@ -161,7 +166,6 @@ export const useSelection = () => {
           }
         : undefined,
     );
-    console.log('words', words);
 
     if (hasWords) {
       highlightSelection({ words });
@@ -170,5 +174,5 @@ export const useSelection = () => {
     } else {
       clearHighlight();
     }
-  }, [range, selectedLanguage]);
+  }, [range, selectedLanguage, setTextSelection]);
 };

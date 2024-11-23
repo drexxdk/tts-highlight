@@ -19,8 +19,44 @@ export interface TTSWithHighlightState {
 }
 
 const LANGUAGES: Language[] = [
-  { id: 'en', name: 'English', chars: POLLY_SUPPORTED_ENGLISH_CHARS },
-  { id: 'da', name: 'Dansk', chars: POLLY_SUPPORTED_DANISH_CHARS },
+  {
+    id: 'en',
+    name: 'English',
+    supported: POLLY_SUPPORTED_ENGLISH_CHARS,
+    definitions: [
+      {
+        char: '\\',
+        name: 'backslash',
+      },
+      {
+        char: '/',
+        name: 'slash',
+      },
+      {
+        char: '&',
+        name: 'and',
+      },
+    ],
+  },
+  {
+    id: 'da',
+    name: 'Dansk',
+    supported: POLLY_SUPPORTED_DANISH_CHARS,
+    definitions: [
+      {
+        char: '\\',
+        name: 'bagudstreg',
+      },
+      {
+        char: '/',
+        name: 'skråstreg',
+      },
+      {
+        char: '&',
+        name: 'og',
+      },
+    ],
+  },
 ];
 
 export const useTTSWithHighlightStore = create<TTSWithHighlightState>((set) => ({

@@ -1,4 +1,5 @@
 export const POLLY_SUPPORTED_DANISH_CHARS = [
+  '-',
   '0',
   '1',
   '2',

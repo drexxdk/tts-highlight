@@ -11,11 +11,12 @@
 - Reads and highlights correctly on all tested markup structures
 - Works on all browsers and devices
 - Change playback rate
-- Automatic punctuations on sentence endings for text given to polly, to get correct sentence seperations.
+- Automatic punctuations on sentence endings for text given to polly, to get correct sentence seperations
 - Change language
 - Ignore elements that has specific data-attribute
 - Support for alternative being used for TTS on element instead of what is visually shown
 - Ignore display="none" and visibility="hidden" elements
+- Custom localized character definitions for unsupported characters like "&", "/" and "\"
 
 ## Missing
 

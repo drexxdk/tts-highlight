@@ -267,7 +267,7 @@ elementum non turpis. Nulla dignissim in urna sed vulputate.`}
           ></textarea>
         </div>
       </Accordion>
-      <Accordion buttonText="Special Characters" defaultOpen={true}>
+      <Accordion buttonText="Special Characters">
         <div className="grid gap-6">
           <p>This is used to test character support for Polly, on different languages.</p>
           <SpecialCharacters />
@@ -275,6 +275,9 @@ elementum non turpis. Nulla dignissim in urna sed vulputate.`}
       </Accordion>
       <Accordion buttonText="Random stuff for testing">
         <div className="grid gap-2">
+          <p>&apos;what&apos; &quot;about&quot; (this) [test]</p>
+          <p>a-a - a a--a a-- --a --</p>
+          <p>a / b // c \&\& /b/a/ c</p>
           <ul>
             <li>
               <p>a. b. c</p>

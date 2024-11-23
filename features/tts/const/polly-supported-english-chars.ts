@@ -1,4 +1,5 @@
 export const POLLY_SUPPORTED_ENGLISH_CHARS = [
+  '-',
   '#',
   '$',
   '%',
