@@ -22,7 +22,7 @@ const IGNORE_ELEMENTS_SELECTOR: string[] = ['[data-tts-ignore]', 'input[type="te
 const REPLACE_ELEMENTS_WITH_DATA_ATTRIBUTE = 'data-tts-replace';
 
 // Polly only support these characters when they are within word
-const IGNORE_TEXT_NODE_IF_ONLY_CONTAINS = new RegExp(/^[\-\']+$/);
+const IGNORE_TEXT_NODE_IF_ONLY_CONTAINS = new RegExp(/^['\-]+$/);
 
 export const useSelection = () => {
   const setTextSelection = useTTSWithHighlightStore((state) => state.setTextSelection);
@@ -41,14 +41,12 @@ export const useSelection = () => {
     setTextSelection(undefined);
 
     const supported = selectedLanguage.supported.join('');
-
     // These characters is supported by Polly
-    const SUPPORTED_CHARS = new RegExp(`[^${supported}\']`, 'g');
+    const SUPPORTED_CHARS = new RegExp(`[^${supported}']`, 'g');
 
     // Polly don't support these characters at all
     // Split the word on these characters
-    const SPLIT_ON_UNSUPPORTED = new RegExp(`(?![${supported}\'])|(?<![${supported}\'])`, 'g');
-
+    const SPLIT_ON_UNSUPPORTED = new RegExp(`(?![${supported}'])|(?<![${supported}'])`, 'g');
     const nodes = nodesInRange(range);
     const treeWalker = document.createTreeWalker(range.commonAncestorContainer, NodeFilter.SHOW_TEXT);
     let currentNode: Node | null;
