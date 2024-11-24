@@ -20,10 +20,12 @@
 
 ## Missing
 
+- Unit tests
+- Storybook
 - Support all languages specified here [https://bitbucket.org/alineadigital/next-api/src/master/Alinea.Api.Next/Controllers/PollyController.cs](https://bitbucket.org/alineadigital/next-api/src/master/Alinea.Api.Next/Controllers/PollyController.cs)
 - Switch polly audio files when needed (it only uses first file currently)
-- Full page player
 - Duration slider
+- Full page player
 
 ## Wish list
 

@@ -14,15 +14,14 @@ import { highlightWords } from '../utils/highlight/highlightWords';
 import { nodesInRange } from '../utils/range/nodesInRange';
 import { useRangeIfReady } from './useRangeIfReady';
 
-// If word contains these characters then add whitespace around each of them.
-// Polly can't handle them within a word.
+// Polly don't support these characters within word
+// Split the word where on these characters
 const SPLIT_ON_SUPPORTED = new RegExp(/(?=[&!?._<>#%=/\\])|(?<=[&!?._<>#%=/\\])/g);
 
 const IGNORE_ELEMENTS_SELECTOR: string[] = ['[data-tts-ignore]', 'input[type="text"]', 'textarea'];
 const REPLACE_ELEMENTS_WITH_DATA_ATTRIBUTE = 'data-tts-replace';
 
-// Polly will remove these characters if they stand alone.
-// We need to ignore them in our selection.
+// Polly only support these characters when they are within word
 const IGNORE_TEXT_NODE_IF_ONLY_CONTAINS = new RegExp(/^[\-]+$/);
 
 export const useSelection = () => {
@@ -42,7 +41,12 @@ export const useSelection = () => {
     setTextSelection(undefined);
 
     const supported = selectedLanguage.supported.join('');
-    const SUPPORTED_CHARS_REGEX = new RegExp(`[^${supported}]`, 'g');
+
+    // These characters is supported by Polly
+    const SUPPORTED_CHARS = new RegExp(`[^${supported}]`, 'g');
+
+    // Polly don't support these characters at all
+    // Split the word on these characters
     const SPLIT_ON_UNSUPPORTED = new RegExp(`(?![${supported}])|(?<![${supported}])`, 'g');
 
     const nodes = nodesInRange(range);
@@ -100,7 +104,6 @@ export const useSelection = () => {
         }
 
         tempWords.forEach((tempWord) => {
-          // const splitWords = tempWord.split(SPLIT_IN_WORD);
           const splitOnUnsupported = tempWord.split(SPLIT_ON_UNSUPPORTED);
 
           splitOnUnsupported.forEach((unsupportedWord) => {
@@ -111,7 +114,7 @@ export const useSelection = () => {
               selectedLanguage.definitions.forEach((definition) => {
                 finalWord = finalWord.replaceAll(definition.char, definition.name);
               });
-              finalWord = finalWord.replaceAll(SUPPORTED_CHARS_REGEX, '');
+              finalWord = finalWord.replaceAll(SUPPORTED_CHARS, '');
 
               if (!ignoreElements.find((item) => item.contains(currentNode?.parentElement as HTMLElement))) {
                 if (IGNORE_TEXT_NODE_IF_ONLY_CONTAINS.test(supportedWord)) {
@@ -150,12 +153,13 @@ export const useSelection = () => {
     }
 
     words = words.map((word, i) => {
-      const other = words.find(
-        (word2, j) => word2.punctuationParentElement === word.punctuationParentElement && word2 !== word && j > i,
+      const otherWords = words.find(
+        (otherWord, j) =>
+          otherWord.punctuationParentElement === word.punctuationParentElement && otherWord !== word && j > i,
       );
       return {
         ...word,
-        text: other || word.text.endsWith('.') ? word.text : word.text + '.',
+        text: otherWords || word.text.endsWith('.') ? word.text : word.text + '.',
       };
     });
 
