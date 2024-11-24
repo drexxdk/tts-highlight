@@ -16,7 +16,7 @@ import { useRangeIfReady } from './useRangeIfReady';
 
 // If word contains these characters then add whitespace around each of them.
 // Polly can't handle them within a word.
-const SPLIT_IN_WORD = new RegExp(/(?=[&!?._<>#%=/\\])|(?<=[&!?._<>#%=/\\])/g);
+const SPLIT_ON_SUPPORTED = new RegExp(/(?=[&!?._<>#%=/\\])|(?<=[&!?._<>#%=/\\])/g);
 
 const IGNORE_ELEMENTS_SELECTOR: string[] = ['[data-tts-ignore]', 'input[type="text"]', 'textarea'];
 const REPLACE_ELEMENTS_WITH_DATA_ATTRIBUTE = 'data-tts-replace';
@@ -41,7 +41,10 @@ export const useSelection = () => {
     );
     setTextSelection(undefined);
 
-    const SUPPORTED_CHARS_REGEX = new RegExp(`[^${selectedLanguage.supported.join('')}]`, 'g');
+    const supported = selectedLanguage.supported.join('');
+    const SUPPORTED_CHARS_REGEX = new RegExp(`[^${supported}]`, 'g');
+    const SPLIT_ON_UNSUPPORTED = new RegExp(`(?![${supported}])|(?<![${supported}])`, 'g');
+
     const nodes = nodesInRange(range);
     const treeWalker = document.createTreeWalker(range.commonAncestorContainer, NodeFilter.SHOW_TEXT);
     let currentNode: Node | null;
@@ -97,35 +100,42 @@ export const useSelection = () => {
         }
 
         tempWords.forEach((tempWord) => {
-          const splitWords = tempWord.split(SPLIT_IN_WORD);
-          splitWords.forEach((splitWord) => {
-            let finalWord = splitWord.trimStart();
-            selectedLanguage.definitions.forEach((definition) => {
-              finalWord = finalWord.replaceAll(definition.char, definition.name);
-            });
-            finalWord = finalWord.replaceAll(SUPPORTED_CHARS_REGEX, '');
+          // const splitWords = tempWord.split(SPLIT_IN_WORD);
+          const splitOnUnsupported = tempWord.split(SPLIT_ON_UNSUPPORTED);
 
-            if (!ignoreElements.find((item) => item.contains(currentNode?.parentElement as HTMLElement))) {
-              if (IGNORE_TEXT_NODE_IF_ONLY_CONTAINS.test(splitWord)) {
-                // This is supported, but not by itself
-              } else if (POLLY_PUNCTUATION.some((value) => value === splitWord)) {
-                const previousWord = words.length ? words[words.length - 1] : undefined;
-                if (previousWord && !previousWord.text.endsWith('.')) {
-                  previousWord.text += '.';
+          splitOnUnsupported.forEach((unsupportedWord) => {
+            const splitOnSupported = unsupportedWord.split(SPLIT_ON_SUPPORTED);
+
+            splitOnSupported.forEach((supportedWord) => {
+              let finalWord = supportedWord.trimStart();
+              selectedLanguage.definitions.forEach((definition) => {
+                finalWord = finalWord.replaceAll(definition.char, definition.name);
+              });
+              finalWord = finalWord.replaceAll(SUPPORTED_CHARS_REGEX, '');
+
+              if (!ignoreElements.find((item) => item.contains(currentNode?.parentElement as HTMLElement))) {
+                if (IGNORE_TEXT_NODE_IF_ONLY_CONTAINS.test(supportedWord)) {
+                  // This is supported, but not by itself
+                } else if (POLLY_PUNCTUATION.some((value) => value === supportedWord)) {
+                  const previousWord = words.length ? words[words.length - 1] : undefined;
+                  if (previousWord && !previousWord.text.endsWith('.')) {
+                    previousWord.text += '.';
+                  }
+                } else if (finalWord.length) {
+                  words.push({
+                    startOffset:
+                      startOffset + (replaceElement ? 0 : supportedWord.length - supportedWord.trimStart().length),
+                    endOffset: startOffset + (replaceElement ? replaceElement.childNodes.length : supportedWord.length),
+                    node: replaceElement ? replaceElement : (currentNode as Node),
+                    text: finalWord,
+                    punctuationParentElement: punctuationParentElement,
+                  });
                 }
-              } else if (finalWord.length) {
-                words.push({
-                  startOffset: startOffset + (replaceElement ? 0 : splitWord.length - splitWord.trimStart().length),
-                  endOffset: startOffset + (replaceElement ? replaceElement.childNodes.length : splitWord.length),
-                  node: replaceElement ? replaceElement : (currentNode as Node),
-                  text: finalWord,
-                  punctuationParentElement: punctuationParentElement,
-                });
               }
-            }
-            if (!replaceElement) {
-              startOffset += splitWord.length;
-            }
+              if (!replaceElement) {
+                startOffset += supportedWord.length;
+              }
+            });
           });
           if (!replaceElement) {
             startOffset += 1;

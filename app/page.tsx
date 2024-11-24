@@ -275,6 +275,8 @@ elementum non turpis. Nulla dignissim in urna sed vulputate.`}
       </Accordion>
       <Accordion buttonText="Random stuff for testing">
         <div className="grid gap-2">
+          <p>a/b%c</p>
+          <p>*abcd*b*cc*d</p>
           <p>&apos;what&apos; &quot;about&quot; (this) [test]</p>
           <p>a-a - a a--a a-- --a --</p>
           <p>a / b // c \&\& /b/a/ c</p>
